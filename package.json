@@ -1,0 +1,27 @@
+{
+  "name": "pursuit",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn dev:mobile\" \"yarn dev:web\"",
+    "dev:mobile": "cd apps/mobile && yarn start",
+    "dev:web": "cd apps/web && yarn start",
+    "build": "yarn build:web && yarn build:mobile",
+    "build:web": "cd apps/web && yarn build",
+    "build:mobile": "cd apps/mobile && yarn build",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "install-all": "yarn && cd apps/mobile && yarn && cd ../web && yarn"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.2.0",
+    "eslint": "^8.45.0",
+    "eslint-config-expo": "^7.0.0",
+    "typescript": "^5.1.3"
+  }
+}
