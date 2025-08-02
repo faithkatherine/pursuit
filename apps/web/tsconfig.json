@@ -18,7 +18,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "pursuit/components/*": ["../../components/*"],
+      "pursuit/themes/*": ["../../themes/*"],
+      "pursuit/assets/*": ["../../assets/*"],
+      "pursuit/hooks/*": ["../../hooks/*"],
+      "pursuit/utils/*": ["../../utils/*"],
+      "pursuit/types/*": ["../../types/*"],
+      "pursuit/constants/*": ["../../constants/*"],
+      "components/*": ["./src/components/*"],
+      "pages/*": ["./src/pages/*"],
+      "assets/*": ["./public/*"],
+      "src/*": ["./src/*"]
+    }
   },
   "include": [
     "src"
