@@ -6,7 +6,7 @@
     "paths": {
       "pursuit/components/*": ["../../components/*"],
       "pursuit/themes/*": ["../../themes/*"],
-      //"pursuit/assets/*": ["../../assets/*"],
+      "pursuit/assets/*": ["../../assets/*"],
       //"pursuit/hooks/*": ["../../hooks/*"],
       //"pursuit/utils/*": ["../../utils/*"],
       //"pursuit/types/*": ["../../types/*"],
@@ -14,6 +14,12 @@
       "components/*": ["./components/*"],
       "screens/*": ["./screens/*"],
       "assets/*": ["./assets/*"]
-    }
-  }
+    },
+    "typeRoots": ["./types", "./node_modules/@types"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "types/**/*.d.ts"
+  ]
 }

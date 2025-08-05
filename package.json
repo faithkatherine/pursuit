@@ -15,16 +15,23 @@
     "build": "yarn build:web && yarn build:mobile",
     "build:web": "cd apps/web && yarn build",
     "build:mobile": "cd apps/mobile && yarn build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "type-check": "tsc --noEmit",
     "install-all": "yarn && cd apps/mobile && yarn && cd ../web && yarn"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.2.2",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "concurrently": "^8.2.0",
     "eslint": "^8.45.0",
     "eslint-config-expo": "^7.0.0",
+    "jest": "^30.0.5",
+    "react-test-renderer": "^19.1.1",
     "typescript": "^5.1.3"
   }
 }

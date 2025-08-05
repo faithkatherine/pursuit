@@ -12,12 +12,25 @@ import { theme } from "pursuit/themes/tokens/colors";
  *
  * @returns A component that displays a welcome message.
  */
-/*******  56fcf1e9-43e9-4ce1-a38e-0475d503e721  *******/ const Home = () => {
-  console.log(typography.h1);
+const Home = () => {
+  const currentCity = "San Francisco";
+  const nextDestination = "Tokyo, Japan";
+  const daysUntilTrip = 14;
+  const completedItems = 12;
+  const yearlyGoal = 25;
+  const recentAchievement = "Completed hiking challenge";
+
   return (
     <Layout>
       <Text style={styles.greeting}>Good morning, Faith</Text>
-      <InsightsCard />
+      <InsightsCard
+        currentCity={currentCity}
+        nextDestination={nextDestination}
+        daysUntilTrip={daysUntilTrip}
+        completedItems={completedItems}
+        yearlyGoal={yearlyGoal}
+        recentAchievement={recentAchievement}
+      />
     </Layout>
   );
 };
