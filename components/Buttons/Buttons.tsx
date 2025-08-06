@@ -31,34 +31,6 @@ export const Button: React.FC<ButtonProps> = ({
           <Text style={styles.primaryButtonText}>{text}</Text>
         </Pressable>
       );
-    case "secondary":
-      return (
-        <Pressable
-          onPress={onPress}
-          disabled={disabled}
-          style={[
-            { padding: 10, borderRadius: 5, backgroundColor: "gray" },
-            style,
-          ]}
-          testID={testID}
-        >
-          {text}
-        </Pressable>
-      );
-    case "tertiary":
-      return (
-        <Pressable
-          onPress={onPress}
-          disabled={disabled}
-          style={[
-            { padding: 10, borderRadius: 5, backgroundColor: "transparent" },
-            style,
-          ]}
-          testID={testID}
-        >
-          {text}
-        </Pressable>
-      );
   }
 };
 

@@ -89,19 +89,19 @@ export const typography = {
 
   // Body text
   body: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.secondary,
     fontSize: fontSizes.base,
     fontWeight: fontWeights.regular,
     lineHeight: lineHeights.normal,
   },
   bodySmall: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.secondary,
     fontSize: fontSizes.sm,
     fontWeight: fontWeights.regular,
     lineHeight: lineHeights.normal,
   },
   bodyLarge: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.secondary,
     fontSize: fontSizes.lg,
     fontWeight: fontWeights.regular,
     lineHeight: lineHeights.relaxed,

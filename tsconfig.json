@@ -26,8 +26,5 @@
     "**/*.test.tsx",
     "**/*.test.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "apps/*/node_modules"
-  ]
+  "exclude": ["node_modules", "apps/*/node_modules"]
 }
