@@ -1,15 +1,10 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  useWindowDimensions,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "pursuit/themes/tokens/colors";
 import SunnyIcon from "pursuit/assets/sunny.svg";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { ProgressBar } from "pursuit/components/ProgressBar";
+import { Button } from "pursuit/components/Buttons/Buttons";
 
 interface NextItemProps {
   nextDestination: string;
@@ -75,9 +70,7 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
       </View>
 
       <View style={styles.bucketListSection}>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+ Add New Item</Text>
-        </TouchableOpacity>
+        <Button text="+ Add New Item" variant="primary" onPress={() => {}} />
         <View>
           <Text style={styles.achievement}>🏆 {recentAchievement}</Text>
         </View>
@@ -87,6 +80,8 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
           progress={progress}
           completed={completedItems}
           remaining={yearlyGoal - completedItems}
+          height={12}
+          borderRadius={8}
         />
       </View>
     </LinearGradient>
@@ -143,20 +138,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     gap: 24,
     flex: 1,
-  },
-
-  addButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    alignSelf: "center",
-  },
-  addButtonText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
-    color: colors.white,
-    fontWeight: "600",
   },
 
   achievement: {

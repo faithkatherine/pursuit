@@ -11,6 +11,7 @@ export const colors = {
   delugeLight: "rgb(134, 102, 166)",
   black: "rgb(0, 0, 0)",
   white: "rgb(255, 255, 255)",
+  white02: "rgba(255, 255, 255, 0.2)",
 } as const;
 
 // Semantic color names for easier usage
