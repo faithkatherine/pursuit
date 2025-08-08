@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InsightsCard matches snapshot 1`] = `
+<InsightsCard
+  completedItems={12}
+  currentCity="San Francisco"
+  daysUntilTrip={14}
+  nextDestination="Tokyo, Japan"
+  recentAchievement="Completed hiking challenge"
+  yearlyGoal={25}
+/>
+`;

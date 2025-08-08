@@ -15,6 +15,35 @@ jest.mock('react-native', () => ({
     require('react').createElement('span', { style, 'data-testid': testID }, children),
   TouchableOpacity: ({ children, style, testID, onPress }) => 
     require('react').createElement('button', { style, 'data-testid': testID, onClick: onPress }, children),
+  Pressable: ({ children, style, testID, onPress, disabled }) => 
+    require('react').createElement('button', { 
+      style, 
+      'data-testid': testID, 
+      onClick: disabled ? undefined : onPress,
+      disabled 
+    }, children),
+  FlatList: ({ data, renderItem, horizontal, contentContainerStyle, showsHorizontalScrollIndicator }) => {
+    if (!data) return null;
+    return require('react').createElement('div', {
+      style: { display: 'flex', flexDirection: horizontal ? 'row' : 'column', ...contentContainerStyle },
+      'data-horizontal': horizontal,
+      'data-shows-scroll-indicator': showsHorizontalScrollIndicator
+    }, data.map((item, index) => 
+      require('react').createElement('div', { key: index }, 
+        renderItem ? renderItem({ item, index }) : item
+      )
+    ));
+  },
+  ScrollView: ({ children, style, contentContainerStyle, testID, onScroll, horizontal, showsVerticalScrollIndicator, showsHorizontalScrollIndicator, ...props }) => 
+    require('react').createElement('div', { 
+      style: { ...style, ...contentContainerStyle },
+      'data-testid': testID,
+      'data-horizontal': horizontal,
+      'data-shows-vertical-scroll': showsVerticalScrollIndicator,
+      'data-shows-horizontal-scroll': showsHorizontalScrollIndicator,
+      onScroll,
+      ...props
+    }, children),
   StyleSheet: {
     create: (styles) => styles,
   },
@@ -27,10 +56,49 @@ jest.mock('react-native', () => ({
 // Mock color and typography imports
 jest.mock('pursuit/themes/tokens/colors', () => ({
   colors: {
-    white: '#ffffff',
-    deluge: '#6366f1',
-    roseFog: '#ec4899',
-    prim: '#f8f3f8',
+    prim: "rgb(248, 243, 248)",
+    thunder: "rgb(63, 50, 61)",
+    leather: "rgb(150, 116, 89)",
+    aluminium: "rgb(166, 168, 177)",
+    careysPink: "rgb(215, 166, 165)",
+    shilo: "rgb(232, 181, 176)",
+    silverSand: "rgb(199, 201, 204)",
+    roseFog: "rgb(234, 192, 197)",
+    deluge: "rgb(124, 92, 156)",
+    delugeLight: "rgb(134, 102, 166)",
+    black: "rgb(0, 0, 0)",
+    white: "rgb(255, 255, 255)",
+    white02: "rgba(255, 255, 255, 0.2)",
+  },
+  theme: {
+    primary: "rgb(248, 243, 248)",
+    secondary: "rgb(124, 92, 156)",
+    accent: "rgb(215, 166, 165)",
+    background: "rgb(248, 243, 248)",
+    surface: "rgb(199, 201, 204)",
+    text: {
+      primary: "rgb(63, 50, 61)",
+      secondary: "rgb(150, 116, 89)",
+      muted: "rgb(166, 168, 177)",
+    },
+    border: "rgb(199, 201, 204)",
+    highlight: "rgb(234, 192, 197)",
+    warning: "rgb(232, 181, 176)",
+  },
+  default: {
+    prim: "rgb(248, 243, 248)",
+    thunder: "rgb(63, 50, 61)",
+    leather: "rgb(150, 116, 89)",
+    aluminium: "rgb(166, 168, 177)",
+    careysPink: "rgb(215, 166, 165)",
+    shilo: "rgb(232, 181, 176)",
+    silverSand: "rgb(199, 201, 204)",
+    roseFog: "rgb(234, 192, 197)",
+    deluge: "rgb(124, 92, 156)",
+    delugeLight: "rgb(134, 102, 166)",
+    black: "rgb(0, 0, 0)",
+    white: "rgb(255, 255, 255)",
+    white02: "rgba(255, 255, 255, 0.2)",
   },
 }));
 

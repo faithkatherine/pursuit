@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Layout from "components/Layout";
 import { InsightsCard } from "pursuit/components/Cards/InsightsCard";
 import { BucketCard } from "pursuit/components/Cards/BucketCard";
+import EventsCard from "pursuit/components/Cards/EventsCard";
 import { Carousel } from "pursuit/components/Carousel/Carousel";
 import { Button } from "pursuit/components/Buttons/Buttons";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
@@ -62,6 +63,30 @@ const Home = () => {
     },
   ];
 
+  const upcomingEvents = [
+    {
+      id: "1",
+      image: "https://example.com/event1.jpg",
+      title: "Beach Cleanup",
+      date: "2023-10-15",
+      location: "Santa Monica Beach",
+    },
+    {
+      id: "2",
+      image: "https://example.com/event2.jpg",
+      title: "Tech Conference",
+      date: "2023-11-20",
+      location: "Los Angeles Convention Center",
+    },
+    {
+      id: "3",
+      image: "https://example.com/event3.jpg",
+      title: "Art Exhibition",
+      date: "2023-12-05",
+      location: "Downtown Art Gallery",
+    },
+  ];
+
   const bucketItems = defaultCategories.map((category, index) => (
     <BucketCard
       key={category.id}
@@ -73,20 +98,34 @@ const Home = () => {
   ));
 
   return (
-    <Layout>
-      <View style={styles.horizontalPadding}>
-        <Text style={styles.greeting}>Good morning, Faith</Text>
-        <InsightsCard
-          currentCity={currentCity}
-          nextDestination={nextDestination}
-          daysUntilTrip={daysUntilTrip}
-          completedItems={completedItems}
-          yearlyGoal={yearlyGoal}
-          recentAchievement={recentAchievement}
-        />
-      </View>
-      <Carousel items={bucketItems} header={<BucketsHeader />} />
-    </Layout>
+    <ScrollView>
+      <Layout>
+        <View style={styles.horizontalPadding}>
+          <Text style={styles.greeting}>Good morning, Faith</Text>
+          <InsightsCard
+            currentCity={currentCity}
+            nextDestination={nextDestination}
+            daysUntilTrip={daysUntilTrip}
+            completedItems={completedItems}
+            yearlyGoal={yearlyGoal}
+            recentAchievement={recentAchievement}
+          />
+          {upcomingEvents.map((event, index) => (
+            <EventsCard
+              key={event.id}
+              image={event.image}
+              title={event.title}
+              date={event.date}
+              location={event.location}
+              onPress={() => {}}
+              testID={`event-${index}`}
+            />
+          ))}
+        </View>
+
+        <Carousel items={bucketItems} header={<BucketsHeader />} />
+      </Layout>
+    </ScrollView>
   );
 };
 
