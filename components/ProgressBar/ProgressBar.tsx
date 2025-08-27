@@ -1,38 +1,35 @@
-import { View, Text, StyleSheet, ViewStyle, StyleProp } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+  TextStyle,
+} from "react-native";
 import { colors } from "pursuit/themes/tokens/colors";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
+import { Progress } from "pursuit/graphql/types";
 
 interface ProgressBarProps {
-  progress: number;
+  progress: Progress;
   showPercentage?: boolean;
-  completed?: number;
-  remaining?: number;
   height?: number;
   backgroundColor?: string;
   fillColor?: string;
   borderRadius?: number;
-  style?: ViewStyle;
-  textStyle?: StyleProp<any>;
-  testID?: string;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export const ProgressBar = ({
   progress,
-  showPercentage = false,
-  completed,
-  remaining,
   height = 6,
   backgroundColor = "rgba(255, 255, 255, 0.3)",
   fillColor = colors.white,
   borderRadius = 3,
-  style,
   textStyle,
-  testID,
 }: ProgressBarProps) => {
-  const clampedProgress = Math.max(0, Math.min(1, progress));
-
   return (
-    <View style={[styles.container, style]} testID={testID || "progress-bar-container"}>
+    <View style={styles.container} testID="progress-bar-container">
       <View
         style={[
           styles.progressBar,
@@ -48,7 +45,7 @@ export const ProgressBar = ({
           style={[
             styles.progressFill,
             {
-              width: `${clampedProgress * 100}%`,
+              width: `${progress.percentage}%`,
               backgroundColor: fillColor,
               borderRadius,
             },
@@ -56,20 +53,19 @@ export const ProgressBar = ({
           testID="progress-fill"
         />
       </View>
-      {showPercentage && (
-        <Text style={[styles.progressText, textStyle]}>
-          {Math.round(clampedProgress * 100)}% complete
-        </Text>
-      )}
-      {completed && remaining && (
+      {progress.completed && progress.yearlyGoal && (
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={[styles.statNumber, textStyle]}>{completed}</Text>
+            <Text style={[styles.statNumber, textStyle]}>
+              {progress.completed}
+            </Text>
             <Text style={[styles.statLabel, textStyle]}>Completed</Text>
           </View>
 
           <View style={styles.statItem}>
-            <Text style={[styles.statNumber, textStyle]}>{remaining}</Text>
+            <Text style={[styles.statNumber, textStyle]}>
+              {progress.remaining || progress.yearlyGoal - progress.completed}
+            </Text>
             <Text style={[styles.statLabel, textStyle]}>Remaining</Text>
           </View>
         </View>

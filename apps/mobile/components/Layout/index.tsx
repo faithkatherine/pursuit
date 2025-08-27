@@ -1,17 +1,5 @@
-import { View, StyleSheet } from "react-native";
+import { Layout } from "./Layout";
+import { Error } from "./Error";
+import { Loading } from "./Loading";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return <View style={styles.container}>{children}</View>;
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 70,
-  },
-});
-
-export default Layout;
+export { Layout, Error, Loading };

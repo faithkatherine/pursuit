@@ -1,22 +1,16 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import Layout from "components/Layout";
+import { Layout, Loading, Error } from "components/Layout";
 import { InsightsCard } from "pursuit/components/Cards/InsightsCard";
 import { BucketCard } from "pursuit/components/Cards/BucketCard";
-import EventsCard from "pursuit/components/Cards/EventsCard";
+import { EventsCard } from "pursuit/components/Cards/EventsCard";
 import { Carousel } from "pursuit/components/Carousel/Carousel";
 import { Button } from "pursuit/components/Buttons/Buttons";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { theme, colors } from "pursuit/themes/tokens/colors";
 import { getGradientByIndex } from "pursuit/themes/tokens/gradients";
-
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * A simple screen that displays a welcome message.
- *
- * This is a placeholder for what will eventually be a more complex UI.
- *
- * @returns A component that displays a welcome message.
- */
+import { GET_INSIGHTS_DATA, GET_EVENTS } from "pursuit/graphql/queries";
+import { Event, GetInsightsDataQuery } from "pursuit/graphql/types";
+import { useQuery } from "@apollo/client";
 
 const BucketsHeader = () => {
   return (
@@ -33,12 +27,13 @@ const BucketsHeader = () => {
 };
 
 const Home = () => {
-  const currentCity = "San Francisco";
-  const nextDestination = "Tokyo, Japan";
-  const daysUntilTrip = 14;
-  const completedItems = 12;
-  const yearlyGoal = 25;
-  const recentAchievement = "Completed hiking challenge";
+  const { loading, error, data } =
+    useQuery<GetInsightsDataQuery>(GET_INSIGHTS_DATA);
+  const {
+    loading: eventsLoading,
+    error: eventsError,
+    data: eventsData,
+  } = useQuery(GET_EVENTS);
 
   const defaultCategories = [
     {
@@ -63,29 +58,22 @@ const Home = () => {
     },
   ];
 
-  const upcomingEvents = [
-    {
-      id: "1",
-      image: "https://example.com/event1.jpg",
-      title: "Beach Cleanup",
-      date: "2023-10-15",
-      location: "Santa Monica Beach",
-    },
-    {
-      id: "2",
-      image: "https://example.com/event2.jpg",
-      title: "Tech Conference",
-      date: "2023-11-20",
-      location: "Los Angeles Convention Center",
-    },
-    {
-      id: "3",
-      image: "https://example.com/event3.jpg",
-      title: "Art Exhibition",
-      date: "2023-12-05",
-      location: "Downtown Art Gallery",
-    },
-  ];
+  if (loading || eventsLoading) {
+    return <Loading />;
+  }
+
+  if (error || eventsError) {
+    return (
+      <Error
+        error={error?.message || eventsError?.message || "Something went wrong"}
+      />
+    );
+  }
+
+  console.log(eventsData);
+
+  const insightsData = data?.getInsightsData;
+  if (!insightsData) return null;
 
   const bucketItems = defaultCategories.map((category, index) => (
     <BucketCard
@@ -102,25 +90,13 @@ const Home = () => {
       <Layout>
         <View style={styles.horizontalPadding}>
           <Text style={styles.greeting}>Good morning, Faith</Text>
-          <InsightsCard
-            currentCity={currentCity}
-            nextDestination={nextDestination}
-            daysUntilTrip={daysUntilTrip}
-            completedItems={completedItems}
-            yearlyGoal={yearlyGoal}
-            recentAchievement={recentAchievement}
-          />
-          {upcomingEvents.map((event, index) => (
-            <EventsCard
-              key={event.id}
-              image={event.image}
-              title={event.title}
-              date={event.date}
-              location={event.location}
-              onPress={() => {}}
-              testID={`event-${index}`}
-            />
-          ))}
+          <InsightsCard insightsData={insightsData} />
+          <View style={styles.eventsSection}>
+            <Text style={styles.title}>Check out these events</Text>
+            {eventsData?.getEvents.map((event: Event, index: number) => (
+              <EventsCard key={index} event={event} onPress={() => {}} />
+            ))}
+          </View>
         </View>
 
         <Carousel items={bucketItems} header={<BucketsHeader />} />
@@ -130,6 +106,11 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    height: 320,
+    borderRadius: 24,
+    padding: 24,
+  },
   horizontalPadding: {
     paddingHorizontal: 27,
   },
@@ -158,6 +139,11 @@ const styles = StyleSheet.create({
   addBucketButton: {
     height: 32,
     backgroundColor: colors.black,
+  },
+
+  eventsSection: {
+    marginTop: 16,
+    gap: 12,
   },
 });
 

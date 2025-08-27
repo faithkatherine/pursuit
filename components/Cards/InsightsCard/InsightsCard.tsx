@@ -5,6 +5,7 @@ import SunnyIcon from "pursuit/assets/sunny.svg";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { ProgressBar } from "pursuit/components/ProgressBar";
 import { Button } from "pursuit/components/Buttons/Buttons";
+import { InsightsData } from "pursuit/graphql/types";
 
 interface NextItemProps {
   nextDestination: string;
@@ -26,25 +27,11 @@ export const NextItem: React.FC<NextItemProps> = ({
 };
 
 interface InsightsCardProps {
-  currentCity: string;
-  nextDestination: string;
-  daysUntilTrip: number;
-  completedItems: number;
-  yearlyGoal: number;
-  recentAchievement: string;
+  insightsData: InsightsData;
 }
 
-export const InsightsCard: React.FC<InsightsCardProps> = ({
-  currentCity = "San Francisco",
-  nextDestination = "Tokyo, Japan",
-  daysUntilTrip = 14,
-  completedItems = 12,
-  yearlyGoal = 25,
-  recentAchievement = "Completed hiking challenge",
-}) => {
+export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
   const { width } = useWindowDimensions();
-
-  const progress = completedItems / yearlyGoal;
 
   return (
     <LinearGradient
@@ -58,28 +45,30 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
         <View style={styles.weatherSection}>
           <SunnyIcon width={40} height={40} color={colors.white} />
           <Text style={styles.weatherNow}>
-            {currentCity}
-            {"\n"}Sunny 14°C
+            {insightsData.weather.city}
+            {"\n"}
+            {insightsData.weather.condition} {insightsData.weather.temperature}
+            °C
           </Text>
         </View>
         <View style={styles.headerDivider} />
         <NextItem
-          nextDestination={nextDestination}
-          daysUntilTrip={daysUntilTrip}
+          nextDestination={insightsData.nextDestination.location}
+          daysUntilTrip={insightsData.nextDestination.daysAway}
         />
       </View>
 
       <View style={styles.bucketListSection}>
         <Button text="+ Add New Item" variant="primary" onPress={() => {}} />
         <View>
-          <Text style={styles.achievement}>🏆 {recentAchievement}</Text>
+          <Text style={styles.achievement}>
+            🏆 {insightsData.recentAchievement}
+          </Text>
         </View>
       </View>
       <View style={styles.statsSection}>
         <ProgressBar
-          progress={progress}
-          completed={completedItems}
-          remaining={yearlyGoal - completedItems}
+          progress={insightsData.progress}
           height={12}
           borderRadius={8}
         />
