@@ -14,7 +14,7 @@ export const typeDefs = gql`
     temperature: Int!
   }
 
-  type NextDestination {
+  type Destination {
     location: String!
     daysAway: Int!
   }
@@ -25,17 +25,53 @@ export const typeDefs = gql`
     percentage: Float!
   }
 
+  type Category {
+    id: ID!
+    name: String!
+    emoji: String!
+  }
+
+  type BucketItem {
+    id: ID!
+    title: String!
+    description: String!
+    completed: Boolean!
+  }
+
+  type Activity {
+    id: ID!
+    activity: String!
+    image: String!
+    category: String!
+    date: String!
+    location: String!
+  }
+
   type InsightsData {
     id: ID!
     weather: Weather!
-    nextDestination: NextDestination!
+    nextDestination: Destination!
     progress: Progress!
     recentAchievement: String!
+  }
+
+  type HomeData {
+    id: ID!
+    greeting: String!
+    timeOfDay: String!
+    weather: Weather!
+    insights: InsightsData!
+    bucketCategories(offset: Int = 0, limit: Int = 10): [Category!]!
+    recommendations(offset: Int = 0, limit: Int = 10): [Event!]!
+    upcoming(offset: Int = 0, limit: Int = 10): [Activity!]!
   }
 
   type Query {
     getInsightsData: InsightsData!
     getEvents: [Event!]!
+    getHome: HomeData!
+    getCategories: [Category!]!
+    getRecommendations(offset: Int = 0, limit: Int = 10): [Event!]!
   }
 
   type Mutation {

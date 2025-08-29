@@ -23,6 +23,7 @@
     "themes/**/*",
     "assets/**/*",
     "types/**/*",
+    "graphql/**/*",
     "**/*.test.tsx",
     "**/*.test.ts"
   ],

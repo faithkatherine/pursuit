@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "pursuit/themes/tokens/colors";
-import SunnyIcon from "pursuit/assets/sunny.svg";
+import SunnyIcon from "pursuit/assets/icons/sunny.svg";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { ProgressBar } from "pursuit/components/ProgressBar";
 import { Button } from "pursuit/components/Buttons/Buttons";

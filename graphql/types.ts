@@ -4,7 +4,7 @@ export interface Weather {
   temperature: number;
 }
 
-export interface NextDestination {
+export interface Destination {
   location: string;
   daysAway: number;
 }
@@ -19,7 +19,7 @@ export interface Progress {
 export interface InsightsData {
   id: string;
   weather: Weather;
-  nextDestination: NextDestination;
+  nextDestination: Destination;
   progress: Progress;
   recentAchievement: string;
 }
@@ -38,4 +38,41 @@ export interface Event {
   title: string;
   date: string;
   location: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  emoji: string;
+}
+
+export interface Activity {
+  id: string;
+  activity: string;
+  image: string;
+  category: string;
+  date: string;
+  location: string;
+}
+
+export interface BucketItem {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+}
+
+export interface HomeData {
+  id: string;
+  greeting: string;
+  timeOfDay: string;
+  weather: Weather;
+  insights: InsightsData;
+  bucketCategories: Category[];
+  recommendations: Event[];
+  upcoming: Activity[];
+}
+
+export interface GetHomeQuery {
+  getHome: HomeData;
 }

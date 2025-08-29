@@ -10,6 +10,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 70,
+    paddingTop: 20,
+    paddingBottom: 30,
   },
 });

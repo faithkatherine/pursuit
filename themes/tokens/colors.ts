@@ -12,6 +12,8 @@ export const colors = {
   black: "rgb(0, 0, 0)",
   white: "rgb(255, 255, 255)",
   white02: "rgba(255, 255, 255, 0.2)",
+  lightBlue: "rgb(107, 78, 255)",
+  graniteGray: "rgb(102, 102, 102)",
 } as const;
 
 // Semantic color names for easier usage

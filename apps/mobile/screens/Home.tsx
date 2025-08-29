@@ -3,13 +3,14 @@ import { Layout, Loading, Error } from "components/Layout";
 import { InsightsCard } from "pursuit/components/Cards/InsightsCard";
 import { BucketCard } from "pursuit/components/Cards/BucketCard";
 import { EventsCard } from "pursuit/components/Cards/EventsCard";
+import { BucketItemCard } from "pursuit/components/Cards/BucketItemCard";
 import { Carousel } from "pursuit/components/Carousel/Carousel";
 import { Button } from "pursuit/components/Buttons/Buttons";
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { theme, colors } from "pursuit/themes/tokens/colors";
 import { getGradientByIndex } from "pursuit/themes/tokens/gradients";
-import { GET_INSIGHTS_DATA, GET_EVENTS } from "pursuit/graphql/queries";
-import { Event, GetInsightsDataQuery } from "pursuit/graphql/types";
+import { GET_HOME } from "pursuit/graphql/queries";
+import { GetHomeQuery, Category } from "pursuit/graphql/types";
 import { useQuery } from "@apollo/client";
 
 const BucketsHeader = () => {
@@ -27,13 +28,9 @@ const BucketsHeader = () => {
 };
 
 const Home = () => {
-  const { loading, error, data } =
-    useQuery<GetInsightsDataQuery>(GET_INSIGHTS_DATA);
-  const {
-    loading: eventsLoading,
-    error: eventsError,
-    data: eventsData,
-  } = useQuery(GET_EVENTS);
+  const { loading, error, data } = useQuery<GetHomeQuery>(GET_HOME, {
+    variables: { offset: 0, limit: 10 }
+  });
 
   const defaultCategories = [
     {
@@ -58,24 +55,54 @@ const Home = () => {
     },
   ];
 
-  if (loading || eventsLoading) {
+  const bucketItems = [
+    {
+      id: "1",
+      activity: "Skydiving in Dubai",
+      image:
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      id: "2",
+      activity: "Visit the Grand Canyon",
+      image:
+        "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      id: "3",
+      activity: "Learn to play the guitar",
+      image:
+        "https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      id: "4",
+      activity: "Go on a safari in Africa",
+      image:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800",
+    },
+  ];
+
+  if (loading) {
     return <Loading />;
   }
 
-  if (error || eventsError) {
-    return (
-      <Error
-        error={error?.message || eventsError?.message || "Something went wrong"}
-      />
-    );
+  if (error) {
+    return <Error error={error.message || "Something went wrong"} />;
   }
 
-  console.log(eventsData);
+  const homeData = data?.getHome;
+  if (!homeData) return null;
 
-  const insightsData = data?.getInsightsData;
-  if (!insightsData) return null;
+  const { 
+    greeting, 
+    timeOfDay, 
+    insights, 
+    bucketCategories: categories, 
+    recommendations, 
+    upcoming 
+  } = homeData;
 
-  const bucketItems = defaultCategories.map((category, index) => (
+  const bucketCategories = (categories || defaultCategories).map((category: Category, index: number) => (
     <BucketCard
       key={category.id}
       id={category.id}
@@ -85,21 +112,40 @@ const Home = () => {
     />
   ));
 
+  const bucketItemsComponents = (upcoming || bucketItems).map((item, index) => (
+    <BucketItemCard
+      key={item.id}
+      variant="preview"
+      title={item.activity}
+      imageUrl={item.image}
+      category={item.category || "Adventure"}
+    />
+  ));
+
   return (
     <ScrollView>
       <Layout>
         <View style={styles.horizontalPadding}>
-          <Text style={styles.greeting}>Good morning, Faith</Text>
-          <InsightsCard insightsData={insightsData} />
+          <Text style={styles.greeting}>{greeting}</Text>
+          <InsightsCard insightsData={insights} />
+        </View>
+        <Carousel items={bucketCategories} header={<BucketsHeader />} />
+        <View style={styles.horizontalPadding}>
           <View style={styles.eventsSection}>
-            <Text style={styles.title}>Check out these events</Text>
-            {eventsData?.getEvents.map((event: Event, index: number) => (
+            <Text style={styles.title}>Recommendations</Text>
+            {recommendations?.map((event, index) => (
               <EventsCard key={index} event={event} onPress={() => {}} />
             ))}
           </View>
         </View>
-
-        <Carousel items={bucketItems} header={<BucketsHeader />} />
+        <Carousel
+          items={bucketItemsComponents}
+          header={
+            <Text style={[styles.horizontalPadding, styles.title]}>
+              Upcoming
+            </Text>
+          }
+        />
       </Layout>
     </ScrollView>
   );

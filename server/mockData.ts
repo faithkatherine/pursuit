@@ -1,4 +1,9 @@
 export const mockData = {
+  user: {
+    id: "1",
+    name: "Faith",
+    avatar: "https://randomuser.me/api/portraits/women/10.jpg",
+  },
   insights: {
     id: "1",
     weather: {
@@ -41,6 +46,32 @@ export const mockData = {
       title: "Art Exhibition",
       date: "2023-12-05",
       location: "Downtown Art Gallery",
+    },
+  ],
+  bucketCategories: [
+    { id: "1", name: "Movies", emoji: "🎬" },
+    { id: "2", name: "Books", emoji: "📚" },
+    { id: "3", name: "Cooking", emoji: "👩‍🍳" },
+    { id: "4", name: "Travelling", emoji: "✈️" },
+  ],
+  upcomingActivities: [
+    {
+      id: "1",
+      activity: "Skydiving in Dubai",
+      image:
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=800",
+      category: "Adventure",
+      date: "2024-01-15",
+      location: "Dubai, UAE",
+    },
+    {
+      id: "2",
+      activity: "Visit the Grand Canyon",
+      image:
+        "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&q=80&w=800",
+      category: "Travel",
+      date: "2024-02-10",
+      location: "Arizona, USA",
     },
   ],
 };
