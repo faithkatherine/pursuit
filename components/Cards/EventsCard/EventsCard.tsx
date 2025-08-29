@@ -1,9 +1,14 @@
 import React from "react";
-import { Text, Image, TouchableOpacity, View, StyleSheet } from "react-native";
+import { Text, Image, View, StyleSheet, Pressable } from "react-native";
 import colors, { theme } from "pursuit/themes/tokens/colors";
-import { fontSizes, fontWeights } from "pursuit/themes/tokens/typography";
+import typography, {
+  fontSizes,
+  fontWeights,
+} from "pursuit/themes/tokens/typography";
 import { Event } from "pursuit/graphql/types";
-import { images, ImageKey } from "pursuit/assets/images";
+import DateIcon from "pursuit/assets/icons/date.svg";
+import LocationIcon from "pursuit/assets/icons/location.svg";
+import ClockIcon from "pursuit/assets/icons/clock.svg";
 
 interface EventsCardProps {
   event: Event;
@@ -11,11 +16,7 @@ interface EventsCardProps {
 }
 export const EventsCard: React.FC<EventsCardProps> = ({ event, onPress }) => {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      testID="events-card"
-      style={styles.container}
-    >
+    <Pressable onPress={onPress} testID="events-card" style={styles.container}>
       <Image
         source={{ uri: event.image }}
         testID="events-card-image"
@@ -27,7 +28,7 @@ export const EventsCard: React.FC<EventsCardProps> = ({ event, onPress }) => {
         <Text style={styles.date}>{event.date}</Text>
         <Text style={styles.location}>{event.location}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -47,20 +48,25 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 10,
+    gap: 4,
     display: "flex",
   },
   title: {
+    fontFamily: typography.h4.fontFamily,
     fontSize: fontSizes.lg,
     fontWeight: fontWeights.bold,
-    marginVertical: 8,
-  },
-  date: {
-    fontSize: fontSizes.sm,
     color: colors.black,
+  },
+
+  date: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.lg,
+    color: colors.graniteGray,
   },
   location: {
+    fontFamily: typography.body.fontFamily,
     fontSize: fontSizes.sm,
     color: colors.black,
-    marginTop: 4,
+    maxWidth: 200,
   },
 });

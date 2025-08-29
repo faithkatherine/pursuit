@@ -73,5 +73,32 @@ export const mockData = {
       date: "2024-02-10",
       location: "Arizona, USA",
     },
+    {
+      id: "3",
+      activity: "Learn to play the guitar",
+      image:
+        "https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&q=80&w=800",
+      category: "Hobby",
+      date: "2024-03-05",
+      location: "Online",
+    },
+    {
+      id: "4",
+      activity: "Visit the Eiffel Tower",
+      image:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800",
+      category: "Culture",
+      date: "2024-04-20",
+      location: "Paris, France",
+    },
+    {
+      id: "5",
+      activity: "Visit the Taj Mahal",
+      image:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800",
+      category: "Culture",
+      date: "2024-04-20",
+      location: "Agra, India",
+    },
   ],
 };

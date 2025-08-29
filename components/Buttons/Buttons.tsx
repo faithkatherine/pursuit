@@ -1,23 +1,36 @@
 import colors from "pursuit/themes/tokens/colors";
-import { fontSizes, typography } from "pursuit/themes/tokens/typography";
+import {
+  fontSizes,
+  fontWeights,
+  typography,
+} from "pursuit/themes/tokens/typography";
 import { Pressable, StyleSheet, Text } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+interface CircleDimensions {
+  width?: number;
+  height?: number;
+  borderRadius?: number;
+}
 
 interface ButtonProps {
-  text: string;
+  text?: string;
+  icon?: React.ReactNode;
   variant?: "primary" | "secondary" | "tertiary";
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
-  testID?: string;
+  circleDimensions?: CircleDimensions;
 }
 
 export const Button: React.FC<ButtonProps> = ({
   text,
+  icon,
   variant = "primary",
   onPress,
   disabled,
   style,
-  testID,
+  circleDimensions,
 }) => {
   switch (variant) {
     case "primary":
@@ -26,9 +39,22 @@ export const Button: React.FC<ButtonProps> = ({
           onPress={onPress}
           disabled={disabled}
           style={[styles.primary, style]}
-          testID={testID}
+          testID="button-primary"
         >
-          <Text style={styles.primaryButtonText}>{text}</Text>
+          {text && <Text style={styles.primaryButtonText}>{text}</Text>}
+          {icon && icon}
+        </Pressable>
+      );
+    case "secondary":
+      return (
+        <Pressable
+          onPress={onPress}
+          disabled={disabled}
+          style={[styles.secondary, circleDimensions, style]}
+          testID="button-secondary"
+        >
+          {text && <Text style={styles.secondaryButtonText}>{text}</Text>}
+          {icon && icon}
         </Pressable>
       );
   }
@@ -47,5 +73,16 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.white,
     fontWeight: "600",
+  },
+  secondary: {
+    backgroundColor: colors.white50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  secondaryButtonText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.lg,
+    color: colors.black,
+    textAlign: "center",
   },
 });
