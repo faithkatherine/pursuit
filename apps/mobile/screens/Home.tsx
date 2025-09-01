@@ -1,11 +1,7 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { useQuery } from "@apollo/client";
+import { useState } from "react";
+
 import { Layout, Loading, Error } from "components/Layout";
 import { InsightsCard } from "pursuit/components/Cards/InsightsCard";
 import { BucketCard } from "pursuit/components/Cards/BucketCard";
@@ -13,14 +9,23 @@ import { EventsCard } from "pursuit/components/Cards/EventsCard";
 import { BucketItemCard } from "pursuit/components/Cards/BucketItemCard";
 import { Carousel } from "pursuit/components/Carousel/Carousel";
 import { Button } from "pursuit/components/Buttons/Buttons";
+import { BaseModal } from "pursuit/components/Modals/BaseModal.tsx";
+
 import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { theme, colors } from "pursuit/themes/tokens/colors";
 import { getGradientByIndex } from "pursuit/themes/tokens/gradients";
+
 import { GET_HOME } from "pursuit/graphql/queries";
 import { GetHomeQuery, Category, HomeData } from "pursuit/graphql/types";
-import { useQuery } from "@apollo/client";
+import { AddBucket } from "./Buckets/AddBucket";
 
-const BucketsHeader = () => {
+interface BucketsHeaderProps {
+  handleAddANewBucket: () => void;
+}
+
+const BucketsHeader: React.FC<BucketsHeaderProps> = ({
+  handleAddANewBucket,
+}) => {
   return (
     <View style={styles.header}>
       <Text style={styles.title}>Your Buckets</Text>
@@ -28,13 +33,14 @@ const BucketsHeader = () => {
         text="+"
         variant="secondary"
         circleDimensions={{ width: 32, height: 32, borderRadius: 16 }}
-        onPress={() => {}}
+        onPress={handleAddANewBucket}
       />
     </View>
   );
 };
 
 const Home = () => {
+  const [showAddBucketModal, setShowAddBucketModal] = useState(false);
   const { loading, error, data } = useQuery<GetHomeQuery>(GET_HOME, {
     variables: { offset: 0, limit: 10 },
   });
@@ -74,30 +80,46 @@ const Home = () => {
   ));
 
   return (
-    <ScrollView>
-      <Layout>
-        <View style={styles.horizontalPadding}>
-          <Text style={styles.greeting}>{greeting}</Text>
-          <InsightsCard insightsData={insights} />
-        </View>
-
-        <Carousel items={buckets} header={<BucketsHeader />} />
-
-        <View style={styles.horizontalPadding}>
-          <View style={styles.eventsSection}>
-            <Text style={styles.title}>Recommendations</Text>
-            {recommendations?.map((event, index) => (
-              <EventsCard key={index} event={event} onPress={() => {}} />
-            ))}
+    <>
+      <ScrollView>
+        <Layout>
+          <View style={styles.horizontalPadding}>
+            <Text style={styles.greeting}>{greeting}</Text>
+            <InsightsCard insightsData={insights} />
           </View>
-        </View>
-        <Carousel
-          items={bucketItemsComponents}
-          header={<Text style={styles.title}>Upcoming</Text>}
-          gap={16}
-        />
-      </Layout>
-    </ScrollView>
+
+          <Carousel
+            items={buckets}
+            header={
+              <BucketsHeader
+                handleAddANewBucket={() => setShowAddBucketModal(true)}
+              />
+            }
+          />
+
+          <View style={styles.horizontalPadding}>
+            <View style={styles.eventsSection}>
+              <Text style={styles.title}>Recommendations</Text>
+              {recommendations?.map((event, index) => (
+                <EventsCard key={index} event={event} onPress={() => {}} />
+              ))}
+            </View>
+          </View>
+          <Carousel
+            items={bucketItemsComponents}
+            header={<Text style={styles.title}>Upcoming</Text>}
+            gap={16}
+          />
+        </Layout>
+      </ScrollView>
+      <BaseModal
+        visible={showAddBucketModal}
+        animationType="slide"
+        variant="bottomSheet"
+        onClose={() => setShowAddBucketModal(false)}
+        children={<AddBucket />}
+      />
+    </>
   );
 };
 

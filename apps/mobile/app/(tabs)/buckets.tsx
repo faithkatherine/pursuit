@@ -1,3 +1,3 @@
-import Buckets from "screens/Buckets";
+import { Buckets } from "screens/Buckets";
 
 export default Buckets;

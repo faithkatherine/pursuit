@@ -67,3 +67,61 @@ export const GET_HOME = gql`
   ${EVENT_RECOMMENDATION_FRAGMENT}
   ${ACTIVITY_FRAGMENT}
 `;
+
+export const GET_EMOJI_LIBRARY = gql`
+  query GetEmojiLibrary {
+    getEmojiLibrary {
+      symbol
+      description
+    }
+  }
+`;
+
+export const ADD_BUCKET_CATEGORY = gql`
+  mutation AddBucketCategory($name: String!, $emoji: String!) {
+    addBucketCategory(name: $name, emoji: $emoji) {
+      id
+      name
+      emoji
+    }
+  }
+`;
+
+export const ADD_BUCKET_ITEM = gql`
+  mutation AddBucketItem(
+    $title: String!
+    $description: String
+    $categoryId: String
+    $newCategoryName: String
+    $newCategoryEmoji: String
+  ) {
+    addBucketItem(
+      title: $title
+      description: $description
+      categoryId: $categoryId
+      newCategoryName: $newCategoryName
+      newCategoryEmoji: $newCategoryEmoji
+    ) {
+      id
+      title
+      description
+      completed
+      categoryId
+      category {
+        id
+        name
+        emoji
+      }
+    }
+  }
+`;
+
+export const GET_BUCKET_CATEGORIES = gql`
+  query GetBucketCategories {
+    getBucketCategories {
+      id
+      name
+      emoji
+    }
+  }
+`;

@@ -6,6 +6,8 @@ import { typography, fontSizes } from "pursuit/themes/tokens/typography";
 import { ProgressBar } from "pursuit/components/ProgressBar";
 import { Button } from "pursuit/components/Buttons/Buttons";
 import { InsightsData } from "pursuit/graphql/types";
+import { AddBucketItem } from "../../../apps/mobile/screens/Buckets/AddBucketItem";
+import { useState } from "react";
 
 interface NextItemProps {
   nextDestination: string;
@@ -30,8 +32,11 @@ interface InsightsCardProps {
   insightsData: InsightsData;
 }
 
-export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
+export const InsightsCard: React.FC<InsightsCardProps> = ({
+  insightsData,
+}) => {
   const { width } = useWindowDimensions();
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
 
   return (
     <LinearGradient
@@ -59,7 +64,11 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
       </View>
 
       <View style={styles.bucketListSection}>
-        <Button text="+ Add New Item" variant="primary" onPress={() => {}} />
+        <Button
+          text="+ Add New Item"
+          variant="primary"
+          onPress={() => setShowAddItemModal(true)}
+        />
         <View>
           <Text style={styles.achievement}>
             🏆 {insightsData.recentAchievement}
@@ -73,6 +82,11 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
           borderRadius={8}
         />
       </View>
+
+      <AddBucketItem
+        visible={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+      />
     </LinearGradient>
   );
 };

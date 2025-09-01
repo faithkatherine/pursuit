@@ -34,8 +34,10 @@ export const typeDefs = gql`
   type BucketItem {
     id: ID!
     title: String!
-    description: String!
+    description: String
     completed: Boolean!
+    categoryId: String
+    category: Category
   }
 
   type Activity {
@@ -66,16 +68,31 @@ export const typeDefs = gql`
     upcoming(offset: Int = 0, limit: Int = 10): [Activity!]!
   }
 
+  type Emoji {
+    symbol: String!
+    description: String!
+  }
+
   type Query {
     getInsightsData: InsightsData!
     getEvents: [Event!]!
     getHome: HomeData!
     getCategories: [Category!]!
+    getBucketCategories: [Category!]!
     getRecommendations(offset: Int = 0, limit: Int = 10): [Event!]!
+    getEmojiLibrary: [Emoji!]!
   }
 
   type Mutation {
     updateProgress(completed: Int!): Progress!
     addAchievement(achievement: String!): InsightsData!
+    addBucketCategory(name: String!, emoji: String!): Category!
+    addBucketItem(
+      title: String!
+      description: String
+      categoryId: String
+      newCategoryName: String
+      newCategoryEmoji: String
+    ): BucketItem!
   }
 `;

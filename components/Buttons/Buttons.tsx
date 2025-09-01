@@ -11,6 +11,7 @@ interface CircleDimensions {
   width?: number;
   height?: number;
   borderRadius?: number;
+  backgroundColor?: string;
 }
 
 interface ButtonProps {

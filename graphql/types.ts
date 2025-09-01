@@ -76,3 +76,16 @@ export interface HomeData {
 export interface GetHomeQuery {
   getHome: HomeData;
 }
+
+export interface Emoji {
+  symbol: string;
+  description: string;
+}
+
+export interface GetEmojiLibraryQuery {
+  getEmojiLibrary: Emoji[];
+}
+
+export interface AddBucketCategoryMutation {
+  addBucketCategory: Category;
+}

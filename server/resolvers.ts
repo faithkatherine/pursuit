@@ -1,4 +1,4 @@
-import { mockData } from "./mockData";
+import { mockData, emojiLibrary } from "./mockData";
 import { HomeData } from "../graphql/types";
 
 export const resolvers = {
@@ -38,6 +38,75 @@ export const resolvers = {
         recommendations: mockData.upcomingEvents.slice(offset, offset + limit),
         upcoming: mockData.upcomingActivities.slice(offset, offset + limit),
       };
+    },
+    getEmojiLibrary: () => {
+      return emojiLibrary;
+    },
+    getBucketCategories: () => {
+      return mockData.bucketCategories;
+    },
+  },
+  Mutation: {
+    addBucketCategory: (
+      _: any,
+      { name, emoji }: { name: string; emoji: string }
+    ) => {
+      const newId = (mockData.bucketCategories.length + 1).toString();
+      const newCategory = {
+        id: newId,
+        name,
+        emoji,
+      };
+      mockData.bucketCategories.push(newCategory);
+      return newCategory;
+    },
+    addBucketItem: (
+      _: any,
+      {
+        title,
+        description,
+        categoryId,
+        newCategoryName,
+        newCategoryEmoji,
+      }: {
+        title: string;
+        description?: string;
+        categoryId?: string;
+        newCategoryName?: string;
+        newCategoryEmoji?: string;
+      }
+    ) => {
+      let finalCategoryId = categoryId;
+
+      // If creating a new category
+      if (newCategoryName && newCategoryEmoji && !categoryId) {
+        const newCategoryId = (mockData.bucketCategories.length + 1).toString();
+        const newCategory = {
+          id: newCategoryId,
+          name: newCategoryName,
+          emoji: newCategoryEmoji,
+        };
+        mockData.bucketCategories.push(newCategory);
+        finalCategoryId = newCategoryId;
+      }
+
+      const newItemId = (mockData.bucketItems.length + 1).toString();
+      const newItem = {
+        id: newItemId,
+        title,
+        description: description || "",
+        completed: false,
+        categoryId: finalCategoryId,
+      };
+
+      mockData.bucketItems.push(newItem);
+      return newItem;
+    },
+  },
+  BucketItem: {
+    category: (parent: any) => {
+      if (!parent.categoryId) return null;
+      return mockData.bucketCategories.find(cat => cat.id === parent.categoryId);
     },
   },
 };

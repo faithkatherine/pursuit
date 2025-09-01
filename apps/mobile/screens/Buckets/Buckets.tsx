@@ -1,7 +1,7 @@
 import { Layout } from "components/Layout";
 import { View, Text } from "react-native";
 
-const Buckets = () => {
+export const Buckets = () => {
   return (
     <Layout>
       <View>
@@ -10,4 +10,3 @@ const Buckets = () => {
     </Layout>
   );
 };
-export default Buckets;
