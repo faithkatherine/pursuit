@@ -46,21 +46,7 @@ export interface Category {
   emoji: string;
 }
 
-export interface Activity {
-  id: string;
-  activity: string;
-  image: string;
-  category: string;
-  date: string;
-  location: string;
-}
 
-export interface BucketItem {
-  id: string;
-  title: string;
-  description: string;
-  completed: boolean;
-}
 
 export interface HomeData {
   id: string;
@@ -70,11 +56,15 @@ export interface HomeData {
   insights: InsightsData;
   bucketCategories: Category[];
   recommendations: Event[];
-  upcoming: Activity[];
+  upcoming: BucketItem[];
 }
 
 export interface GetHomeQuery {
   getHome: HomeData;
+}
+
+export interface GetBucketItemsQuery {
+  getBucketItems: BucketItem[];
 }
 
 export interface Emoji {
@@ -96,12 +86,45 @@ export interface BucketItem {
   id: string;
   title: string;
   description: string;
+  amount?: number;
+  image: string;
   completed: boolean;
+  categoryId?: string;
   category: BucketCategory;
+}
+
+export interface BucketItemRaw {
+  id: string;
+  title: string;
+  description: string;
+  amount?: number;
+  image: string;
+  completed: boolean;
+  categoryId: string;
 }
 
 export interface GetEmojiLibraryQuery {
   getEmojiLibrary: Emoji[];
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+export interface AuthPayload {
+  user: User;
+  token?: string;
+}
+
+export interface SignInMutation {
+  signIn: AuthPayload;
+}
+
+export interface SignUpMutation {
+  signUp: AuthPayload;
 }
 
 export interface AddBucketCategoryMutation {

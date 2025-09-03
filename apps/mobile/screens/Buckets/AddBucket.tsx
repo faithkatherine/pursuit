@@ -7,8 +7,10 @@ import {
   Pressable,
   Animated,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useState, useRef } from "react";
+import { useRouter } from 'expo-router';
 import colors from "pursuit/themes/tokens/colors";
 import { Button } from "pursuit/components/Buttons/Buttons";
 import { EmojiPicker } from "pursuit/components/Pickers/EmojiPicker";
@@ -23,6 +25,7 @@ interface FormData {
 }
 
 export const AddBucket = () => {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -36,18 +39,10 @@ export const AddBucket = () => {
   });
 
   const [selectedEmoji, setSelectedEmoji] = useState("");
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const [addBucketCategory, { loading: addBucketLoading }] = useMutation(
-    ADD_BUCKET_CATEGORY,
-    {
-      onCompleted: () => {
-        setHasSubmitted(true);
-      },
-      onError: (error) => {
-        console.error("Error adding bucket category:", error);
-      },
-    }
+    ADD_BUCKET_CATEGORY
   );
 
   const shakeError = () => {
@@ -75,13 +70,54 @@ export const AddBucket = () => {
     ]).start();
   };
 
-  const onSubmit = (data: FormData) => {
-    addBucketCategory({
-      variables: {
-        name: data.bucketName,
-        emoji: data.emoji,
-      },
-    });
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+
+    try {
+      await addBucketCategory({
+        variables: {
+          name: data.bucketName,
+          emoji: data.emoji,
+        },
+      });
+
+      // Show success toast
+      Alert.alert(
+        "🎉 Success!", 
+        "Your bucket category has been created successfully!",
+        [
+          {
+            text: "Great!",
+            onPress: () => {
+              router.push("/(tabs)");
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Error adding bucket category:", error);
+      
+      // Show error alert with retry option
+      Alert.alert(
+        "❌ Oops!", 
+        "Something went wrong while creating your bucket category. Would you like to try again?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => {
+              router.push("/(tabs)");
+            },
+          },
+          {
+            text: "Retry",
+            onPress: () => onSubmit(data),
+          },
+        ]
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const onError = (errors: any) => {
@@ -152,10 +188,10 @@ export const AddBucket = () => {
 
       <View style={styles.buttonContainer}>
         <Button
-          text="🚀 Create My Bucket!"
+          text={isSubmitting || addBucketLoading ? "✨ Creating..." : "🚀 Create My Bucket!"}
           variant="primary"
           onPress={handleSubmit(onSubmit, onError)}
-          disabled={addBucketLoading || hasSubmitted}
+          disabled={isSubmitting || addBucketLoading}
           style={styles.createButton}
         />
       </View>

@@ -1,6 +1,60 @@
 // Mock SVG assets
 jest.mock('pursuit/assets/sunny.svg', () => 'SunnyIcon');
 
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
+
+// Mock expo-router
+jest.mock('expo-router', () => ({
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+  })),
+  useSegments: jest.fn(() => []),
+  Stack: {
+    Screen: jest.fn(),
+  },
+}));
+
+// Mock react-hook-form
+jest.mock('react-hook-form', () => ({
+  useForm: jest.fn(() => ({
+    control: {},
+    handleSubmit: jest.fn((fn) => fn),
+    formState: { errors: {} },
+    setValue: jest.fn(),
+    reset: jest.fn(),
+    watch: jest.fn(() => ''),
+  })),
+  Controller: ({ render }) => render({ 
+    field: { 
+      onChange: jest.fn(), 
+      onBlur: jest.fn(), 
+      value: '' 
+    } 
+  }),
+}));
+
+// Mock Apollo Client
+jest.mock('@apollo/client', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
+  ApolloProvider: ({ children }) => children,
+  gql: (strings, ...values) => {
+    let result = '';
+    strings.forEach((string, i) => {
+      result += string;
+      if (i < values.length) {
+        result += values[i];
+      }
+    });
+    return result;
+  },
+}));
+
 // Mock expo-linear-gradient
 jest.mock('expo-linear-gradient', () => ({
   LinearGradient: ({ children, style }) => 

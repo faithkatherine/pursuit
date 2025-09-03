@@ -31,19 +31,6 @@ export const BUCKET_CATEGORY_FRAGMENT = gql`
   }
 `;
 
-export const BUCKET_CATEGORY_ITEMS_FRAGMENT = gql`
-  fragment CategoryItemsInfo on Category {
-    id
-    name
-    emoji
-    items {
-      id
-      title
-      description
-      completed
-    }
-  }
-`;
 
 export const EVENT_RECOMMENDATION_FRAGMENT = gql`
   fragment RecommendationInfo on Event {
@@ -55,15 +42,19 @@ export const EVENT_RECOMMENDATION_FRAGMENT = gql`
   }
 `;
 
-export const ACTIVITY_FRAGMENT = gql`
-  fragment ActivityInfo on Activity {
+export const BUCKET_ITEM_FRAGMENT = gql`
+  fragment BucketItemInfo on BucketItem {
     id
-    activity
+    title
+    description
     image
-    category
-    date
-    location
+    completed
+    categoryId
+    category {
+      ...CategoryInfo
+    }
   }
+  ${BUCKET_CATEGORY_FRAGMENT}
 `;
 
 export const INSIGHTS_FRAGMENT = gql`

@@ -1,6 +1,9 @@
 import { mockData, emojiLibrary } from "./mockData";
 import { HomeData } from "../graphql/types";
 
+// Mock user database - in a real app, this would be a proper database
+const mockUsers: Array<{ id: string; name: string; email: string; password: string; avatar?: string }> = [];
+
 export const resolvers = {
   Query: {
     getInsightsData: () => {
@@ -36,8 +39,11 @@ export const resolvers = {
           offset + limit
         ),
         recommendations: mockData.upcomingEvents.slice(offset, offset + limit),
-        upcoming: mockData.upcomingActivities.slice(offset, offset + limit),
+        upcoming: mockData.bucketItems.slice(offset, offset + limit),
       };
+    },
+    getBucketItems: (_: any, { offset = 0, limit = 10 }: { offset?: number; limit?: number }) => {
+      return mockData.bucketItems.slice(offset, offset + limit);
     },
     getEmojiLibrary: () => {
       return emojiLibrary;
@@ -47,6 +53,61 @@ export const resolvers = {
     },
   },
   Mutation: {
+    signIn: (
+      _: any,
+      { email, password }: { email: string; password: string }
+    ) => {
+      // Mock authentication - in a real app, use proper password hashing
+      const user = mockUsers.find(u => u.email === email);
+      
+      if (!user || password.length < 6) {
+        throw new Error('Invalid credentials');
+      }
+
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+        },
+        token: `mock-token-${user.id}`, // In a real app, use JWT
+      };
+    },
+
+    signUp: (
+      _: any,
+      { name, email, password }: { name: string; email: string; password: string }
+    ) => {
+      // Check if user already exists
+      if (mockUsers.find(u => u.email === email)) {
+        throw new Error('User already exists with this email');
+      }
+
+      if (!name || !email || password.length < 6) {
+        throw new Error('Invalid input data');
+      }
+
+      const newUser = {
+        id: (mockUsers.length + 1).toString(),
+        name,
+        email,
+        password, // In a real app, hash this password
+        avatar: 'https://randomuser.me/api/portraits/women/10.jpg',
+      };
+
+      mockUsers.push(newUser);
+
+      return {
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          avatar: newUser.avatar,
+        },
+        token: `mock-token-${newUser.id}`, // In a real app, use JWT
+      };
+    },
     addBucketCategory: (
       _: any,
       { name, emoji }: { name: string; emoji: string }
@@ -65,12 +126,16 @@ export const resolvers = {
       {
         title,
         description,
+        amount,
+        image,
         categoryId,
         newCategoryName,
         newCategoryEmoji,
       }: {
         title: string;
         description?: string;
+        amount?: number;
+        image?: string;
         categoryId?: string;
         newCategoryName?: string;
         newCategoryEmoji?: string;
@@ -96,10 +161,13 @@ export const resolvers = {
       }
 
       const newItemId = (mockData.bucketItems.length + 1).toString();
+      const defaultImage = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=800"; // Adventure placeholder
       const newItem = {
         id: newItemId,
         title,
         description: description || "",
+        amount: amount || undefined,
+        image: image || defaultImage,
         completed: false,
         categoryId: finalCategoryId,
       };

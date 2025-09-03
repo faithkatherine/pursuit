@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import {
   BUCKET_CATEGORY_FRAGMENT,
   INSIGHTS_FRAGMENT,
-  ACTIVITY_FRAGMENT,
+  BUCKET_ITEM_FRAGMENT,
   WEATHER_FRAGMENT,
   EVENT_RECOMMENDATION_FRAGMENT,
   UPCOMING_DESTINATION_FRAGMENT,
@@ -55,7 +55,7 @@ export const GET_HOME = gql`
         ...RecommendationInfo
       }
       upcoming(offset: $offset, limit: $limit) {
-        ...ActivityInfo
+        ...BucketItemInfo
       }
     }
   }
@@ -65,7 +65,7 @@ export const GET_HOME = gql`
   ${INSIGHTS_FRAGMENT}
   ${BUCKET_CATEGORY_FRAGMENT}
   ${EVENT_RECOMMENDATION_FRAGMENT}
-  ${ACTIVITY_FRAGMENT}
+  ${BUCKET_ITEM_FRAGMENT}
 `;
 
 export const GET_EMOJI_LIBRARY = gql`
@@ -91,6 +91,8 @@ export const ADD_BUCKET_ITEM = gql`
   mutation AddBucketItem(
     $title: String!
     $description: String
+    $amount: Float
+    $image: String
     $categoryId: String
     $newCategoryName: String
     $newCategoryEmoji: String
@@ -98,6 +100,8 @@ export const ADD_BUCKET_ITEM = gql`
     addBucketItem(
       title: $title
       description: $description
+      amount: $amount
+      image: $image
       categoryId: $categoryId
       newCategoryName: $newCategoryName
       newCategoryEmoji: $newCategoryEmoji
@@ -105,6 +109,8 @@ export const ADD_BUCKET_ITEM = gql`
       id
       title
       description
+      amount
+      image
       completed
       categoryId
       category {
@@ -122,6 +128,34 @@ export const GET_BUCKET_CATEGORIES = gql`
       id
       name
       emoji
+    }
+  }
+`;
+
+export const SIGN_IN = gql`
+  mutation SignIn($email: String!, $password: String!) {
+    signIn(email: $email, password: $password) {
+      user {
+        id
+        name
+        email
+        avatar
+      }
+      token
+    }
+  }
+`;
+
+export const SIGN_UP = gql`
+  mutation SignUp($name: String!, $email: String!, $password: String!) {
+    signUp(name: $name, email: $email, password: $password) {
+      user {
+        id
+        name
+        email
+        avatar
+      }
+      token
     }
   }
 `;

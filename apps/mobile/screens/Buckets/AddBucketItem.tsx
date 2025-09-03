@@ -4,29 +4,31 @@ import {
   Text,
   View,
   StyleSheet,
-  Pressable,
   Animated,
   ScrollView,
   Platform,
+  Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useState, useRef } from "react";
+import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import colors from "pursuit/themes/tokens/colors";
 import { Button } from "pursuit/components/Buttons/Buttons";
 import { BaseModal as Modal } from "pursuit/components/Modals/BaseModal.tsx";
 import { EmojiPicker } from "pursuit/components/Pickers/EmojiPicker";
 import {
-  ADD_BUCKET_CATEGORY,
   ADD_BUCKET_ITEM,
   GET_BUCKET_CATEGORIES,
 } from "pursuit/graphql/queries";
 import { useQuery, useMutation } from "@apollo/client";
-import { Loading, Error } from "components/Layout";
 import { GetBucketCategoriesQuery } from "pursuit/graphql/types";
 
 interface FormData {
   itemName: string;
   description: string;
+  amount?: number;
+  image?: string;
   categoryId?: string;
   newCategoryName?: string;
   newCategoryEmoji?: string;
@@ -38,17 +40,19 @@ interface AddBucketItemProps {
 }
 
 export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
       itemName: "",
       description: "",
+      amount: undefined,
+      image: "",
       categoryId: "",
       newCategoryName: "",
       newCategoryEmoji: "",
@@ -56,7 +60,9 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
   });
 
   const [selectedEmoji, setSelectedEmoji] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const {
@@ -64,17 +70,8 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
     data: categoriesData,
     error: categoriesError,
   } = useQuery<GetBucketCategoriesQuery>(GET_BUCKET_CATEGORIES);
-  const [addBucketCategory] = useMutation(ADD_BUCKET_CATEGORY);
   const [addBucketItem, { loading: addItemLoading }] = useMutation(
-    ADD_BUCKET_ITEM,
-    {
-      onCompleted: () => {
-        handleClose();
-      },
-      onError: (error) => {
-        console.error("Error adding bucket item:", error);
-      },
-    }
+    ADD_BUCKET_ITEM
   );
 
   const bucketCategories = categoriesData?.getBucketCategories || [];
@@ -109,25 +106,85 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
   };
 
   const onSubmit = async (data: FormData) => {
-    addBucketItem({
-      variables: {
-        title: data.itemName,
-        description: data.description || null,
-        categoryId: data.categoryId || null,
-        newCategoryName: data.newCategoryName || null,
-        newCategoryEmoji: data.newCategoryEmoji || null,
-      },
-    });
+    // Validate category selection
+    if (!showNewCategoryForm && !data.categoryId) {
+      alert("Please select a category or create a new one");
+      shakeError();
+      return;
+    }
+    
+    if (showNewCategoryForm && (!data.newCategoryName || !data.newCategoryEmoji)) {
+      alert("Please provide both category name and emoji");
+      shakeError();
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await addBucketItem({
+        variables: {
+          title: data.itemName,
+          description: data.description || null,
+          amount: data.amount || null,
+          image: selectedImage || null,
+          categoryId: data.categoryId || null,
+          newCategoryName: data.newCategoryName || null,
+          newCategoryEmoji: data.newCategoryEmoji || null,
+        },
+      });
+
+      // Show success toast
+      Alert.alert(
+        "🎉 Success!", 
+        "Your bucket list item has been added successfully!",
+        [
+          {
+            text: "Great!",
+            onPress: () => {
+              handleClose();
+              router.push("/(tabs)");
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Error adding bucket item:", error);
+      
+      // Show error alert with retry option
+      Alert.alert(
+        "❌ Oops!", 
+        "Something went wrong while adding your bucket list item. Would you like to try again?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => {
+              handleClose();
+              router.push("/(tabs)");
+            },
+          },
+          {
+            text: "Retry",
+            onPress: () => onSubmit(data),
+          },
+        ]
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const onError = (errors: any) => {
+  const onError = () => {
     shakeError();
   };
 
   const handleClose = () => {
     reset();
     setSelectedEmoji("");
+    setSelectedImage("");
     setShowNewCategoryForm(false);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -141,6 +198,72 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
     setSelectedEmoji("");
     setValue("newCategoryName", "");
     setValue("newCategoryEmoji", "");
+  };
+
+  const pickImage = async () => {
+    Alert.alert(
+      "Select Image",
+      "Choose how you'd like to add an image",
+      [
+        {
+          text: "Camera",
+          onPress: () => openCamera(),
+        },
+        {
+          text: "Photo Library",
+          onPress: () => openImageLibrary(),
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const openCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Required", "Permission to access camera is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const imageUri = result.assets[0].uri;
+      setSelectedImage(imageUri);
+      setValue("image", imageUri);
+    }
+  };
+
+  const openImageLibrary = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Required", "Permission to access photo library is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const imageUri = result.assets[0].uri;
+      setSelectedImage(imageUri);
+      setValue("image", imageUri);
+    }
   };
 
   return (
@@ -205,41 +328,67 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
             )}
           />
 
+          <Controller
+            control={control}
+            name="amount"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>💰 Estimated Amount (Optional)</Text>
+                <TextInput
+                  style={[styles.input]}
+                  onBlur={onBlur}
+                  onChangeText={(text) => {
+                    const numericValue = text ? parseFloat(text) : undefined;
+                    onChange(numericValue);
+                  }}
+                  value={value ? value.toString() : ""}
+                  placeholder="2500"
+                  placeholderTextColor={colors.aluminium}
+                  keyboardType="numeric"
+                />
+              </View>
+            )}
+          />
+
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>🖼️ Add an Inspiring Image</Text>
+            <Button
+              text={selectedImage ? "✅ Image Selected" : "📷 Choose Image"}
+              variant="secondary"
+              onPress={pickImage}
+              style={[
+                styles.imagePickerButton,
+                selectedImage && styles.imageSelectedButton
+              ]}
+            />
+            {selectedImage && (
+              <Text style={styles.imagePreviewText}>
+                🎨 Image selected! Ready to add to your bucket list.
+              </Text>
+            )}
+          </View>
+
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>📂 Choose Category</Text>
             <View style={styles.categoryToggle}>
-              <Pressable
+              <Button
+                text="Existing Category"
+                variant="secondary"
+                onPress={handleSelectExistingCategory}
                 style={[
                   styles.toggleButton,
                   !showNewCategoryForm && styles.toggleButtonActive,
                 ]}
-                onPress={handleSelectExistingCategory}
-              >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    !showNewCategoryForm && styles.toggleTextActive,
-                  ]}
-                >
-                  Existing Category
-                </Text>
-              </Pressable>
-              <Pressable
+              />
+              <Button
+                text="Create New"
+                variant="secondary"
+                onPress={handleCreateNewCategory}
                 style={[
                   styles.toggleButton,
                   showNewCategoryForm && styles.toggleButtonActive,
                 ]}
-                onPress={handleCreateNewCategory}
-              >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    showNewCategoryForm && styles.toggleTextActive,
-                  ]}
-                >
-                  Create New
-                </Text>
-              </Pressable>
+              />
             </View>
           </View>
 
@@ -256,9 +405,10 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
                         onValueChange={(itemValue) => {
                           onChange(itemValue);
                         }}
+                        onBlur={onBlur}
                         style={[
                           styles.picker,
-                          Platform.OS === "ios" ? { marginTop: -30 } : {},
+                          Platform.OS === "ios" ? { marginTop: -70 } : {},
                         ]}
                         itemStyle={{
                           fontSize: 16,
@@ -336,7 +486,7 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
                     ? { required: "Please select an emoji" }
                     : {}
                 }
-                render={({ field: { value } }) => (
+                render={() => (
                   <View style={styles.fieldContainer}>
                     <Text style={styles.label}>🎭 Category Emoji</Text>
                     {errors.newCategoryEmoji && (
@@ -360,10 +510,10 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
 
         <View style={styles.buttonContainer}>
           <Button
-            text="🚀 Add to Bucket List!"
+            text={isSubmitting || addItemLoading ? "✨ Adding..." : "🚀 Add to Bucket List!"}
             variant="primary"
             onPress={handleSubmit(onSubmit, onError)}
-            disabled={addItemLoading}
+            disabled={isSubmitting || addItemLoading}
             style={styles.addButton}
           />
         </View>
@@ -460,14 +610,7 @@ const styles = StyleSheet.create({
   toggleButtonActive: {
     backgroundColor: colors.deluge,
   },
-  toggleText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.thunder,
-  },
-  toggleTextActive: {
-    color: colors.white,
-  },
+
   pickerContainer: {
     borderWidth: 2,
     borderColor: colors.silverSand,
@@ -480,21 +623,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     overflow: "hidden",
     marginBottom: 8,
-    height: Platform.OS === "ios" ? 200 : 160, // Show 4 items at first glance
-    justifyContent: "flex-start", // Move items to upper side
+    justifyContent: "flex-start",
   },
   picker: {
     width: "100%",
     backgroundColor: colors.white,
     color: colors.thunder,
-    height: Platform.OS === "ios" ? 200 : 160, // Show 4 items at first glance
-    marginTop: 0, // Remove extra margin
   },
   pickerLabel: {
     fontSize: 14,
     fontWeight: "500",
     color: colors.thunder,
-    marginBottom: 8,
   },
   pickerItem: {
     fontSize: 16,
@@ -534,5 +673,26 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+  },
+  imagePickerButton: {
+    borderWidth: 2,
+    borderColor: colors.silverSand,
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    backgroundColor: colors.white,
+    marginBottom: 8,
+  },
+  imageSelectedButton: {
+    borderColor: colors.deluge,
+    backgroundColor: colors.deluge + "10", // Light tint
+  },
+  imagePreviewText: {
+    fontSize: 14,
+    color: colors.deluge,
+    textAlign: "center",
+    fontStyle: "italic",
+    marginTop: 8,
   },
 });

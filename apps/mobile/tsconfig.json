@@ -9,6 +9,7 @@
       "pursuit/assets/*": ["../../assets/*"],
       "pursuit/types/*": ["../../types/*"],
       "pursuit/graphql/*": ["../../graphql/*"],
+      "pursuit/contexts/*": ["../../contexts/*"],
       // "pursuit/hooks/*": ["./hooks/*"],
       // "pursuit/utils/*": ["./utils/*"],
       // "pursuit/types/*": ["./types/*"],

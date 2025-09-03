@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import { useQuery } from "@apollo/client";
 import { useState } from "react";
+import { useAuth } from "pursuit/contexts/AuthContext";
 
 import { Layout, Loading, Error } from "components/Layout";
 import { InsightsCard } from "pursuit/components/Cards/InsightsCard";
@@ -16,7 +17,7 @@ import { theme, colors } from "pursuit/themes/tokens/colors";
 import { getGradientByIndex } from "pursuit/themes/tokens/gradients";
 
 import { GET_HOME } from "pursuit/graphql/queries";
-import { GetHomeQuery, Category, HomeData } from "pursuit/graphql/types";
+import { GetHomeQuery, Category, HomeData, BucketItem } from "pursuit/graphql/types";
 import { AddBucket } from "./Buckets/AddBucket";
 
 interface BucketsHeaderProps {
@@ -40,6 +41,7 @@ const BucketsHeader: React.FC<BucketsHeaderProps> = ({
 };
 
 const Home = () => {
+  const { user, signOut } = useAuth();
   const [showAddBucketModal, setShowAddBucketModal] = useState(false);
   const { loading, error, data } = useQuery<GetHomeQuery>(GET_HOME, {
     variables: { offset: 0, limit: 10 },
@@ -59,6 +61,24 @@ const Home = () => {
   const { greeting, insights, bucketCategories, recommendations, upcoming } =
     homeData;
 
+  const handleSignOut = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          onPress: signOut,
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   const buckets = bucketCategories.map((category: Category, index: number) => (
     <BucketCard
       key={category.id}
@@ -73,9 +93,9 @@ const Home = () => {
     <BucketItemCard
       key={item.id}
       variant="preview"
-      title={item.activity}
+      title={item.title}
       imageUrl={item.image}
-      category={item.category || "Adventure"}
+      category={item.category?.name || "Adventure"}
     />
   ));
 
@@ -84,7 +104,15 @@ const Home = () => {
       <ScrollView>
         <Layout>
           <View style={styles.horizontalPadding}>
-            <Text style={styles.greeting}>{greeting}</Text>
+            <View style={styles.headerContainer}>
+              <Text style={styles.greeting}>{greeting}</Text>
+              <Button
+                text="Sign Out"
+                variant="secondary"
+                onPress={handleSignOut}
+                style={styles.signOutButton}
+              />
+            </View>
             <InsightsCard insightsData={insights} />
           </View>
 
@@ -132,14 +160,26 @@ const styles = StyleSheet.create({
   horizontalPadding: {
     paddingHorizontal: 27,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  signOutButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.silverSand,
+  },
 
   greeting: {
     color: theme.text.primary,
-    marginBottom: 20,
     fontFamily: typography.h4.fontFamily,
     fontSize: typography.h4.fontSize,
     fontWeight: typography.h4.fontWeight,
     lineHeight: typography.h4.fontSize * typography.h1.lineHeight,
+    flex: 1,
   },
   header: {
     flexDirection: "row",

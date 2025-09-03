@@ -25,6 +25,18 @@ export const typeDefs = gql`
     percentage: Float!
   }
 
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    avatar: String
+  }
+
+  type AuthPayload {
+    user: User!
+    token: String
+  }
+
   type Category {
     id: ID!
     name: String!
@@ -35,19 +47,13 @@ export const typeDefs = gql`
     id: ID!
     title: String!
     description: String
+    amount: Float
+    image: String!
     completed: Boolean!
     categoryId: String
     category: Category
   }
 
-  type Activity {
-    id: ID!
-    activity: String!
-    image: String!
-    category: String!
-    date: String!
-    location: String!
-  }
 
   type InsightsData {
     id: ID!
@@ -65,7 +71,7 @@ export const typeDefs = gql`
     insights: InsightsData!
     bucketCategories(offset: Int = 0, limit: Int = 10): [Category!]!
     recommendations(offset: Int = 0, limit: Int = 10): [Event!]!
-    upcoming(offset: Int = 0, limit: Int = 10): [Activity!]!
+    upcoming(offset: Int = 0, limit: Int = 10): [BucketItem!]!
   }
 
   type Emoji {
@@ -79,17 +85,25 @@ export const typeDefs = gql`
     getHome: HomeData!
     getCategories: [Category!]!
     getBucketCategories: [Category!]!
+    getBucketItems(offset: Int = 0, limit: Int = 10): [BucketItem!]!
     getRecommendations(offset: Int = 0, limit: Int = 10): [Event!]!
     getEmojiLibrary: [Emoji!]!
   }
 
   type Mutation {
+    # Authentication mutations
+    signIn(email: String!, password: String!): AuthPayload!
+    signUp(name: String!, email: String!, password: String!): AuthPayload!
+    
+    # Existing mutations
     updateProgress(completed: Int!): Progress!
     addAchievement(achievement: String!): InsightsData!
     addBucketCategory(name: String!, emoji: String!): Category!
     addBucketItem(
       title: String!
       description: String
+      amount: Float
+      image: String
       categoryId: String
       newCategoryName: String
       newCategoryEmoji: String
