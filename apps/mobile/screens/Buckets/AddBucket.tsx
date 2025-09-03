@@ -11,13 +11,11 @@ import {
 import { useState, useRef } from "react";
 import colors from "pursuit/themes/tokens/colors";
 import { Button } from "pursuit/components/Buttons/Buttons";
+import { EmojiPicker } from "pursuit/components/Pickers/EmojiPicker";
 import {
-  GET_EMOJI_LIBRARY,
   ADD_BUCKET_CATEGORY,
 } from "pursuit/graphql/queries";
-import { useQuery, useMutation } from "@apollo/client";
-import { Loading, Error } from "components/Layout";
-import { Emoji, GetEmojiLibraryQuery } from "pursuit/graphql/types";
+import { useMutation } from "@apollo/client";
 
 interface FormData {
   bucketName: string;
@@ -40,8 +38,6 @@ export const AddBucket = () => {
   const [selectedEmoji, setSelectedEmoji] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
-  const { loading, error, data } =
-    useQuery<GetEmojiLibraryQuery>(GET_EMOJI_LIBRARY);
   const [addBucketCategory, { loading: addBucketLoading }] = useMutation(
     ADD_BUCKET_CATEGORY,
     {
@@ -142,35 +138,14 @@ export const AddBucket = () => {
               </Text>
             )}
 
-            <ScrollView
-              style={styles.emojiScrollContainer}
-              contentContainerStyle={styles.emojiGrid}
-              showsVerticalScrollIndicator={false}
-            >
-              {loading && <Loading />}
-              {error && (
-                <Error error={error.message || "Something went wrong"} />
-              )}
-
-              {data &&
-                data.getEmojiLibrary
-                  .map((emoji: Emoji) => emoji)
-                  .map((emoji, index) => (
-                    <Pressable
-                      key={index}
-                      style={[
-                        styles.emojiOption,
-                        selectedEmoji === emoji.symbol && styles.selectedEmoji,
-                      ]}
-                      onPress={() => {
-                        setSelectedEmoji(emoji.symbol);
-                        setValue("emoji", emoji.symbol);
-                      }}
-                    >
-                      <Text style={styles.emojiText}>{emoji.symbol}</Text>
-                    </Pressable>
-                  ))}
-            </ScrollView>
+            <EmojiPicker
+              selectedEmoji={selectedEmoji}
+              onEmojiSelect={(emoji) => {
+                setSelectedEmoji(emoji);
+                setValue("emoji", emoji);
+              }}
+              maxHeight={200}
+            />
           </View>
         )}
       />
@@ -234,41 +209,6 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: colors.shilo,
     borderWidth: 2,
-  },
-  emojiScrollContainer: {
-    maxHeight: 200,
-    borderRadius: 16,
-    backgroundColor: colors.prim,
-    padding: 16,
-  },
-  emojiGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  emojiOption: {
-    width: 60,
-    height: 60,
-    backgroundColor: colors.prim,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: colors.silverSand,
-    elevation: 3,
-    shadowColor: colors.thunder,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-  },
-  selectedEmoji: {
-    backgroundColor: colors.lightBlue,
-    borderColor: colors.deluge,
-    transform: [{ scale: 1.1 }],
-  },
-  emojiText: {
-    fontSize: 24,
   },
   buttonContainer: {
     marginTop: 32,

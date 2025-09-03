@@ -56,12 +56,18 @@ export const BaseModal: React.FC<BaseModalProps> = ({
           presentationStyle="formSheet"
         >
           <View style={styles.fullScreenHeader}>
-            <Text style={styles.headerTitle}>{title}</Text>
-            {onClose && (
-              <Pressable onPress={onClose} style={styles.cancelButton}>
-                <Text style={styles.cancelText}>Cancel</Text>
-              </Pressable>
-            )}
+            <Button
+              variant="secondary"
+              circleDimensions={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: colors.black,
+              }}
+              onPress={onClose}
+              icon={<CloseIcon width={24} height={24} color={colors.white} />}
+              style={styles.bottomSheetClose}
+            />
           </View>
           <View style={styles.content}>{children}</View>
         </Modal>
@@ -99,29 +105,11 @@ const styles = StyleSheet.create({
 
   fullScreenHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.silverSand,
+    padding: 16,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.thunder,
-    flex: 1,
-    textAlign: "center",
-  },
-  cancelButton: {
-    padding: 8,
-  },
-  cancelText: {
-    color: colors.lightBlue,
-    fontSize: 16,
-    fontWeight: "400",
-  },
+
   closeIcon: {
     transform: [{ rotate: "90deg" }],
   },

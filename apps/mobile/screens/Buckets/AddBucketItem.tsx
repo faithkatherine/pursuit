@@ -7,21 +7,22 @@ import {
   Pressable,
   Animated,
   ScrollView,
-  Modal,
+  Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useState, useRef } from "react";
 import colors from "pursuit/themes/tokens/colors";
 import { Button } from "pursuit/components/Buttons/Buttons";
+import { BaseModal as Modal } from "pursuit/components/Modals/BaseModal.tsx";
+import { EmojiPicker } from "pursuit/components/Pickers/EmojiPicker";
 import {
-  GET_EMOJI_LIBRARY,
   ADD_BUCKET_CATEGORY,
   ADD_BUCKET_ITEM,
   GET_BUCKET_CATEGORIES,
 } from "pursuit/graphql/queries";
 import { useQuery, useMutation } from "@apollo/client";
 import { Loading, Error } from "components/Layout";
-import { Emoji, GetEmojiLibraryQuery } from "pursuit/graphql/types";
+import { GetBucketCategoriesQuery } from "pursuit/graphql/types";
 
 interface FormData {
   itemName: string;
@@ -57,22 +58,30 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
   const [selectedEmoji, setSelectedEmoji] = useState("");
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
-  
-  const { loading, error, data } = useQuery<GetEmojiLibraryQuery>(GET_EMOJI_LIBRARY);
-  const { loading: categoriesLoading, data: categoriesData } = useQuery(GET_BUCKET_CATEGORIES);
+
+  const {
+    loading: categoriesLoading,
+    data: categoriesData,
+    error: categoriesError,
+  } = useQuery<GetBucketCategoriesQuery>(GET_BUCKET_CATEGORIES);
   const [addBucketCategory] = useMutation(ADD_BUCKET_CATEGORY);
-  const [addBucketItem, { loading: addItemLoading }] = useMutation(ADD_BUCKET_ITEM, {
-    onCompleted: () => {
-      handleClose();
-    },
-    onError: (error) => {
-      console.error("Error adding bucket item:", error);
-    },
-  });
+  const [addBucketItem, { loading: addItemLoading }] = useMutation(
+    ADD_BUCKET_ITEM,
+    {
+      onCompleted: () => {
+        handleClose();
+      },
+      onError: (error) => {
+        console.error("Error adding bucket item:", error);
+      },
+    }
+  );
 
   const bucketCategories = categoriesData?.getBucketCategories || [];
 
-  const categoryId = watch("categoryId");
+  if (categoriesError) {
+    console.error("Error loading categories:", categoriesError);
+  }
 
   const shakeError = () => {
     Animated.sequence([
@@ -135,16 +144,18 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      variant="fullScreen"
+      onClose={handleClose}
+    >
       <Animated.View
         style={[styles.container, { transform: [{ translateX: shakeAnim }] }]}
       >
         <View style={styles.header}>
           <Text style={styles.title}>✨ Add to Your Bucket List ✨</Text>
           <Text style={styles.subtitle}>What's your next adventure?</Text>
-          <Pressable onPress={handleClose} style={styles.closeButton}>
-            <Text style={styles.closeText}>✕</Text>
-          </Pressable>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -236,47 +247,53 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
             <Controller
               control={control}
               name="categoryId"
-              render={({ field: { onChange, value } }) => (
-                <View style={styles.fieldContainer}>
-                  <Text style={styles.pickerLabel}>Select existing category:</Text>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={value || ""}
-                      onValueChange={(itemValue) => {
-                        console.log("Selected category:", itemValue);
-                        onChange(itemValue);
-                      }}
-                      style={styles.picker}
-                      itemStyle={styles.pickerItem}
-                    >
-                      <Picker.Item 
-                        label="-- Select a category --" 
-                        value="" 
-                      />
-                      {bucketCategories.length > 0 ? (
-                        bucketCategories.map((category) => (
+              render={({ field: { onChange, onBlur, value } }) => {
+                return (
+                  <View style={styles.fieldContainer}>
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        selectedValue={value || ""}
+                        onValueChange={(itemValue) => {
+                          onChange(itemValue);
+                        }}
+                        style={[
+                          styles.picker,
+                          Platform.OS === "ios" ? { marginTop: -30 } : {},
+                        ]}
+                        itemStyle={{
+                          fontSize: 16,
+                          height: 250,
+                          color: colors.thunder,
+                        }}
+                        mode="dropdown"
+                        dropdownIconColor={colors.thunder}
+                        dropdownIconRippleColor={colors.prim}
+                      >
+                        <Picker.Item
+                          label="-- Select a category --"
+                          value=""
+                          style={{ color: colors.aluminium }}
+                        />
+                        {bucketCategories.map((category) => (
                           <Picker.Item
                             key={category.id}
                             label={`${category.emoji} ${category.name}`}
                             value={category.id}
+                            style={{ color: colors.thunder }}
                           />
-                        ))
-                      ) : (
-                        <Picker.Item 
-                          label="No categories available" 
-                          value="none" 
-                          enabled={false}
-                        />
+                        ))}
+                      </Picker>
+                    </View>
+                    {!categoriesLoading &&
+                      !categoriesError &&
+                      bucketCategories.length === 0 && (
+                        <Text style={styles.noCategoriesText}>
+                          No categories found. Create a new category instead.
+                        </Text>
                       )}
-                    </Picker>
                   </View>
-                  {bucketCategories.length === 0 && (
-                    <Text style={styles.noCategoriesText}>
-                      No categories found. Create a new category instead.
-                    </Text>
-                  )}
-                </View>
-              )}
+                );
+              }}
             />
           ) : (
             <>
@@ -327,34 +344,13 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
                         🎯 Pick an emoji for your category!
                       </Text>
                     )}
-                    <ScrollView
-                      style={styles.emojiScrollContainer}
-                      contentContainerStyle={styles.emojiGrid}
-                      showsVerticalScrollIndicator={false}
-                    >
-                      {loading && <Loading />}
-                      {error && (
-                        <Error error={error.message || "Something went wrong"} />
-                      )}
-
-                      {data &&
-                        data.getEmojiLibrary.map((emoji, index) => (
-                          <Pressable
-                            key={index}
-                            style={[
-                              styles.emojiOption,
-                              selectedEmoji === emoji.symbol &&
-                                styles.selectedEmoji,
-                            ]}
-                            onPress={() => {
-                              setSelectedEmoji(emoji.symbol);
-                              setValue("newCategoryEmoji", emoji.symbol);
-                            }}
-                          >
-                            <Text style={styles.emojiText}>{emoji.symbol}</Text>
-                          </Pressable>
-                        ))}
-                    </ScrollView>
+                    <EmojiPicker
+                      selectedEmoji={selectedEmoji}
+                      onEmojiSelect={(emoji) => {
+                        setSelectedEmoji(emoji);
+                        setValue("newCategoryEmoji", emoji);
+                      }}
+                    />
                   </View>
                 )}
               />
@@ -379,8 +375,8 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: colors.white,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   header: {
     alignItems: "center",
@@ -400,22 +396,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
   },
-  closeButton: {
-    position: "absolute",
-    top: -10,
-    right: 0,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.prim,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  closeText: {
-    fontSize: 18,
-    color: colors.thunder,
-    fontWeight: "600",
-  },
+
   fieldContainer: {
     marginBottom: 24,
   },
@@ -468,7 +449,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.prim,
     borderRadius: 12,
     padding: 4,
-    marginBottom: 16,
   },
   toggleButton: {
     flex: 1,
@@ -499,11 +479,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: "hidden",
+    marginBottom: 8,
+    height: Platform.OS === "ios" ? 200 : 160, // Show 4 items at first glance
+    justifyContent: "flex-start", // Move items to upper side
   },
   picker: {
-    height: 50,
+    width: "100%",
     backgroundColor: colors.white,
     color: colors.thunder,
+    height: Platform.OS === "ios" ? 200 : 160, // Show 4 items at first glance
+    marginTop: 0, // Remove extra margin
   },
   pickerLabel: {
     fontSize: 14,
@@ -522,40 +507,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
   },
-  emojiScrollContainer: {
-    maxHeight: 150,
-    borderRadius: 16,
-    backgroundColor: colors.prim,
+  loadingText: {
+    fontSize: 16,
+    color: colors.thunder,
+    textAlign: "center",
     padding: 16,
   },
-  emojiGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  emojiOption: {
-    width: 45,
-    height: 45,
-    backgroundColor: colors.prim,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: colors.silverSand,
-    elevation: 2,
-    shadowColor: colors.thunder,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  selectedEmoji: {
-    backgroundColor: colors.lightBlue,
-    borderColor: colors.deluge,
-    transform: [{ scale: 1.1 }],
-  },
-  emojiText: {
-    fontSize: 20,
+  errorText: {
+    fontSize: 14,
+    color: colors.shilo,
+    textAlign: "center",
+    padding: 16,
   },
   buttonContainer: {
     marginTop: 24,

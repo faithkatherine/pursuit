@@ -90,6 +90,11 @@ export const resolvers = {
         finalCategoryId = newCategoryId;
       }
 
+      // Ensure we have a categoryId - use first category as default if none provided
+      if (!finalCategoryId) {
+        finalCategoryId = mockData.bucketCategories[0]?.id || "1";
+      }
+
       const newItemId = (mockData.bucketItems.length + 1).toString();
       const newItem = {
         id: newItemId,

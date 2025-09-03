@@ -82,6 +82,24 @@ export interface Emoji {
   description: string;
 }
 
+export interface BucketCategory {
+  id: string;
+  name: string;
+  emoji: string;
+}
+
+export interface GetBucketCategoriesQuery {
+  getBucketCategories: BucketCategory[];
+}
+
+export interface BucketItem {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  category: BucketCategory;
+}
+
 export interface GetEmojiLibraryQuery {
   getEmojiLibrary: Emoji[];
 }
