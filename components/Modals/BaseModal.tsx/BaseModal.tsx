@@ -1,7 +1,7 @@
 import { View, Text, Modal, StyleSheet, Pressable } from "react-native";
-import CloseIcon from "pursuit/assets/icons/close.svg";
-import colors from "pursuit/themes/tokens/colors";
-import { Button } from "pursuit/components/Buttons";
+import CloseIcon from "assets/icons/close.svg";
+import colors from "themes/tokens/colors";
+import { Button } from "components/Buttons";
 
 interface BaseModalProps {
   children?: React.ReactNode;

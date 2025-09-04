@@ -1,8 +1,8 @@
-import colors from "pursuit/themes/tokens/colors";
+import colors from "themes/tokens/colors";
 import typography, {
   fontSizes,
   fontWeights,
-} from "pursuit/themes/tokens/typography";
+} from "themes/tokens/typography";
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";

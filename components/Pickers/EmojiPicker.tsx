@@ -1,15 +1,10 @@
 import React from "react";
-import {
-  ScrollView,
-  Text,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import { ScrollView, Text, Pressable, StyleSheet } from "react-native";
 import { useQuery } from "@apollo/client";
-import { GET_EMOJI_LIBRARY } from "pursuit/graphql/queries";
+import { GET_EMOJI_LIBRARY } from "graphql/queries";
 import { Loading, Error } from "components/Layout";
-import { GetEmojiLibraryQuery } from "pursuit/graphql/types";
-import colors from "pursuit/themes/tokens/colors";
+import { GetEmojiLibraryQuery } from "graphql/types";
+import colors from "themes/tokens/colors";
 
 interface EmojiPickerProps {
   selectedEmoji: string;
@@ -17,12 +12,13 @@ interface EmojiPickerProps {
   maxHeight?: number;
 }
 
-export const EmojiPicker = ({ 
-  selectedEmoji, 
-  onEmojiSelect, 
-  maxHeight = 150 
+export const EmojiPicker = ({
+  selectedEmoji,
+  onEmojiSelect,
+  maxHeight = 150,
 }: EmojiPickerProps) => {
-  const { loading, error, data } = useQuery<GetEmojiLibraryQuery>(GET_EMOJI_LIBRARY);
+  const { loading, error, data } =
+    useQuery<GetEmojiLibraryQuery>(GET_EMOJI_LIBRARY);
 
   return (
     <ScrollView
@@ -31,11 +27,7 @@ export const EmojiPicker = ({
       showsVerticalScrollIndicator={false}
     >
       {loading && <Loading />}
-      {error && (
-        <Error
-          error={error.message || "Something went wrong"}
-        />
-      )}
+      {error && <Error error={error.message || "Something went wrong"} />}
 
       {data &&
         data.getEmojiLibrary.map((emoji, index) => (

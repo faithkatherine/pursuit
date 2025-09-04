@@ -6,13 +6,13 @@ import {
   ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "pursuit/themes/tokens/colors";
+import { colors } from "themes/tokens/colors";
 import {
   typography,
   fontSizes,
   fontWeights,
-} from "pursuit/themes/tokens/typography";
-import { Button } from "pursuit/components/Buttons/Buttons";
+} from "themes/tokens/typography";
+import { Button } from "../../Buttons";
 
 interface BucketCardProps {
   id: string;

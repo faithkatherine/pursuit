@@ -39,11 +39,17 @@ export const resolvers = {
           offset + limit
         ),
         recommendations: mockData.upcomingEvents.slice(offset, offset + limit),
-        upcoming: mockData.bucketItems.slice(offset, offset + limit),
+        upcoming: mockData.bucketItems.slice(offset, offset + limit).map(item => ({
+          ...item,
+          category: mockData.bucketCategories.find(cat => cat.id === item.categoryId) || mockData.bucketCategories[0]
+        })),
       };
     },
     getBucketItems: (_: any, { offset = 0, limit = 10 }: { offset?: number; limit?: number }) => {
-      return mockData.bucketItems.slice(offset, offset + limit);
+      return mockData.bucketItems.slice(offset, offset + limit).map(item => ({
+        ...item,
+        category: mockData.bucketCategories.find(cat => cat.id === item.categoryId) || mockData.bucketCategories[0]
+      }));
     },
     getEmojiLibrary: () => {
       return emojiLibrary;
@@ -173,7 +179,10 @@ export const resolvers = {
       };
 
       mockData.bucketItems.push(newItem);
-      return newItem;
+      return {
+        ...newItem,
+        category: mockData.bucketCategories.find(cat => cat.id === finalCategoryId) || mockData.bucketCategories[0]
+      };
     },
   },
   BucketItem: {

@@ -1,5 +1,5 @@
 // Mock SVG assets
-jest.mock('pursuit/assets/sunny.svg', () => 'SunnyIcon');
+jest.mock('assets/icons/sunny.svg', () => 'SunnyIcon');
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () =>
@@ -108,7 +108,7 @@ jest.mock('react-native', () => ({
 }));
 
 // Mock color and typography imports
-jest.mock('pursuit/themes/tokens/colors', () => ({
+jest.mock('themes/tokens/colors', () => ({
   colors: {
     prim: "rgb(248, 243, 248)",
     thunder: "rgb(63, 50, 61)",
@@ -156,7 +156,7 @@ jest.mock('pursuit/themes/tokens/colors', () => ({
   },
 }));
 
-jest.mock('pursuit/themes/tokens/typography', () => ({
+jest.mock('themes/tokens/typography', () => ({
   typography: {
     h1: { fontFamily: 'Work Sans', fontWeight: 'bold' },
     body: { fontFamily: 'Work Sans' },

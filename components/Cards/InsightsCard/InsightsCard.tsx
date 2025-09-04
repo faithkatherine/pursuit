@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "pursuit/themes/tokens/colors";
-import SunnyIcon from "pursuit/assets/icons/sunny.svg";
-import { typography, fontSizes } from "pursuit/themes/tokens/typography";
-import { ProgressBar } from "pursuit/components/ProgressBar";
-import { Button } from "pursuit/components/Buttons/Buttons";
-import { InsightsData } from "pursuit/graphql/types";
-import { AddBucketItem } from "../../../apps/mobile/screens/Buckets/AddBucketItem";
+import { colors } from "themes/tokens/colors";
+import SunnyIcon from "assets/icons/sunny.svg";
+import { typography, fontSizes } from "themes/tokens/typography";
+import { ProgressBar } from "components/ProgressBar";
+import { Button } from "components/Buttons/Buttons";
+import { InsightsData } from "graphql/types";
+import { AddBucketItem } from "screens/Buckets/AddBucketItem";
 import { useState } from "react";
 
 interface NextItemProps {
@@ -32,9 +32,7 @@ interface InsightsCardProps {
   insightsData: InsightsData;
 }
 
-export const InsightsCard: React.FC<InsightsCardProps> = ({
-  insightsData,
-}) => {
+export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
   const { width } = useWindowDimensions();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 

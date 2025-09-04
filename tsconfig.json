@@ -1,31 +1,24 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "esnext",
-    "lib": ["dom", "dom.iterable", "es6"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "pursuit/*": ["./*"]
-    }
+      "components/*": ["./components/*"],
+      "screens/*": ["./screens/*"],
+      "assets/*": ["./assets/*"],
+      "hooks/*": ["./hooks/*"],
+      "utils/*": ["./utils/*"],
+      "types/*": ["./types/*"],
+      "mobile-types/*": ["./mobile-types/*"],
+      "constants/*": ["./constants/*"],
+      "themes/*": ["./themes/*"],
+      "graphql/*": ["./graphql/*"],
+      "contexts/*": ["./contexts/*"],
+      "server/*": ["./server/*"]
+    },
+    "typeRoots": ["./types", "./mobile-types", "./node_modules/@types"]
   },
-  "include": [
-    "components/**/*",
-    "themes/**/*",
-    "assets/**/*",
-    "types/**/*",
-    "graphql/**/*",
-    "**/*.test.tsx",
-    "**/*.test.ts"
-  ],
-  "exclude": ["node_modules", "apps/*/node_modules"]
+  "include": ["**/*.ts", "**/*.tsx", "types/**/*.d.ts", "mobile-types/**/*.d.ts"],
+  "exclude": ["node_modules"]
 }

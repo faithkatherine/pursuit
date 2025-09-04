@@ -1,14 +1,11 @@
 import React from "react";
 import { Text, Image, View, StyleSheet, Pressable } from "react-native";
-import colors, { theme } from "pursuit/themes/tokens/colors";
-import typography, {
-  fontSizes,
-  fontWeights,
-} from "pursuit/themes/tokens/typography";
-import { Event } from "pursuit/graphql/types";
-import DateIcon from "pursuit/assets/icons/date.svg";
-import LocationIcon from "pursuit/assets/icons/location.svg";
-import ClockIcon from "pursuit/assets/icons/clock.svg";
+import colors, { theme } from "themes/tokens/colors";
+import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import { Event } from "graphql/types";
+import DateIcon from "assets/icons/date.svg";
+import LocationIcon from "assets/icons/location.svg";
+import ClockIcon from "assets/icons/clock.svg";
 
 interface EventsCardProps {
   event: Event;
