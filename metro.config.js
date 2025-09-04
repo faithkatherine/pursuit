@@ -1,20 +1,21 @@
 const path = require("path");
-process.env.EXPO_ROUTER_APP_ROOT = path.join(__dirname, "app");
 const { getDefaultConfig } = require("expo/metro-config");
 
-// Add the additional `cjs` extension to the resolver
-config.resolver.sourceExts.push("cjs");
+// Set the app root for Expo Router
+process.env.EXPO_ROUTER_APP_ROOT = path.join(__dirname, "app");
+
+const config = getDefaultConfig(__dirname);
 
 // Configure SVG transformer
-const { transformer, resolver } = config;
 config.transformer = {
-  ...transformer,
+  ...config.transformer,
   babelTransformerPath: require.resolve("react-native-svg-transformer"),
 };
+
 config.resolver = {
-  ...resolver,
-  assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
-  sourceExts: [...resolver.sourceExts, "svg"],
+  ...config.resolver,
+  assetExts: config.resolver.assetExts.filter((ext) => ext !== "svg"),
+  sourceExts: [...config.resolver.sourceExts, "svg"],
 };
 
 // Configure module resolution for custom paths

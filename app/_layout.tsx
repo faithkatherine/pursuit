@@ -1,7 +1,7 @@
 import { ApolloProvider } from "@apollo/client";
 import { client } from "graphql/client";
 import { Stack, useRouter, useSegments } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ActivityIndicator, Text } from "react-native";
 import { AuthProvider, useAuth } from "contexts/AuthContext";
 import { useEffect } from "react";
 
@@ -23,6 +23,15 @@ function InitialLayout() {
       router.replace("/(tabs)");
     }
   }, [isAuthenticated, isLoading, segments, router]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0066CC" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <Stack>
@@ -66,5 +75,16 @@ const styles = StyleSheet.create({
   header: {
     height: 70,
     backgroundColor: "transparent",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
   },
 });

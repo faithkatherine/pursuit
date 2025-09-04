@@ -2,6 +2,11 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
     "baseUrl": ".",
     "paths": {
       "components/*": ["./components/*"],
@@ -10,15 +15,19 @@
       "hooks/*": ["./hooks/*"],
       "utils/*": ["./utils/*"],
       "types/*": ["./types/*"],
-      "mobile-types/*": ["./mobile-types/*"],
       "constants/*": ["./constants/*"],
       "themes/*": ["./themes/*"],
       "graphql/*": ["./graphql/*"],
       "contexts/*": ["./contexts/*"],
       "server/*": ["./server/*"]
     },
-    "typeRoots": ["./types", "./mobile-types", "./node_modules/@types"]
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "types/**/*.d.ts", "mobile-types/**/*.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx", "types/**/*.d.ts"],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }
