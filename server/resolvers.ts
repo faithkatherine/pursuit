@@ -2,7 +2,13 @@ import { mockData, emojiLibrary } from "./mockData";
 import { HomeData } from "../graphql/types";
 
 // Mock user database - in a real app, this would be a proper database
-const mockUsers: Array<{ id: string; name: string; email: string; password: string; avatar?: string }> = [];
+const mockUsers: Array<{
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  avatar?: string;
+}> = [];
 
 export const resolvers = {
   Query: {
@@ -39,16 +45,37 @@ export const resolvers = {
           offset + limit
         ),
         recommendations: mockData.upcomingEvents.slice(offset, offset + limit),
-        upcoming: mockData.bucketItems.slice(offset, offset + limit).map(item => ({
-          ...item,
-          category: mockData.bucketCategories.find(cat => cat.id === item.categoryId) || mockData.bucketCategories[0]
-        })),
+        upcoming: mockData.bucketItems
+          .slice(offset, offset + limit)
+          .map((item) => ({
+            ...item,
+            category:
+              mockData.bucketCategories.find(
+                (cat) => cat.id === item.categoryId
+              ) || mockData.bucketCategories[0],
+          })),
       };
     },
-    getBucketItems: (_: any, { offset = 0, limit = 10 }: { offset?: number; limit?: number }) => {
-      return mockData.bucketItems.slice(offset, offset + limit).map(item => ({
+    getBucketItems: (
+      _: any,
+      {
+        categoryId,
+        offset = 0,
+        limit = 100,
+      }: { categoryId?: string; offset?: number; limit?: number }
+    ) => {
+      let items = mockData.bucketItems;
+
+      // Filter by category if provided
+      if (categoryId) {
+        items = items.filter((item) => item.categoryId === categoryId);
+      }
+
+      return items.slice(offset, offset + limit).map((item) => ({
         ...item,
-        category: mockData.bucketCategories.find(cat => cat.id === item.categoryId) || mockData.bucketCategories[0]
+        category:
+          mockData.bucketCategories.find((cat) => cat.id === item.categoryId) ||
+          mockData.bucketCategories[0],
       }));
     },
     getEmojiLibrary: () => {
@@ -57,6 +84,9 @@ export const resolvers = {
     getBucketCategories: () => {
       return mockData.bucketCategories;
     },
+    getRecommendations: () => {
+      return mockData.upcomingEvents;
+    },
   },
   Mutation: {
     signIn: (
@@ -64,10 +94,10 @@ export const resolvers = {
       { email, password }: { email: string; password: string }
     ) => {
       // Mock authentication - in a real app, use proper password hashing
-      const user = mockUsers.find(u => u.email === email);
-      
+      const user = mockUsers.find((u) => u.email === email);
+
       if (!user || password.length < 6) {
-        throw new Error('Invalid credentials');
+        throw new Error("Invalid credentials");
       }
 
       return {
@@ -83,15 +113,19 @@ export const resolvers = {
 
     signUp: (
       _: any,
-      { name, email, password }: { name: string; email: string; password: string }
+      {
+        name,
+        email,
+        password,
+      }: { name: string; email: string; password: string }
     ) => {
       // Check if user already exists
-      if (mockUsers.find(u => u.email === email)) {
-        throw new Error('User already exists with this email');
+      if (mockUsers.find((u) => u.email === email)) {
+        throw new Error("User already exists with this email");
       }
 
       if (!name || !email || password.length < 6) {
-        throw new Error('Invalid input data');
+        throw new Error("Invalid input data");
       }
 
       const newUser = {
@@ -99,7 +133,7 @@ export const resolvers = {
         name,
         email,
         password, // In a real app, hash this password
-        avatar: 'https://randomuser.me/api/portraits/women/10.jpg',
+        avatar: "https://randomuser.me/api/portraits/women/10.jpg",
       };
 
       mockUsers.push(newUser);
@@ -167,7 +201,8 @@ export const resolvers = {
       }
 
       const newItemId = (mockData.bucketItems.length + 1).toString();
-      const defaultImage = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=800"; // Adventure placeholder
+      const defaultImage =
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=800"; // Adventure placeholder
       const newItem = {
         id: newItemId,
         title,
@@ -181,14 +216,18 @@ export const resolvers = {
       mockData.bucketItems.push(newItem);
       return {
         ...newItem,
-        category: mockData.bucketCategories.find(cat => cat.id === finalCategoryId) || mockData.bucketCategories[0]
+        category:
+          mockData.bucketCategories.find((cat) => cat.id === finalCategoryId) ||
+          mockData.bucketCategories[0],
       };
     },
   },
   BucketItem: {
     category: (parent: any) => {
       if (!parent.categoryId) return null;
-      return mockData.bucketCategories.find(cat => cat.id === parent.categoryId);
+      return mockData.bucketCategories.find(
+        (cat) => cat.id === parent.categoryId
+      );
     },
   },
 };

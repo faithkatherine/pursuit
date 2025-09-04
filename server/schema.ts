@@ -54,7 +54,6 @@ export const typeDefs = gql`
     category: Category
   }
 
-
   type InsightsData {
     id: ID!
     weather: Weather!
@@ -85,7 +84,11 @@ export const typeDefs = gql`
     getHome: HomeData!
     getCategories: [Category!]!
     getBucketCategories: [Category!]!
-    getBucketItems(offset: Int = 0, limit: Int = 10): [BucketItem!]!
+    getBucketItems(
+      categoryId: String
+      offset: Int = 0
+      limit: Int = 100
+    ): [BucketItem!]!
     getRecommendations(offset: Int = 0, limit: Int = 10): [Event!]!
     getEmojiLibrary: [Emoji!]!
   }
@@ -94,7 +97,7 @@ export const typeDefs = gql`
     # Authentication mutations
     signIn(email: String!, password: String!): AuthPayload!
     signUp(name: String!, email: String!, password: String!): AuthPayload!
-    
+
     # Existing mutations
     updateProgress(completed: Int!): Progress!
     addAchievement(achievement: String!): InsightsData!

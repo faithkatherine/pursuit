@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from "contexts/AuthContext";
 import { useEffect } from "react";
 
 function InitialLayout() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
   const router = useRouter();
   const segments = useSegments();
 
@@ -14,15 +14,26 @@ function InitialLayout() {
     if (isLoading) return; // Don't do anything while loading
 
     const inAuthGroup = segments[0] === "auth";
+    const inOnboardingGroup = segments[0] === "onboarding";
 
     if (!isAuthenticated && !inAuthGroup) {
       // Redirect to sign in if not authenticated and not in auth group
       router.replace("/auth/signin");
     } else if (isAuthenticated && inAuthGroup) {
-      // Redirect to main app if authenticated and in auth group
+      // Check if user needs onboarding after successful auth
+      if (needsOnboarding) {
+        router.replace("/onboarding/interests");
+      } else {
+        router.replace("/(tabs)");
+      }
+    } else if (isAuthenticated && needsOnboarding && !inOnboardingGroup) {
+      // Redirect to onboarding if user is authenticated but hasn't completed onboarding
+      router.replace("/onboarding/interests");
+    } else if (isAuthenticated && !needsOnboarding && inOnboardingGroup) {
+      // Redirect to main app if user has completed onboarding
       router.replace("/(tabs)");
     }
-  }, [isAuthenticated, isLoading, segments, router]);
+  }, [isAuthenticated, isLoading, needsOnboarding, segments, router]);
 
   if (isLoading) {
     return (
@@ -43,6 +54,12 @@ function InitialLayout() {
       />
       <Stack.Screen
         name="auth/signup"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="onboarding/interests"
         options={{
           headerShown: false,
         }}
@@ -78,13 +95,13 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
 });

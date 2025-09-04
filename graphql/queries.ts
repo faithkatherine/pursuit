@@ -132,6 +132,15 @@ export const GET_BUCKET_CATEGORIES = gql`
   }
 `;
 
+export const GET_BUCKET_ITEMS = gql`
+  query GetBucketItems($categoryId: String) {
+    getBucketItems(categoryId: $categoryId) {
+      ...BucketItemInfo
+    }
+  }
+  ${BUCKET_ITEM_FRAGMENT}
+`;
+
 export const SIGN_IN = gql`
   mutation SignIn($email: String!, $password: String!) {
     signIn(email: $email, password: $password) {

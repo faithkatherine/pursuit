@@ -62,21 +62,17 @@ const Home = () => {
     homeData;
 
   const handleSignOut = () => {
-    Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Sign Out",
-          onPress: signOut,
-          style: "destructive",
-        },
-      ]
-    );
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Sign Out",
+        onPress: signOut,
+        style: "destructive",
+      },
+    ]);
   };
 
   const buckets = bucketCategories.map((category: Category, index: number) => (
@@ -161,16 +157,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 27,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   signOutButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: colors.silverSand,
   },
 
   greeting: {

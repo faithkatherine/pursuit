@@ -10,13 +10,11 @@ import {
 } from "react-native";
 import { useState, useRef } from "react";
 import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import colors from "themes/tokens/colors";
 import { Button } from "components/Buttons";
 import { EmojiPicker } from "components/Pickers";
-import {
-  ADD_BUCKET_CATEGORY,
-} from "graphql/queries";
+import { ADD_BUCKET_CATEGORY } from "graphql/queries";
 import { useMutation } from "@apollo/client";
 
 interface FormData {
@@ -24,7 +22,11 @@ interface FormData {
   emoji: string;
 }
 
-export const AddBucket = () => {
+interface AddBucketProps {
+  onClose?: () => void;
+}
+
+export const AddBucket = ({ onClose }: AddBucketProps) => {
   const router = useRouter();
   const {
     control,
@@ -41,9 +43,8 @@ export const AddBucket = () => {
   const [selectedEmoji, setSelectedEmoji] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const shakeViewRef = useRef<ShakeAnimatedViewRef>(null);
-  const [addBucketCategory, { loading: addBucketLoading }] = useMutation(
-    ADD_BUCKET_CATEGORY
-  );
+  const [addBucketCategory, { loading: addBucketLoading }] =
+    useMutation(ADD_BUCKET_CATEGORY);
 
   const shakeError = () => {
     shakeViewRef.current?.shake();
@@ -62,12 +63,13 @@ export const AddBucket = () => {
 
       // Show success toast
       Alert.alert(
-        "🎉 Success!", 
+        "🎉 Success!",
         "Your bucket category has been created successfully!",
         [
           {
             text: "Great!",
             onPress: () => {
+              onClose?.();
               router.push("/(tabs)");
             },
           },
@@ -75,16 +77,17 @@ export const AddBucket = () => {
       );
     } catch (error) {
       console.error("Error adding bucket category:", error);
-      
+
       // Show error alert with retry option
       Alert.alert(
-        "❌ Oops!", 
+        "❌ Oops!",
         "Something went wrong while creating your bucket category. Would you like to try again?",
         [
           {
             text: "Cancel",
             style: "cancel",
             onPress: () => {
+              onClose?.();
               router.push("/(tabs)");
             },
           },
@@ -165,7 +168,11 @@ export const AddBucket = () => {
 
       <View style={styles.buttonContainer}>
         <Button
-          text={isSubmitting || addBucketLoading ? "✨ Creating..." : "🚀 Create My Bucket!"}
+          text={
+            isSubmitting || addBucketLoading
+              ? "✨ Creating..."
+              : "🚀 Create My Bucket!"
+          }
           variant="primary"
           onPress={handleSubmit(onSubmit, onError)}
           disabled={isSubmitting || addBucketLoading}
