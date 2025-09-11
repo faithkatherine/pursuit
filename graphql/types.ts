@@ -24,29 +24,33 @@ export interface InsightsData {
   recentAchievement: string;
 }
 
-export interface GetInsightsDataQuery {
-  getInsightsData: InsightsData;
-}
-
-export interface GetEventsQuery {
-  getEvents: Event[];
-}
-
-export interface Event {
+export interface Recommendation {
   id: string;
   image: string;
   title: string;
   date: string;
   location: string;
+  amount?: number;
 }
 
+// Unified Category interface
 export interface Category {
   id: string;
   name: string;
   emoji: string;
 }
 
-
+// Unified BucketItem interface
+export interface BucketItem {
+  id: string;
+  title: string;
+  description?: string;
+  amount?: number;
+  image: string;
+  completed: boolean;
+  categoryId: string;
+  category?: Category;
+}
 
 export interface HomeData {
   id: string;
@@ -55,56 +59,13 @@ export interface HomeData {
   weather: Weather;
   insights: InsightsData;
   bucketCategories: Category[];
-  recommendations: Event[];
+  recommendations: Recommendation[];
   upcoming: BucketItem[];
-}
-
-export interface GetHomeQuery {
-  getHome: HomeData;
-}
-
-export interface GetBucketItemsQuery {
-  getBucketItems: BucketItem[];
 }
 
 export interface Emoji {
   symbol: string;
   description: string;
-}
-
-export interface BucketCategory {
-  id: string;
-  name: string;
-  emoji: string;
-}
-
-export interface GetBucketCategoriesQuery {
-  getBucketCategories: BucketCategory[];
-}
-
-export interface BucketItem {
-  id: string;
-  title: string;
-  description: string;
-  amount?: number;
-  image: string;
-  completed: boolean;
-  categoryId?: string;
-  category: BucketCategory;
-}
-
-export interface BucketItemRaw {
-  id: string;
-  title: string;
-  description: string;
-  amount?: number;
-  image: string;
-  completed: boolean;
-  categoryId: string;
-}
-
-export interface GetEmojiLibraryQuery {
-  getEmojiLibrary: Emoji[];
 }
 
 export interface User {
@@ -119,6 +80,32 @@ export interface AuthPayload {
   token?: string;
 }
 
+// Query response types
+export interface GetInsightsDataQuery {
+  getInsightsData: InsightsData;
+}
+
+export interface GetRecommendationsQuery {
+  getRecommendations: Recommendation[];
+}
+
+export interface GetHomeQuery {
+  getHome: HomeData;
+}
+
+export interface GetBucketItemsQuery {
+  getBucketItems: BucketItem[];
+}
+
+export interface GetBucketCategoriesQuery {
+  getBucketCategories: Category[];
+}
+
+export interface GetEmojiLibraryQuery {
+  getEmojiLibrary: Emoji[];
+}
+
+// Mutation response types
 export interface SignInMutation {
   signIn: AuthPayload;
 }
@@ -129,4 +116,8 @@ export interface SignUpMutation {
 
 export interface AddBucketCategoryMutation {
   addBucketCategory: Category;
+}
+
+export interface AddBucketItemMutation {
+  addBucketItem: BucketItem;
 }

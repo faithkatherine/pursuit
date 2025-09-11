@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
-  type Event {
+  type Recommendation {
     id: ID!
     image: String!
     title: String!
@@ -69,7 +69,7 @@ export const typeDefs = gql`
     weather: Weather!
     insights: InsightsData!
     bucketCategories(offset: Int = 0, limit: Int = 10): [Category!]!
-    recommendations(offset: Int = 0, limit: Int = 10): [Event!]!
+    recommendations(offset: Int = 0, limit: Int = 10): [Recommendation!]!
     upcoming(offset: Int = 0, limit: Int = 10): [BucketItem!]!
   }
 
@@ -80,7 +80,6 @@ export const typeDefs = gql`
 
   type Query {
     getInsightsData: InsightsData!
-    getEvents: [Event!]!
     getHome: HomeData!
     getCategories: [Category!]!
     getBucketCategories: [Category!]!
@@ -89,7 +88,7 @@ export const typeDefs = gql`
       offset: Int = 0
       limit: Int = 100
     ): [BucketItem!]!
-    getRecommendations(offset: Int = 0, limit: Int = 10): [Event!]!
+    getRecommendations(offset: Int = 0, limit: Int = 10): [Recommendation!]!
     getEmojiLibrary: [Emoji!]!
   }
 

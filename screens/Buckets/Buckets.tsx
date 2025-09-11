@@ -10,36 +10,28 @@ import {
   TextInput,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Layout } from "components/Layout";
+import { Layout, SectionHeader } from "components/Layout";
 import { BucketCard } from "components/Cards/BucketCard";
+import { BucketItemCard } from "components/Cards/BucketItemCard";
+import { RecommendationCard } from "components/Cards/EventsCard";
 import { AddBucket } from "./AddBucket";
 import { AddBucketItem } from "./AddBucketItem";
 import { Button } from "components/Buttons";
 import { BaseModal } from "components/Modals";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights } from "themes/tokens/typography";
+import { getGradientByIndex } from "themes/tokens/gradients";
 import { useQuery } from "@apollo/client";
 import {
-  GET_BUCKET_CATEGORIES,
-  GET_BUCKET_ITEMS,
-  GET_RECOMMENDATIONS,
-} from "../../graphql/queries";
-import { cacheUtils, getCachePolicy } from "../../graphql/cache";
-
-interface BucketItem {
-  id: string;
-  title: string;
-  description?: string;
-  amount?: number;
-  image?: string;
-  completed: boolean;
-  categoryId: string;
-  category?: {
-    id: string;
-    name: string;
-    emoji: string;
-  };
-}
+  useBucketCategories,
+  useBucketItems,
+  useRecommendations,
+  transformBucketItemsWithCategories,
+  filterItemsBySearch,
+  categorizeItems,
+} from "../../graphql/hooks";
+import { cacheUtils } from "../../graphql/cache";
+import { Category, BucketItem, Recommendation } from "../../graphql/types";
 
 export const Buckets = () => {
   const { width } = useWindowDimensions();
@@ -50,76 +42,31 @@ export const Buckets = () => {
   const [showAddBucketModal, setShowAddBucketModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
-  // GraphQL Queries with caching
+  // Use shared hooks for consistent data fetching
   const {
-    data: categoriesData,
+    categories,
     loading: categoriesLoading,
+    error: categoriesError,
     refetch: refetchCategories,
-  } = useQuery(GET_BUCKET_CATEGORIES, {
-    ...getCachePolicy("static"), // Categories rarely change
-  });
+  } = useBucketCategories();
 
   const {
-    data: itemsData,
+    bucketItems,
     loading: itemsLoading,
+    error: itemsError,
     refetch: refetchItems,
-  } = useQuery(GET_BUCKET_ITEMS, {
-    variables: { categoryId: selectedCategory || undefined },
-    ...getCachePolicy("dynamic"), // Items change frequently
-    notifyOnNetworkStatusChange: false, // Prevent UI flashing
-    fetchPolicy: "cache-first", // Use cache first to prevent jumps
-  });
+  } = useBucketItems(selectedCategory);
 
-  const { data: recommendationsData, loading: recommendationsLoading } =
-    useQuery(GET_RECOMMENDATIONS, {
-      ...getCachePolicy("static"), // Recommendations can be cached longer
-    });
+  const { recommendations, loading: recommendationsLoading } =
+    useRecommendations();
 
-  const categories = categoriesData?.getBucketCategories || [];
-  const bucketItems = itemsData?.getBucketItems || [];
-  const recommendations = recommendationsData?.getRecommendations || [];
-
-  // Memoize expensive calculations to prevent re-renders
-  const itemsWithCategories = useMemo(
-    () =>
-      bucketItems.map((item: any) => ({
-        ...item,
-        category: categories.find((cat: any) => cat.id === item.categoryId),
-      })),
-    [bucketItems, categories]
+  // Combine and transform data using shared utilities
+  const transformedItems = transformBucketItemsWithCategories(
+    bucketItems,
+    categories
   );
-
-  // Search filtering - memoized to prevent re-calculations
-  const searchFilteredItems = useMemo(
-    () =>
-      searchQuery
-        ? itemsWithCategories.filter(
-            (item: any) =>
-              item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              item.description
-                ?.toLowerCase()
-                .includes(searchQuery.toLowerCase())
-          )
-        : itemsWithCategories,
-    [searchQuery, itemsWithCategories]
-  );
-
-  // Separate upcoming and completed items - memoized
-  const { sortedUpcoming, recentlyCompleted } = useMemo(() => {
-    const upcomingItems = searchFilteredItems.filter(
-      (item: any) => !item.completed
-    );
-    const completedItems = searchFilteredItems.filter(
-      (item: any) => item.completed
-    );
-
-    return {
-      sortedUpcoming: upcomingItems.sort(
-        (a: any, b: any) => (b.amount || 0) - (a.amount || 0)
-      ),
-      recentlyCompleted: completedItems.slice(0, 3),
-    };
-  }, [searchFilteredItems]);
+  const filteredItems = filterItemsBySearch(transformedItems, searchQuery);
+  const { sortedUpcoming, recentlyCompleted } = categorizeItems(filteredItems);
 
   const handleCategoryPress = useCallback(
     (categoryId: string) => {
@@ -153,7 +100,6 @@ export const Buckets = () => {
     cacheUtils.invalidateBucketData();
   };
 
-  // Smart recommendations - memoized to prevent re-renders
   const smartRecommendations = useMemo(() => {
     if (recommendations.length > 0) {
       return recommendations.slice(0, 2);
@@ -162,6 +108,7 @@ export const Buckets = () => {
     // Fallback recommendations
     return [
       {
+        id: "rec-1",
         title: "Cherry Blossoms in Japan",
         amount: 1800,
         image:
@@ -170,6 +117,7 @@ export const Buckets = () => {
         location: "Kyoto, Japan",
       },
       {
+        id: "rec-2",
         title: "Wine Harvest in Tuscany",
         amount: 900,
         image:
@@ -179,23 +127,6 @@ export const Buckets = () => {
       },
     ];
   }, [recommendations]);
-
-  const gradients: [string, string][] = useMemo(
-    () => [
-      [colors.careysPink, colors.shilo],
-      [colors.deluge, colors.delugeLight],
-      [colors.leather, colors.aluminium],
-      [colors.roseFog, colors.careysPink],
-    ],
-    []
-  );
-
-  const getGradientColors = useCallback(
-    (index: number): [string, string] => {
-      return gradients[index % gradients.length];
-    },
-    [gradients]
-  );
 
   return (
     <Layout>
@@ -231,9 +162,7 @@ export const Buckets = () => {
         <Text style={styles.title}>Your Buckets</Text>
 
         {/* Loading State - Only show for initial loading, not category switches */}
-        {(categoriesLoading ||
-          (itemsLoading && !itemsData) ||
-          recommendationsLoading) && (
+        {(categoriesLoading || itemsLoading || recommendationsLoading) && (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading...</Text>
           </View>
@@ -241,47 +170,23 @@ export const Buckets = () => {
 
         {/* Recommendations Section */}
         <View style={styles.recommendationsSection}>
-          <Text style={styles.sectionTitle}>Recommended for You</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.recommendationsContainer}
-          >
+          <SectionHeader title="Recommended for You" />
+          <View style={styles.eventsSection}>
             {smartRecommendations.map((recommendation: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.recommendationCard}
+              <RecommendationCard
+                key={recommendation.id || index}
+                recommendation={recommendation}
                 onPress={() => {
                   // Handle adding recommendation to bucket
                 }}
-              >
-                <Image
-                  source={{ uri: recommendation.image }}
-                  style={styles.recommendationImage}
-                />
-                <LinearGradient
-                  colors={["transparent", "rgba(0,0,0,0.8)"]}
-                  style={styles.recommendationGradient}
-                />
-                <View style={styles.recommendationContent}>
-                  <Text style={styles.recommendationTitle}>
-                    {recommendation.title}
-                  </Text>
-                  <Text style={styles.recommendationLocation}>
-                    {recommendation.location}
-                  </Text>
-                  <Text style={styles.recommendationAmount}>
-                    ${recommendation.amount}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+              />
             ))}
-          </ScrollView>
+          </View>
         </View>
 
         {/* Categories */}
         <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>Categories</Text>
+          <SectionHeader title="Categories" />
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -300,7 +205,7 @@ export const Buckets = () => {
                   id={category.id}
                   name={category.name}
                   emoji={category.emoji}
-                  gradientColors={getGradientColors(index)}
+                  gradientColors={getGradientByIndex(index)}
                 />
               </TouchableOpacity>
             ))}
@@ -309,20 +214,17 @@ export const Buckets = () => {
 
         {/* Bucket Items */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {selectedCategory
+          <SectionHeader
+            title={
+              selectedCategory
                 ? `${
                     categories.find((c: any) => c.id === selectedCategory)?.name
                   } Items`
-                : "Your Adventures"}
-            </Text>
-            {itemsLoading && itemsData && (
-              <View style={styles.subtleLoader}>
-                <Text style={styles.subtleLoaderText}>Updating...</Text>
-              </View>
-            )}
-          </View>
+                : "Your Adventures"
+            }
+            isLoading={itemsLoading}
+            loadingText="Updating..."
+          />
 
           {sortedUpcoming.length > 0 && (
             <>
@@ -333,32 +235,25 @@ export const Buckets = () => {
                 contentContainerStyle={styles.itemsContainer}
               >
                 {sortedUpcoming.map((item: any) => (
-                  <TouchableOpacity
+                  <BucketItemCard
                     key={item.id}
-                    style={styles.bucketItemCard}
+                    variant="preview"
+                    title={item.title}
+                    description={item.description}
+                    imageUrl={
+                      item.image || "https://via.placeholder.com/300x200"
+                    }
+                    category={item.category?.name || "Adventure"}
                     onPress={() => handleItemPress(item)}
-                  >
-                    <Image
-                      source={{
-                        uri:
-                          item.image || "https://via.placeholder.com/300x200",
-                      }}
-                      style={styles.bucketItemImage}
-                    />
-                    <LinearGradient
-                      colors={["transparent", "rgba(0,0,0,0.8)"]}
-                      style={styles.bucketItemGradient}
-                    />
-                    <View style={styles.bucketItemContent}>
-                      <Text style={styles.bucketItemTitle}>{item.title}</Text>
-                      <Text style={styles.bucketItemCategory}>
-                        {item.category?.emoji} {item.category?.name}
-                      </Text>
-                      <Text style={styles.bucketItemAmount}>
-                        ${item.amount || 0}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                    priority={
+                      item.amount > 2000
+                        ? "high"
+                        : item.amount > 1000
+                        ? "medium"
+                        : "low"
+                    }
+                    completed={item.completed}
+                  />
                 ))}
               </ScrollView>
             </>
@@ -373,35 +268,25 @@ export const Buckets = () => {
                 contentContainerStyle={styles.itemsContainer}
               >
                 {recentlyCompleted.map((item: any) => (
-                  <TouchableOpacity
+                  <BucketItemCard
                     key={item.id}
-                    style={[styles.bucketItemCard, styles.completedCard]}
+                    variant="preview"
+                    title={item.title}
+                    description={item.description}
+                    imageUrl={
+                      item.image || "https://via.placeholder.com/300x200"
+                    }
+                    category={item.category?.name || "Adventure"}
                     onPress={() => handleItemPress(item)}
-                  >
-                    <Image
-                      source={{
-                        uri:
-                          item.image || "https://via.placeholder.com/300x200",
-                      }}
-                      style={styles.bucketItemImage}
-                    />
-                    <LinearGradient
-                      colors={["transparent", "rgba(0,0,0,0.8)"]}
-                      style={styles.bucketItemGradient}
-                    />
-                    <View style={styles.bucketItemContent}>
-                      <Text style={styles.bucketItemTitle}>{item.title}</Text>
-                      <Text style={styles.bucketItemCategory}>
-                        {item.category?.emoji} {item.category?.name}
-                      </Text>
-                      <Text style={styles.bucketItemAmount}>
-                        ${item.amount || 0}
-                      </Text>
-                    </View>
-                    <View style={styles.completedBadge}>
-                      <Text style={styles.completedIcon}>✓</Text>
-                    </View>
-                  </TouchableOpacity>
+                    priority={
+                      item.amount > 2000
+                        ? "high"
+                        : item.amount > 1000
+                        ? "medium"
+                        : "low"
+                    }
+                    completed={item.completed}
+                  />
                 ))}
               </ScrollView>
             </>
@@ -496,12 +381,8 @@ const styles = StyleSheet.create({
   recommendationsSection: {
     marginBottom: 32,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: fontWeights.semibold,
-    color: theme.text.primary,
-    fontFamily: "Work Sans",
-    marginBottom: 16,
+  eventsSection: {
+    gap: 24,
   },
   subsectionTitle: {
     fontSize: 18,
@@ -510,59 +391,6 @@ const styles = StyleSheet.create({
     fontFamily: "Work Sans",
     marginBottom: 12,
     marginTop: 20,
-  },
-  recommendationsContainer: {
-    paddingHorizontal: 4,
-  },
-  recommendationCard: {
-    width: 280,
-    height: 180,
-    borderRadius: 16,
-    marginRight: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    backgroundColor: colors.white,
-  },
-  recommendationImage: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-  },
-  recommendationGradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "60%",
-  },
-  recommendationContent: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-  },
-  recommendationTitle: {
-    fontSize: 18,
-    fontWeight: fontWeights.bold,
-    color: colors.white,
-    fontFamily: "Work Sans",
-    marginBottom: 4,
-  },
-  recommendationLocation: {
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.8)",
-    fontFamily: "Work Sans",
-    marginBottom: 8,
-  },
-  recommendationAmount: {
-    fontSize: 16,
-    fontWeight: fontWeights.semibold,
-    color: colors.white,
-    fontFamily: "Work Sans",
   },
   categoriesSection: {
     marginBottom: 32,
@@ -579,93 +407,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 32,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  subtleLoader: {
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  subtleLoaderText: {
-    fontSize: 12,
-    color: theme.text.secondary,
-    fontFamily: "Work Sans",
-    fontStyle: "italic",
-  },
-  bucketItemCard: {
-    width: 220,
-    height: 160,
-    borderRadius: 16,
-    marginRight: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    backgroundColor: colors.white,
-  },
-  bucketItemImage: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-  },
-  bucketItemGradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "60%",
-  },
-  bucketItemContent: {
-    position: "absolute",
-    bottom: 12,
-    left: 12,
-    right: 12,
-  },
-  bucketItemTitle: {
-    fontSize: 16,
-    fontWeight: fontWeights.bold,
-    color: colors.white,
-    fontFamily: "Work Sans",
-    marginBottom: 4,
-  },
-  bucketItemCategory: {
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.8)",
-    fontFamily: "Work Sans",
-    marginBottom: 6,
-  },
-  bucketItemAmount: {
-    fontSize: 14,
-    fontWeight: fontWeights.semibold,
-    color: colors.white,
-    fontFamily: "Work Sans",
-  },
-  completedCard: {
-    opacity: 0.8,
-  },
-  completedBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  completedIcon: {
-    color: colors.deluge,
-    fontSize: 14,
-    fontWeight: "bold",
   },
 });
 

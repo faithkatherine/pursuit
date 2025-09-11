@@ -132,9 +132,9 @@ const cache = new InMemoryCache({
         },
       },
     },
-    Event: {
+    Recommendation: {
       fields: {
-        // Events will be dynamic once backend is connected
+        // Recommendations will be dynamic once backend is connected
         title: {
           merge(existing, incoming) {
             return incoming;

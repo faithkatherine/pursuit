@@ -2,28 +2,28 @@ import React from "react";
 import { Text, Image, View, StyleSheet, Pressable } from "react-native";
 import colors, { theme } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { Event } from "graphql/types";
+import { Recommendation } from "graphql/types";
 import DateIcon from "assets/icons/date.svg";
 import LocationIcon from "assets/icons/location.svg";
 import ClockIcon from "assets/icons/clock.svg";
 
-interface EventsCardProps {
-  event: Event;
+interface RecommendationCardProps {
+  recommendation: Recommendation;
   onPress: () => void;
 }
-export const EventsCard: React.FC<EventsCardProps> = ({ event, onPress }) => {
+export const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation, onPress }) => {
   return (
-    <Pressable onPress={onPress} testID="events-card" style={styles.container}>
+    <Pressable onPress={onPress} testID="recommendation-card" style={styles.container}>
       <Image
-        source={{ uri: event.image }}
-        testID="events-card-image"
+        source={{ uri: recommendation.image }}
+        testID="recommendation-card-image"
         style={styles.image}
         resizeMode="cover"
       />
       <View style={styles.content}>
-        <Text style={styles.title}>{event.title}</Text>
-        <Text style={styles.date}>{event.date}</Text>
-        <Text style={styles.location}>{event.location}</Text>
+        <Text style={styles.title}>{recommendation.title}</Text>
+        <Text style={styles.date}>{recommendation.date}</Text>
+        <Text style={styles.location}>{recommendation.location}</Text>
       </View>
     </Pressable>
   );

@@ -31,9 +31,8 @@ export const BUCKET_CATEGORY_FRAGMENT = gql`
   }
 `;
 
-
-export const EVENT_RECOMMENDATION_FRAGMENT = gql`
-  fragment RecommendationInfo on Event {
+export const RECOMMENDATION_FRAGMENT = gql`
+  fragment RecommendationInfo on Recommendation {
     id
     image
     title

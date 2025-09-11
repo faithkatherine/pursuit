@@ -23,7 +23,7 @@ export const mockData = {
     },
     recentAchievement: "Completed hiking challenge",
   },
-  upcomingEvents: [
+  recommendations: [
     {
       id: "1",
       image:
@@ -54,8 +54,8 @@ export const mockData = {
     { id: "2", name: "Books", emoji: "📚" },
     { id: "3", name: "Cooking", emoji: "🍳" },
     { id: "4", name: "Travelling", emoji: "✈️" },
-    { id: "5", name: "Sports & Fitness", emoji: "⚽" },
-    { id: "6", name: "Arts & Creativity", emoji: "🎨" },
+    { id: "5", name: "Fitness", emoji: "⚽" },
+    { id: "6", name: "Creativity", emoji: "🎨" },
     { id: "7", name: "Music", emoji: "🎵" },
     { id: "8", name: "Nature", emoji: "🌿" },
   ],

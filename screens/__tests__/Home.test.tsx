@@ -28,8 +28,8 @@ jest.mock("components/Cards/BucketCard", () => ({
 }));
 
 jest.mock("components/Cards/EventsCard", () => ({
-  EventsCard: ({ event }: any) => (
-    <text testID="event-card">{event.title}</text>
+  RecommendationCard: ({ recommendation }: any) => (
+    <text testID="recommendation-card">{recommendation.title}</text>
   ),
 }));
 

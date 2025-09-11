@@ -15,8 +15,8 @@ export const resolvers = {
     getInsightsData: () => {
       return mockData.insights;
     },
-    getEvents: () => {
-      return mockData.upcomingEvents;
+    getRecommendations: () => {
+      return mockData.recommendations;
     },
     getHome: (
       _: any,
@@ -44,7 +44,7 @@ export const resolvers = {
           offset,
           offset + limit
         ),
-        recommendations: mockData.upcomingEvents.slice(offset, offset + limit),
+        recommendations: mockData.recommendations.slice(offset, offset + limit),
         upcoming: mockData.bucketItems
           .slice(offset, offset + limit)
           .map((item) => ({
@@ -83,9 +83,6 @@ export const resolvers = {
     },
     getBucketCategories: () => {
       return mockData.bucketCategories;
-    },
-    getRecommendations: () => {
-      return mockData.upcomingEvents;
     },
   },
   Mutation: {

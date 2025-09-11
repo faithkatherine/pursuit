@@ -4,7 +4,7 @@ import {
   INSIGHTS_FRAGMENT,
   BUCKET_ITEM_FRAGMENT,
   WEATHER_FRAGMENT,
-  EVENT_RECOMMENDATION_FRAGMENT,
+  RECOMMENDATION_FRAGMENT,
   UPCOMING_DESTINATION_FRAGMENT,
   BUCKET_LIST_PROGRESS_FRAGMENT,
 } from "./fragments";
@@ -28,12 +28,12 @@ export const GET_INSIGHTS_DATA = gql`
 `;
 
 export const GET_RECOMMENDATIONS = gql`
-  query GetEvents {
-    getRecommendations {
+  query GetRecommendations($offset: Int = 0, $limit: Int = 10) {
+    getRecommendations(offset: $offset, limit: $limit) {
       ...RecommendationInfo
     }
   }
-  ${EVENT_RECOMMENDATION_FRAGMENT}
+  ${RECOMMENDATION_FRAGMENT}
 `;
 
 export const GET_HOME = gql`
@@ -64,7 +64,7 @@ export const GET_HOME = gql`
   ${BUCKET_LIST_PROGRESS_FRAGMENT}
   ${INSIGHTS_FRAGMENT}
   ${BUCKET_CATEGORY_FRAGMENT}
-  ${EVENT_RECOMMENDATION_FRAGMENT}
+  ${RECOMMENDATION_FRAGMENT}
   ${BUCKET_ITEM_FRAGMENT}
 `;
 

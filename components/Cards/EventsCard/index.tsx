@@ -1,1 +1,1 @@
-export { EventsCard } from "./EventsCard";
+export { RecommendationCard } from "./EventsCard";
