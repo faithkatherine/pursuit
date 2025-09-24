@@ -1,8 +1,31 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+  from,
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const TOKEN_KEY = "pursuit_auth_token";
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:4000/graphql",
+  uri: "http://localhost:8000/graphql/",
 });
+
+const authLink = setContext(async (_, { headers }) => {
+  // Get the authentication token from AsyncStorage
+  const token = await AsyncStorage.getItem(TOKEN_KEY);
+
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  };
+});
+
+const link = from([authLink, httpLink]);
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -245,7 +268,7 @@ const cache = new InMemoryCache({
 });
 
 export const client = new ApolloClient({
-  link: httpLink,
+  link: link,
   cache,
   defaultOptions: {
     watchQuery: {

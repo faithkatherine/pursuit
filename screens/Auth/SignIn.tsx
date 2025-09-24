@@ -19,7 +19,7 @@ interface SignInFormData {
 
 export const SignIn = () => {
   const router = useRouter();
-  const { signIn, isLoading } = useAuth();
+  const { signIn, signInWithGoogle, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -61,6 +61,19 @@ export const SignIn = () => {
 
   const onError = () => {
     shakeError();
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const success = await signInWithGoogle();
+      if (!success) {
+        shakeError();
+      }
+    } catch (error) {
+      console.error("Google sign in error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+      shakeError();
+    }
   };
 
   return (
@@ -141,7 +154,7 @@ export const SignIn = () => {
           loadingText="✨ Signing In..."
         />
 
-        <GoogleButton />
+        <GoogleButton onPress={handleGoogleSignIn} />
 
         <AuthPrompt
           text="Don't have an account? "

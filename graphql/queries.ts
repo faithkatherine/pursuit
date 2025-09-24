@@ -168,3 +168,19 @@ export const SIGN_UP = gql`
     }
   }
 `;
+
+export const GOOGLE_SIGN_IN = gql`
+  mutation GoogleSignIn($token: String!) {
+    googleSignIn(token: $token) {
+      user {
+        id
+        name
+        email
+        avatar
+      }
+      accessToken
+      refreshToken
+      message
+    }
+  }
+`;

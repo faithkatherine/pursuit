@@ -10,11 +10,12 @@ import {
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useQuery } from "@apollo/client";
 import { Layout } from "components/Layout";
 import { AuthContext, type User } from "contexts/AuthContext";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights } from "themes/tokens/typography";
-import { mockData } from "../server/mockData";
+import { GET_BUCKET_ITEMS } from "../graphql/queries";
 
 const Profiles = () => {
   const context = useContext(AuthContext);
@@ -24,14 +25,16 @@ const Profiles = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
-  const bucketItems = mockData.bucketItems;
-  const completedItems = bucketItems.filter((item) => item.completed);
+  // Fetch bucket items using GraphQL
+  const { data: bucketData } = useQuery(GET_BUCKET_ITEMS);
+  const bucketItems = bucketData?.getBucketItems || [];
+  const completedItems = bucketItems.filter((item: any) => item.completed);
   const totalValue = bucketItems.reduce(
-    (sum, item) => sum + (item.amount || 0),
+    (sum: number, item: any) => sum + (item.amount || 0),
     0
   );
   const completedValue = completedItems.reduce(
-    (sum, item) => sum + (item.amount || 0),
+    (sum: number, item: any) => sum + (item.amount || 0),
     0
   );
 
@@ -56,7 +59,7 @@ const Profiles = () => {
       title: "High Roller",
       description: "Added a bucket item worth over $1000",
       icon: "💰",
-      earned: bucketItems.some((item) => (item.amount || 0) > 1000),
+      earned: bucketItems.some((item: any) => (item.amount || 0) > 1000),
     },
     {
       id: "explorer",
@@ -102,7 +105,11 @@ const Profiles = () => {
         >
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: user?.avatar || mockData.user.avatar }}
+              source={{
+                uri:
+                  user?.avatar ||
+                  "https://via.placeholder.com/100x100.png?text=User",
+              }}
               style={styles.avatar}
             />
             <TouchableOpacity style={styles.editAvatarButton}>
@@ -110,11 +117,9 @@ const Profiles = () => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.userName}>
-            {user?.name || mockData.user.name}
-          </Text>
+          <Text style={styles.userName}>{user?.name || "User Name"}</Text>
           <Text style={styles.userEmail}>
-            {user?.email || mockData.user.email}
+            {user?.email || "user@example.com"}
           </Text>
 
           <TouchableOpacity

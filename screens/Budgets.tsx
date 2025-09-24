@@ -8,24 +8,28 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
+import { useQuery } from "@apollo/client";
 import { Layout } from "components/Layout";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights } from "themes/tokens/typography";
-import { mockData } from "../server/mockData";
+import { GET_BUCKET_ITEMS } from "../graphql/queries";
 
 const Budgets = () => {
   const { width } = useWindowDimensions();
   const chartWidth = width - 48; // More padding for cleaner look
 
+  // Fetch bucket items using GraphQL
+  const { data: bucketData, loading, error } = useQuery(GET_BUCKET_ITEMS);
+
   // Calculate spending data from bucket items
-  const bucketItems = mockData.bucketItems;
+  const bucketItems = bucketData?.getBucketItems || [];
   const totalBudget = bucketItems.reduce(
-    (sum, item) => sum + (item.amount || 0),
+    (sum: number, item: any) => sum + (item.amount || 0),
     0
   );
-  const completedItems = bucketItems.filter((item) => item.completed);
+  const completedItems = bucketItems.filter((item: any) => item.completed);
   const totalSpent = completedItems.reduce(
-    (sum, item) => sum + (item.amount || 0),
+    (sum: number, item: any) => sum + (item.amount || 0),
     0
   );
   const remaining = totalBudget - totalSpent;

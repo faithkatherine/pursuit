@@ -20,7 +20,7 @@ interface SignUpFormData {
 
 export const SignUp = () => {
   const router = useRouter();
-  const { signUp, isLoading } = useAuth();
+  const { signUp, signInWithGoogle, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -68,6 +68,19 @@ export const SignUp = () => {
 
   const onError = () => {
     shakeError();
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      const success = await signInWithGoogle();
+      if (!success) {
+        shakeError();
+      }
+    } catch (error) {
+      console.error("Google sign up error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+      shakeError();
+    }
   };
 
   return (
@@ -202,7 +215,7 @@ export const SignUp = () => {
           loadingText="✨ Creating Account..."
         />
 
-        <GoogleButton />
+        <GoogleButton onPress={handleGoogleSignUp} />
 
         <AuthPrompt
           text="Already have an account? "
