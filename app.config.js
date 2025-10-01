@@ -25,8 +25,11 @@ module.exports = {
     scheme: "pursuit",
     extra: {
       eas: {
-        projectId: "75250b6f-ff9b-48ce-b717-a4843ae8fe2d"
-      }
+        projectId: "75250b6f-ff9b-48ce-b717-a4843ae8fe2d",
+      },
+      router: {
+        origin: false,
+      },
     },
   },
 };

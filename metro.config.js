@@ -29,7 +29,6 @@ config.resolver.alias = {
   hooks: path.resolve(__dirname, "./hooks"),
   utils: path.resolve(__dirname, "./utils"),
   types: path.resolve(__dirname, "./types"),
-  constants: path.resolve(__dirname, "./constants"),
 };
 
 module.exports = config;
