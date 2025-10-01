@@ -2,8 +2,13 @@ import { ApolloProvider } from "@apollo/client";
 import { client } from "graphql/client";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StyleSheet, View, ActivityIndicator, Text } from "react-native";
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "contexts/AuthContext";
 import { useEffect } from "react";
+import { Loading } from "components/Layout";
 
 function InitialLayout() {
   const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
@@ -36,12 +41,7 @@ function InitialLayout() {
   }, [isAuthenticated, isLoading, needsOnboarding, segments, router]);
 
   if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066CC" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
+    return <Loading />;
   }
 
   return (
@@ -80,11 +80,13 @@ function InitialLayout() {
 
 export default function RootLayout() {
   return (
-    <ApolloProvider client={client}>
-      <AuthProvider>
-        <InitialLayout />
-      </AuthProvider>
-    </ApolloProvider>
+    <SafeAreaProvider>
+      <ApolloProvider client={client}>
+        <AuthProvider>
+          <InitialLayout />
+        </AuthProvider>
+      </ApolloProvider>
+    </SafeAreaProvider>
   );
 }
 

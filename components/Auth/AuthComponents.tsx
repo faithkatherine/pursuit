@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import {
   TextInput,
   Text,
@@ -11,6 +11,7 @@ import {
   Pressable,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
@@ -27,37 +28,31 @@ export const AuthLayout = React.forwardRef<
   AuthLayoutProps
 >(({ children, heroTitle, heroSubtitle }, ref) => {
   const shakeViewRef = useRef<ShakeAnimatedViewRef>(null);
+  const insets = useSafeAreaInsets();
 
   React.useImperativeHandle(ref, () => ({
     shake: () => shakeViewRef.current?.shake(),
   }));
 
   return (
-    <LinearGradient
-      colors={[colors.deluge, colors.careysPink, colors.roseFog]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
+    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContainer,
+          { paddingTop: insets.top + 20 },
+        ]}
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.heroSection}>
-            <Text style={styles.heroTitle}>{heroTitle}</Text>
-            <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
-          </View>
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>{heroTitle}</Text>
+          <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
+        </View>
 
-          <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
-            <View style={styles.form}>{children}</View>
-          </ShakeAnimatedView>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </LinearGradient>
+        <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
+          <View style={styles.form}>{children}</View>
+        </ShakeAnimatedView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 });
 
@@ -240,16 +235,14 @@ export const AuthPrompt: React.FC<AuthPromptProps> = ({
 };
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   container: {
+    backgroundColor: colors.ghostWhite,
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingHorizontal: 27,
+    //paddingTop: 40,
     paddingBottom: 20,
   },
   heroSection: {

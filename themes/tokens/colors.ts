@@ -14,6 +14,7 @@ export const colors = {
   white02: "rgba(255, 255, 255, 0.2)",
   white05: "rgba(255, 255, 255, 0.05)",
   white50: "rgba(255, 255, 255, 0.5)",
+  ghostWhite: "rgb(250,247,252)",
   lightBlue: "rgb(107, 78, 255)",
   graniteGray: "rgb(102, 102, 102)",
   gray: "rgb(128, 128, 128)",
