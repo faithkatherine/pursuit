@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import { useState } from "react";
-import { useAuth } from "contexts/AuthContext";
+import { useAuth } from "providers/AuthProvider";
 
 import { Layout, Loading, Error, SectionHeader } from "components/Layout";
 import { InsightsCard } from "components/Cards/InsightsCard";

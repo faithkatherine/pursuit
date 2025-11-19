@@ -1,44 +1,59 @@
 import { ApolloProvider } from "@apollo/client";
 import { client } from "graphql/client";
-import { Stack, useRouter, useSegments } from "expo-router";
-import { StyleSheet, View, ActivityIndicator, Text } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { StyleSheet, View } from "react-native";
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { AuthProvider, useAuth } from "contexts/AuthContext";
+import { AuthProvider, useAuth } from "providers/AuthProvider";
 import { useEffect } from "react";
 import { Loading } from "components/Layout";
 
 function InitialLayout() {
-  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
+  const {
+    isAuthenticated,
+    isLoading,
+    needsOnboarding,
+    hasSeenGetStarted,
+    hasAttemptedAuth,
+  } = useAuth();
   const router = useRouter();
-  const segments = useSegments();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    if (isLoading) return; // Don't do anything while loading
+    if (isLoading) return;
 
-    const inAuthGroup = segments[0] === "auth";
-    const inOnboardingGroup = segments[0] === "onboarding";
-
-    if (!isAuthenticated && !inAuthGroup) {
-      // Redirect to sign in if not authenticated and not in auth group
-      router.replace("/auth/signin");
-    } else if (isAuthenticated && inAuthGroup) {
-      // Check if user needs onboarding after successful auth
-      if (needsOnboarding) {
-        router.replace("/onboarding/interests");
-      } else {
-        router.replace("/(tabs)");
-      }
-    } else if (isAuthenticated && needsOnboarding && !inOnboardingGroup) {
-      // Redirect to onboarding if user is authenticated but hasn't completed onboarding
-      router.replace("/onboarding/interests");
-    } else if (isAuthenticated && !needsOnboarding && inOnboardingGroup) {
-      // Redirect to main app if user has completed onboarding
+    if (isAuthenticated && !needsOnboarding) {
       router.replace("/(tabs)");
+      return;
     }
-  }, [isAuthenticated, isLoading, needsOnboarding, segments, router]);
+
+    if (isAuthenticated && needsOnboarding) {
+      if (!hasSeenGetStarted) {
+        router.replace("/get-started");
+      } else {
+        router.replace("/onboarding/interests");
+      }
+      return;
+    }
+
+    if (!isAuthenticated) {
+      if (!hasSeenGetStarted || !hasAttemptedAuth) {
+        router.replace("/get-started");
+      } else {
+        router.replace("/auth/signin");
+      }
+      return;
+    }
+  }, [
+    isAuthenticated,
+    isLoading,
+    needsOnboarding,
+    hasSeenGetStarted,
+    hasAttemptedAuth,
+    router,
+  ]);
 
   if (isLoading) {
     return <Loading />;
@@ -46,6 +61,16 @@ function InitialLayout() {
 
   return (
     <Stack>
+      <Stack.Screen
+        name="get-started"
+        options={{
+          headerShown: false,
+          contentStyle: {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          },
+        }}
+      />
       <Stack.Screen
         name="auth/signin"
         options={{

@@ -25,6 +25,9 @@ interface AuthContextType {
   isAuthenticated: boolean;
   completeOnboarding: (interests: string[]) => Promise<void>;
   needsOnboarding: boolean;
+  hasSeenGetStarted: boolean;
+  hasAttemptedAuth: boolean;
+  markGetStartedSeen: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,8 @@ export { AuthContext };
 
 const STORAGE_KEY = "pursuit_auth_user";
 const TOKEN_KEY = "pursuit_auth_token";
+const HAS_SEEN_GETSTARTED_KEY = "pursuit_has_seen_getstarted";
+const HAS_ATTEMPTED_AUTH_KEY = "pursuit_has_attempted_auth";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -40,6 +45,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [hasSeenGetStarted, setHasSeenGetStarted] = useState<boolean>(false);
+  const [hasAttemptedAuth, setHasAttemptedAuth] = useState<boolean>(false);
 
   const [signInMutation] = useMutation(SIGN_IN);
   const [signUpMutation] = useMutation(SIGN_UP);
@@ -85,13 +92,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadStoredUser = async () => {
     try {
-      const storedUser = await AsyncStorage.getItem(STORAGE_KEY);
-      const storedToken = await AsyncStorage.getItem(TOKEN_KEY);
+      const [storedUser, storedToken, seenGetStarted, attemptedAuth] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEY),
+        AsyncStorage.getItem(TOKEN_KEY),
+        AsyncStorage.getItem(HAS_SEEN_GETSTARTED_KEY),
+        AsyncStorage.getItem(HAS_ATTEMPTED_AUTH_KEY)
+      ]);
 
       if (storedUser && storedToken) {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
       }
+
+      setHasSeenGetStarted(!!seenGetStarted);
+      setHasAttemptedAuth(!!attemptedAuth);
     } catch (error) {
       console.error("Error loading stored user:", error);
     } finally {
@@ -119,9 +133,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // Store token and user data
         await AsyncStorage.setItem(TOKEN_KEY, authToken);
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        await AsyncStorage.setItem(HAS_ATTEMPTED_AUTH_KEY, "true");
 
         setToken(authToken);
         setUser(user);
+        setHasAttemptedAuth(true);
         return true;
       }
 
@@ -159,9 +175,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // Store token and user data
         await AsyncStorage.setItem(TOKEN_KEY, authToken);
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        await AsyncStorage.setItem(HAS_ATTEMPTED_AUTH_KEY, "true");
 
         setToken(authToken);
         setUser(user);
+        setHasAttemptedAuth(true);
         return true;
       }
 
@@ -261,9 +279,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             // Store token and user data
             await AsyncStorage.setItem(TOKEN_KEY, accessToken);
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+            await AsyncStorage.setItem(HAS_ATTEMPTED_AUTH_KEY, "true");
 
             setToken(accessToken);
             setUser(user);
+            setHasAttemptedAuth(true);
             return true;
           }
         }
@@ -294,10 +314,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signOut = async (): Promise<void> => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
-      await AsyncStorage.removeItem(TOKEN_KEY);
+      await AsyncStorage.multiRemove([STORAGE_KEY, TOKEN_KEY]);
       setUser(null);
       setToken(null);
+      // Don't clear hasSeenGetStarted - user has already seen intro
     } catch (error) {
       console.error("Sign out error:", error);
     }
@@ -320,6 +340,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const markGetStartedSeen = async (): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(HAS_SEEN_GETSTARTED_KEY, "true");
+      setHasSeenGetStarted(true);
+    } catch (error) {
+      console.error("Error marking GetStarted as seen:", error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -330,6 +359,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAuthenticated: !!user,
     completeOnboarding,
     needsOnboarding: !!user && !user.hasCompletedOnboarding,
+    hasSeenGetStarted,
+    hasAttemptedAuth,
+    markGetStartedSeen,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

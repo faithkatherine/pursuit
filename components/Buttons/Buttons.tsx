@@ -64,6 +64,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: colors.deluge,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -72,7 +74,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
+    fontSize: fontSizes.lg,
     color: colors.white,
     fontWeight: "600",
     textAlign: "center",

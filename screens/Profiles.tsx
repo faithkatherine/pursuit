@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@apollo/client";
 import { Layout } from "components/Layout";
-import { AuthContext, type User } from "contexts/AuthContext";
+import { AuthContext, type User } from "providers/AuthProvider";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights } from "themes/tokens/typography";
 import { GET_BUCKET_ITEMS } from "../graphql/queries";

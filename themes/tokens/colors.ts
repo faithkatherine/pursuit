@@ -31,6 +31,8 @@ export const theme = {
     primary: colors.thunder,
     secondary: colors.leather,
     muted: colors.aluminium,
+    black: colors.black,
+    white: colors.white,
   },
   border: colors.silverSand,
   highlight: colors.roseFog,

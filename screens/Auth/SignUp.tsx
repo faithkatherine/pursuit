@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Alert, View, StyleSheet } from "react-native";
 import { useState, useRef } from "react";
 import { useRouter } from "expo-router";
-import { useAuth } from "contexts/AuthContext";
+import { useAuth } from "providers/AuthProvider";
 import {
   AuthLayout,
   AuthField,
@@ -86,7 +86,7 @@ export const SignUp = () => {
   return (
     <AuthLayout
       ref={authLayoutRef}
-      heroTitle="Join the Adventure 🌟"
+      heroTitle="Join the Adventure"
       heroSubtitle="Start tracking your bucket list"
     >
       <View style={styles.form}>

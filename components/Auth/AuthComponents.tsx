@@ -16,6 +16,7 @@ import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
 import GoogleIcon from "assets/icons/google.svg";
+import Svg, { Path } from "react-native-svg";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -43,14 +44,26 @@ export const AuthLayout = React.forwardRef<
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.heroSection}>
-          <Text style={styles.heroTitle}>{heroTitle}</Text>
-          <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
-        </View>
+        <View style={styles.envelopeContainer}>
+          <Svg
+            width="100%"
+            height={100}
+            viewBox="0 0 400 100"
+            preserveAspectRatio="none"
+            style={styles.flapSvg}
+          >
+            <Path
+              d="M 0 100 C 0 92, 5 88, 15 82 L 190 3 C 195 0, 205 0, 210 3 L 385 82 C 395 88, 400 92, 400 100"
+              fill={theme.background}
+              stroke="transparent"
+              strokeWidth={0}
+            />
+          </Svg>
 
-        <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
-          <View style={styles.form}>{children}</View>
-        </ShakeAnimatedView>
+          <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
+            <View style={styles.form}>{children}</View>
+          </ShakeAnimatedView>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -236,49 +249,31 @@ export const AuthPrompt: React.FC<AuthPromptProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.ghostWhite,
+    backgroundColor: colors.black,
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 27,
-    //paddingTop: 40,
-    paddingBottom: 20,
+    justifyContent: "flex-end",
   },
-  heroSection: {
+  envelopeContainer: {
+    width: "100%",
     alignItems: "center",
-    paddingVertical: 20,
   },
-  heroTitle: {
-    fontSize: 34,
-    fontWeight: "800",
-    color: colors.white,
-    marginBottom: 8,
-    textAlign: "center",
-    fontFamily: typography.h1.fontFamily,
-    textShadowColor: colors.black,
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+  flapSvg: {
+    width: "100%",
+    height: 80,
   },
-  heroSubtitle: {
-    fontSize: 18,
-    color: colors.white50,
-    textAlign: "center",
-    fontFamily: typography.body.fontFamily,
-    textShadowColor: colors.white02,
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
+
   formContainer: {
     backgroundColor: theme.background,
     borderRadius: 32,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
     padding: "8%",
+    paddingTop: 12,
     minHeight: "50%",
-    elevation: 20,
-    shadowColor: theme.text.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
+    width: "100%",
   },
   form: {
     flex: 1,
@@ -291,11 +286,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 2,
     borderColor: theme.border,
-    position: "relative",
     paddingHorizontal: 18,
-    paddingTop: 16,
+    paddingTop: 4,
     paddingBottom: 4,
-    minHeight: 60,
+    minHeight: 40,
     elevation: 2,
     shadowColor: theme.text.primary,
     shadowOffset: { width: 0, height: 2 },
@@ -348,7 +342,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "transparent",
     fontFamily: typography.body.fontFamily,
-    color: theme.text.primary,
+    color: theme.text.black,
     paddingVertical: 12,
     paddingHorizontal: 0,
     minHeight: 24,

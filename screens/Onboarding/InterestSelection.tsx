@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { useAuth } from "contexts/AuthContext";
+import { useAuth } from "providers/AuthProvider";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
 

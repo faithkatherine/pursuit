@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { TouchableOpacity, Alert, Text, View, StyleSheet } from "react-native";
 import { useState, useRef } from "react";
 import { useRouter } from "expo-router";
-import { useAuth } from "contexts/AuthContext";
+import { useAuth } from "providers/AuthProvider";
 import { theme } from "themes/tokens/colors";
 import {
   AuthLayout,
