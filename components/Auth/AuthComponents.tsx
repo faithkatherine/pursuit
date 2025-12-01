@@ -16,6 +16,7 @@ import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
 import GoogleIcon from "assets/icons/google.svg";
+import ItineraryIcon from "assets/icons/itinerary.svg";
 import Svg, { Path } from "react-native-svg";
 
 interface AuthLayoutProps {
@@ -44,10 +45,13 @@ export const AuthLayout = React.forwardRef<
         ]}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.headIcon}>
+          <ItineraryIcon width={96} height={96} />
+        </View>
         <View style={styles.envelopeContainer}>
           <Svg
             width="100%"
-            height={100}
+            height={120}
             viewBox="0 0 400 100"
             preserveAspectRatio="none"
             style={styles.flapSvg}
@@ -255,6 +259,10 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "flex-end",
+  },
+  headIcon: {
+    alignItems: "center",
+    marginBottom: 20,
   },
   envelopeContainer: {
     width: "100%",

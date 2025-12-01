@@ -12,14 +12,14 @@ module.exports = {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.faithkatherine.pursuit",
+      bundleIdentifier: "com.pursuit.app",
       config: {
         usesNonExemptEncryption: false,
       },
     },
     android: {
       edgeToEdgeEnabled: true,
-      package: "com.faithkatherine.pursuit",
+      package: "com.pursuit.app",
     },
     plugins: ["expo-router", "expo-dev-client"],
     scheme: "pursuit",

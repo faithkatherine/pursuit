@@ -2280,6 +2280,11 @@
   dependencies:
     merge-options "^3.0.4"
 
+"@react-native-google-signin/google-signin@^16.0.0":
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/@react-native-google-signin/google-signin/-/google-signin-16.0.0.tgz#05af652e16f7dab745907db06edc74c007c0e670"
+  integrity sha512-jVuzPo8odREekFc0b4RK3YsqCvedtLIM2P6NSszFr9cYyhKrUNikffPapL6LmkL9qkb8K6pDeb5CXg4qALOc0g==
+
 "@react-native-picker/picker@2.9.0":
   version "2.9.0"
   resolved "https://registry.npmjs.org/@react-native-picker/picker/-/picker-2.9.0.tgz"
