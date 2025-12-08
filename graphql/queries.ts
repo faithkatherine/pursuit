@@ -144,43 +144,88 @@ export const GET_BUCKET_ITEMS = gql`
 export const SIGN_IN = gql`
   mutation SignIn($email: String!, $password: String!) {
     signIn(email: $email, password: $password) {
-      user {
-        id
-        name
-        email
-        avatar
+      ok
+      authPayload {
+        accessToken
+        sessionToken
+        refreshToken
+        expiresIn
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
       }
-      token
     }
   }
 `;
 
 export const SIGN_UP = gql`
-  mutation SignUp($name: String!, $email: String!, $password: String!) {
-    signUp(name: $name, email: $email, password: $password) {
-      user {
-        id
-        name
-        email
-        avatar
+  mutation SignUp(
+    $firstName: String!
+    $lastName: String
+    $email: String!
+    $password: String!
+  ) {
+    signUp(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      password: $password
+    ) {
+      ok
+      authPayload {
+        accessToken
+        sessionToken
+        refreshToken
+        expiresIn
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
       }
-      token
     }
   }
 `;
 
 export const GOOGLE_SIGN_IN = gql`
-  mutation GoogleSignIn($token: String!) {
-    googleSignIn(token: $token) {
-      user {
-        id
-        name
-        email
-        avatar
+  mutation GoogleSignIn($idToken: String!) {
+    googleSignIn(idToken: $idToken) {
+      ok
+      authPayload {
+        accessToken
+        sessionToken
+        refreshToken
+        expiresIn
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
       }
+    }
+  }
+`;
+
+export const SIGN_OUT = gql`
+  mutation SignOut($refreshToken: String!) {
+    signOut(refreshToken: $refreshToken) {
+      ok
+    }
+  }
+`;
+
+export const REFRESH_ACCESS_TOKEN = gql`
+  mutation RefreshAccessToken($refreshToken: String!) {
+    refreshAccessToken(refreshToken: $refreshToken) {
+      ok
       accessToken
       refreshToken
-      message
+      expiresIn
     }
   }
 `;

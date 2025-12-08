@@ -5,17 +5,16 @@ import {
   from,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const TOKEN_KEY = "pursuit_auth_token";
+import { getTokens } from "../utils/secureStorage";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:8000/graphql/",
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  // Get the authentication token from AsyncStorage
-  const token = await AsyncStorage.getItem(TOKEN_KEY);
+  // Get the authentication token from secure storage
+  const tokens = await getTokens();
+  const token = tokens.accessToken;
 
   return {
     headers: {

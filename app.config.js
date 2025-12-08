@@ -21,7 +21,7 @@ module.exports = {
       edgeToEdgeEnabled: true,
       package: "com.pursuit.app",
     },
-    plugins: ["expo-router", "expo-dev-client"],
+    plugins: ["expo-router", "expo-dev-client", "expo-secure-store"],
     scheme: "pursuit",
     extra: {
       eas: {
