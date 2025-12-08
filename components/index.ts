@@ -19,3 +19,4 @@ export * from "./Modals";
 export * from "./Pickers";
 export * from "./ProgressBar";
 export * from "./Animations";
+export * from "./SplashScreen";

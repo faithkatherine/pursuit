@@ -3,24 +3,23 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Image,
   Animated,
   Easing,
   useWindowDimensions,
 } from "react-native";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "providers/AuthProvider";
 import { images } from "assets/images";
 import { theme } from "themes/tokens/colors";
 import typography from "themes/tokens/typography";
 import { Button } from "components/Buttons";
+import { setHasSeenGetStarted } from "utils/secureStorage";
 
 const GetStarted = () => {
   const router = useRouter();
-  const { markGetStartedSeen, isAuthenticated, needsOnboarding } = useAuth();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const { isAuthenticated, needsOnboarding } = useAuth();
   const { width } = useWindowDimensions();
   const containerMargin = 27;
   const imageContainerWidth = width - containerMargin * 2;
@@ -34,17 +33,31 @@ const GetStarted = () => {
     "get-started-6",
   ] as const;
   const totalImages = imageKeys.length;
-  const extendedImages = [...imageKeys, imageKeys[0]];
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const scrollToIndex = (index: number, animated: boolean = true) => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        x: index * imageContainerWidth,
-        animated: animated,
-      });
-    }
+  // Create animated values for each image's opacity (crossfade effect)
+  const fadeAnims = useRef(
+    imageKeys.map((_, i) => new Animated.Value(i === 0 ? 1 : 0))
+  ).current;
+
+  const crossfadeToIndex = (fromIndex: number, toIndex: number) => {
+    Animated.parallel([
+      // Fade out current image
+      Animated.timing(fadeAnims[fromIndex], {
+        toValue: 0,
+        duration: 1000,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }),
+      // Fade in next image
+      Animated.timing(fadeAnims[toIndex], {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const startAutoScroll = () => {
@@ -53,40 +66,17 @@ const GetStarted = () => {
     }
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const nextIndex = prevIndex + 1;
-        scrollToIndex(nextIndex);
-
-        if (nextIndex === totalImages) {
-          setTimeout(() => {
-            scrollToIndex(0, false);
-            setCurrentIndex(0);
-          }, 100);
-          return totalImages;
-        }
-
+        const nextIndex = (prevIndex + 1) % totalImages;
+        crossfadeToIndex(prevIndex, nextIndex);
         return nextIndex;
       });
-    }, 3500);
+    }, 4000);
   };
 
   const stopAutoScroll = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-    }
-  };
-
-  const handleMomentumScrollEnd = (event: any) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(offsetX / imageContainerWidth);
-
-    if (newIndex === totalImages) {
-      setTimeout(() => {
-        scrollToIndex(0, false);
-        setCurrentIndex(0);
-      }, 5);
-    } else {
-      setCurrentIndex(newIndex);
     }
   };
 
@@ -98,9 +88,7 @@ const GetStarted = () => {
             key={index}
             style={[
               styles.indicator,
-              (currentIndex === index ||
-                (currentIndex === totalImages && index === 0)) &&
-                styles.activeIndicator,
+              currentIndex === index && styles.activeIndicator,
             ]}
           />
         ))}
@@ -111,9 +99,11 @@ const GetStarted = () => {
   useEffect(() => {
     startAutoScroll();
     return () => stopAutoScroll();
-  }, [imageContainerWidth]);
+  }, []);
   const handleBeginPursuit = async () => {
-    await markGetStartedSeen();
+    // Mark that user has seen the get-started screen
+    await setHasSeenGetStarted();
+
     if (isAuthenticated && needsOnboarding) {
       router.push("/onboarding/interests");
     } else {
@@ -124,28 +114,26 @@ const GetStarted = () => {
   return (
     <Layout>
       <View style={styles.container}>
-        <ScrollView
-          ref={scrollViewRef}
-          style={[styles.imageContainer, { width: imageContainerWidth }]}
-          contentContainerStyle={{ flexDirection: "row" }}
-          horizontal={true}
-          pagingEnabled={true}
-          showsHorizontalScrollIndicator={false}
-          decelerationRate={0.98}
-          snapToInterval={imageContainerWidth}
-          snapToAlignment="start"
-          scrollEnabled={false}
-          onMomentumScrollEnd={handleMomentumScrollEnd}
-        >
-          {extendedImages.map((imageKey, index) => (
-            <Image
+        <View style={[styles.imageContainer, { width: imageContainerWidth }]}>
+          {imageKeys.map((imageKey, index) => (
+            <Animated.View
               key={`${imageKey}-${index}`}
-              source={images[imageKey]}
-              style={[styles.carouselImage, { width: imageContainerWidth }]}
-              resizeMode="cover"
-            />
+              style={[
+                styles.imageWrapper,
+                {
+                  opacity: fadeAnims[index],
+                  zIndex: currentIndex === index ? 1 : 0,
+                },
+              ]}
+            >
+              <Image
+                source={images[imageKey]}
+                style={[styles.carouselImage, { width: imageContainerWidth }]}
+                resizeMode="cover"
+              />
+            </Animated.View>
           ))}
-        </ScrollView>
+        </View>
         {renderIndicators()}
 
         <View style={styles.contentContainer}>
@@ -182,6 +170,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: "hidden",
     flexGrow: 0,
+  },
+  imageWrapper: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   carouselImage: {
     height: 400,

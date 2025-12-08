@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { useMutation } from "@apollo/client";
 import * as AuthSession from "expo-auth-session";
 import * as Crypto from "expo-crypto";
@@ -10,10 +10,6 @@ import {
   storeUserData,
   getUserData,
   clearAllData,
-  setHasSeenGetStarted,
-  getHasSeenGetStarted,
-  setHasAttemptedAuth,
-  getHasAttemptedAuth,
 } from "../utils/secureStorage";
 
 export interface User {
@@ -36,9 +32,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   completeOnboarding: (interests: string[]) => Promise<void>;
   needsOnboarding: boolean;
-  hasSeenGetStarted: boolean;
-  hasAttemptedAuth: boolean;
-  markGetStartedSeen: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,8 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
-  const [hasSeenGetStarted, setHasSeenGetStarted] = useState<boolean>(false);
-  const [hasAttemptedAuth, setHasAttemptedAuth] = useState<boolean>(false);
 
   const [signInMutation] = useMutation(SIGN_IN);
   const [signUpMutation] = useMutation(SIGN_UP);
@@ -61,14 +52,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Google OAuth configuration
   const discovery = AuthSession.useAutoDiscovery("https://accounts.google.com");
 
+  // Use platform-specific client IDs
+  const clientId = React.useMemo(() => {
+    if (Platform.OS === "ios") {
+      return process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "";
+    } else if (Platform.OS === "android") {
+      return process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "";
+    }
+    return process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "";
+  }, []);
+
+  // For iOS native client, use reverse domain redirect URI
+  const redirectUri = React.useMemo(() => {
+    if (Platform.OS === "ios") {
+      // iOS uses reverse domain notation from client ID
+      return "com.googleusercontent.apps.924582733350-h1v2t6aufre40fsgslfkausj4piiedvt:/oauth2redirect/google";
+    }
+    // For Android and web, use standard redirect
+    return AuthSession.makeRedirectUri({
+      scheme: "pursuit",
+    });
+  }, []);
+
+  console.log("🔍 OAuth Config:", {
+    clientId,
+    platform: Platform.OS,
+    redirectUri,
+  });
+
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "",
+      clientId: clientId,
       scopes: ["openid", "profile", "email"],
       responseType: AuthSession.ResponseType.Code,
-      redirectUri: AuthSession.makeRedirectUri({
-        scheme: "pursuit",
-      }),
+      redirectUri: redirectUri,
       prompt: AuthSession.Prompt.SelectAccount,
       usePKCE: true,
     },
@@ -92,21 +109,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadStoredUser = async () => {
     try {
-      const [tokens, storedUser, seenGetStarted, attemptedAuth] =
-        await Promise.all([
-          getTokens(),
-          getUserData<User>(),
-          getHasSeenGetStarted(),
-          getHasAttemptedAuth(),
-        ]);
+      const [tokens, storedUser] = await Promise.all([
+        getTokens(),
+        getUserData<User>(),
+      ]);
 
       if (storedUser && tokens.accessToken) {
         setUser(storedUser);
         setToken(tokens.accessToken);
       }
-
-      setHasSeenGetStarted(seenGetStarted);
-      setHasAttemptedAuth(attemptedAuth);
     } catch (error) {
       console.error("Error loading stored user:", error);
     } finally {
@@ -142,11 +153,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Store user data securely
         await storeUserData(user);
-        await setHasAttemptedAuth(true);
 
         setToken(authPayload.accessToken);
         setUser(user);
-        setHasAttemptedAuth(true);
         return true;
       }
 
@@ -198,11 +207,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Store user data securely
         await storeUserData(user);
-        await setHasAttemptedAuth(true);
 
         setToken(authPayload.accessToken);
         setUser(user);
-        setHasAttemptedAuth(true);
         return true;
       }
 
@@ -276,11 +283,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // Exchange the authorization code for tokens
         const tokenResult = await AuthSession.exchangeCodeAsync(
           {
-            clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "",
+            clientId: clientId,
             code: authCode,
-            redirectUri: AuthSession.makeRedirectUri({
-              scheme: "pursuit",
-            }),
+            redirectUri: redirectUri,
             extraParams: request.codeVerifier
               ? {
                   code_verifier: request.codeVerifier,
@@ -325,11 +330,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
             // Store user data securely
             await storeUserData(user);
-            await setHasAttemptedAuth(true);
 
             setToken(authPayload.accessToken);
             setUser(user);
-            setHasAttemptedAuth(true);
 
             console.log("✅ Google Sign-In complete!");
             return true;
@@ -381,7 +384,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       await clearAllData();
       setUser(null);
       setToken(null);
-      // Don't clear hasSeenGetStarted - user has already seen intro
     } catch (error) {
       console.error("Sign out error:", error);
     }
@@ -404,15 +406,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const markGetStartedSeen = async (): Promise<void> => {
-    try {
-      await setHasSeenGetStarted(true);
-      setHasSeenGetStarted(true);
-    } catch (error) {
-      console.error("Error marking GetStarted as seen:", error);
-    }
-  };
-
   const value: AuthContextType = {
     user,
     isLoading,
@@ -423,9 +416,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAuthenticated: !!user,
     completeOnboarding,
     needsOnboarding: !!user && !user.hasCompletedOnboarding,
-    hasSeenGetStarted,
-    hasAttemptedAuth,
-    markGetStartedSeen,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

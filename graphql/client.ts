@@ -8,7 +8,7 @@ import { setContext } from "@apollo/client/link/context";
 import { getTokens } from "../utils/secureStorage";
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:8000/graphql/",
+  uri: process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/graphql/",
 });
 
 const authLink = setContext(async (_, { headers }) => {

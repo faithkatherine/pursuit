@@ -10,8 +10,7 @@ const KEYS = {
   SESSION_TOKEN: "session_token",
   REFRESH_TOKEN: "refresh_token",
   USER_DATA: "user_data",
-  HAS_SEEN_GETSTARTED: "has_seen_getstarted",
-  HAS_ATTEMPTED_AUTH: "has_attempted_auth",
+  HAS_SEEN_GET_STARTED: "has_seen_get_started",
 } as const;
 
 /**
@@ -163,51 +162,26 @@ export const clearAllData = async (): Promise<void> => {
 };
 
 /**
- * Store flag indicating user has seen get started screen
+ * Mark that user has seen the get-started screen
  */
-export const setHasSeenGetStarted = async (value: boolean): Promise<void> => {
+export const setHasSeenGetStarted = async (): Promise<void> => {
   try {
-    await setSecureItem(KEYS.HAS_SEEN_GETSTARTED, value.toString());
+    await setSecureItem(KEYS.HAS_SEEN_GET_STARTED, "true");
   } catch (error) {
-    console.error("Error storing hasSeenGetStarted:", error);
+    console.error("Error setting has seen get started:", error);
     throw error;
   }
 };
 
 /**
- * Get flag indicating user has seen get started screen
+ * Check if user has seen the get-started screen
  */
 export const getHasSeenGetStarted = async (): Promise<boolean> => {
   try {
-    const value = await getSecureItem(KEYS.HAS_SEEN_GETSTARTED);
+    const value = await getSecureItem(KEYS.HAS_SEEN_GET_STARTED);
     return value === "true";
   } catch (error) {
-    console.error("Error retrieving hasSeenGetStarted:", error);
-    return false;
-  }
-};
-
-/**
- * Store flag indicating user has attempted authentication
- */
-export const setHasAttemptedAuth = async (value: boolean): Promise<void> => {
-  try {
-    await setSecureItem(KEYS.HAS_ATTEMPTED_AUTH, value.toString());
-  } catch (error) {
-    console.error("Error storing hasAttemptedAuth:", error);
-    throw error;
-  }
-};
-
-/**
- * Get flag indicating user has attempted authentication
- */
-export const getHasAttemptedAuth = async (): Promise<boolean> => {
-  try {
-    const value = await getSecureItem(KEYS.HAS_ATTEMPTED_AUTH);
-    return value === "true";
-  } catch (error) {
-    console.error("Error retrieving hasAttemptedAuth:", error);
+    console.error("Error getting has seen get started:", error);
     return false;
   }
 };

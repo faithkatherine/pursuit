@@ -7,22 +7,31 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loading } from "components/Layout";
+import { SplashScreen } from "components/SplashScreen";
+import { getHasSeenGetStarted } from "utils/secureStorage";
 
 function InitialLayout() {
-  const {
-    isAuthenticated,
-    isLoading,
-    needsOnboarding,
-    hasSeenGetStarted,
-    hasAttemptedAuth,
-  } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [showSplash, setShowSplash] = useState(true);
+  const [hasSeenGetStarted, setHasSeenGetStarted] = useState<boolean | null>(
+    null
+  );
+
+  // Check if user has seen the get-started screen
+  useEffect(() => {
+    const checkGetStartedStatus = async () => {
+      const hasSeen = await getHasSeenGetStarted();
+      setHasSeenGetStarted(hasSeen);
+    };
+    checkGetStartedStatus();
+  }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || showSplash || hasSeenGetStarted === null) return;
 
     if (isAuthenticated && !needsOnboarding) {
       router.replace("/(tabs)");
@@ -30,19 +39,18 @@ function InitialLayout() {
     }
 
     if (isAuthenticated && needsOnboarding) {
-      if (!hasSeenGetStarted) {
-        router.replace("/get-started");
-      } else {
-        router.replace("/onboarding/interests");
-      }
+      router.replace("/onboarding/interests");
       return;
     }
 
+    // Not authenticated
     if (!isAuthenticated) {
-      if (!hasSeenGetStarted || !hasAttemptedAuth) {
-        router.replace("/get-started");
-      } else {
+      // If user has already seen get-started, go to sign in
+      if (hasSeenGetStarted) {
         router.replace("/auth/signin");
+      } else {
+        // First time user, show get-started
+        router.replace("get-started");
       }
       return;
     }
@@ -50,21 +58,32 @@ function InitialLayout() {
     isAuthenticated,
     isLoading,
     needsOnboarding,
-    hasSeenGetStarted,
-    hasAttemptedAuth,
     router,
+    showSplash,
+    hasSeenGetStarted,
   ]);
 
-  if (isLoading) {
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
+  if (isLoading || hasSeenGetStarted === null) {
     return <Loading />;
   }
 
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        animation: "slide_from_right",
+        animationDuration: 500,
+      }}
+    >
       <Stack.Screen
         name="get-started"
         options={{
           headerShown: false,
+          animation: "fade",
+          animationDuration: 1000,
           contentStyle: {
             paddingTop: insets.top,
             paddingBottom: insets.bottom,
@@ -75,6 +94,8 @@ function InitialLayout() {
         name="auth/signin"
         options={{
           headerShown: false,
+          animation: "fade",
+          animationDuration: 700,
         }}
       />
       <Stack.Screen
