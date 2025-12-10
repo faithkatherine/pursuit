@@ -1,127 +1,64 @@
 import { ApolloProvider } from "@apollo/client";
 import { client } from "graphql/client";
-import { Stack, useRouter } from "expo-router";
-import { StyleSheet, View } from "react-native";
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { Slot, SplashScreen } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { SplashScreen as CustomSplashScreen } from "components/SplashScreen";
 import { Loading } from "components/Layout";
-import { SplashScreen } from "components/SplashScreen";
-import { getHasSeenGetStarted } from "utils/secureStorage";
 
-function InitialLayout() {
-  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const [showSplash, setShowSplash] = useState(true);
-  const [hasSeenGetStarted, setHasSeenGetStarted] = useState<boolean | null>(
-    null
-  );
+// Prevent the splash screen from auto-hiding
+SplashScreen.preventAutoHideAsync();
 
-  // Check if user has seen the get-started screen
+function RootLayoutContent() {
+  const { isLoading: authIsLoading } = useAuth();
+  const [appIsReady, setAppIsReady] = useState(false);
+  const [showCustomSplash, setShowCustomSplash] = useState(true);
+
   useEffect(() => {
-    const checkGetStartedStatus = async () => {
-      const hasSeen = await getHasSeenGetStarted();
-      setHasSeenGetStarted(hasSeen);
-    };
-    checkGetStartedStatus();
+    async function prepare() {
+      try {
+        // Load any resources or data here
+        // For now, we'll just mark the app as ready
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // Hide the native splash screen
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  const handleCustomSplashFinish = useCallback(() => {
+    setShowCustomSplash(false);
   }, []);
 
   useEffect(() => {
-    if (isLoading || showSplash || hasSeenGetStarted === null) return;
-
-    if (isAuthenticated && !needsOnboarding) {
-      router.replace("/(tabs)");
-      return;
+    if (appIsReady) {
+      onLayoutRootView();
     }
+  }, [appIsReady, onLayoutRootView]);
 
-    if (isAuthenticated && needsOnboarding) {
-      router.replace("/onboarding/interests");
-      return;
-    }
-
-    // Not authenticated
-    if (!isAuthenticated) {
-      // If user has already seen get-started, go to sign in
-      if (hasSeenGetStarted) {
-        router.replace("/auth/signin");
-      } else {
-        // First time user, show get-started
-        router.replace("get-started");
-      }
-      return;
-    }
-  }, [
-    isAuthenticated,
-    isLoading,
-    needsOnboarding,
-    router,
-    showSplash,
-    hasSeenGetStarted,
-  ]);
-
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  // Show custom splash while app resources are loading
+  if (!appIsReady || showCustomSplash) {
+    return <CustomSplashScreen onFinish={handleCustomSplashFinish} />;
   }
 
-  if (isLoading || hasSeenGetStarted === null) {
+  // Show loading while auth is initializing
+  if (authIsLoading) {
     return <Loading />;
   }
 
-  return (
-    <Stack
-      screenOptions={{
-        animation: "slide_from_right",
-        animationDuration: 500,
-      }}
-    >
-      <Stack.Screen
-        name="get-started"
-        options={{
-          headerShown: false,
-          animation: "fade",
-          animationDuration: 1000,
-          contentStyle: {
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          },
-        }}
-      />
-      <Stack.Screen
-        name="auth/signin"
-        options={{
-          headerShown: false,
-          animation: "fade",
-          animationDuration: 700,
-        }}
-      />
-      <Stack.Screen
-        name="auth/signup"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="onboarding/interests"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          header() {
-            return <View style={styles.header}></View>;
-          },
-          headerShown: true,
-          headerTitle: "",
-        }}
-      />
-    </Stack>
-  );
+  return <Slot />;
 }
 
 export default function RootLayout() {
@@ -129,27 +66,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ApolloProvider client={client}>
         <AuthProvider>
-          <InitialLayout />
+          <RootLayoutContent />
         </AuthProvider>
       </ApolloProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    height: 70,
-    backgroundColor: "transparent",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: "#666",
-  },
-});

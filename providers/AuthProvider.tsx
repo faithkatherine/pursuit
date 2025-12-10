@@ -74,12 +74,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  console.log("🔍 OAuth Config:", {
-    clientId,
-    platform: Platform.OS,
-    redirectUri,
-  });
-
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: clientId,
@@ -100,10 +94,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Handle OAuth response
   useEffect(() => {
     if (response?.type === "success") {
-      console.log("🔍 OAuth response received:", response);
       // The response will be handled by the signInWithGoogle function
     } else if (response?.type === "error") {
-      console.error("❌ OAuth response error:", response.error);
+      console.error("OAuth response error:", response.error);
     }
   }, [response]);
 
@@ -236,49 +229,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return false;
       }
 
-      console.log("🔍 OAuth Request Config:", {
-        clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-        responseType: request.responseType,
-        redirectUri: request.redirectUri,
-        scopes: request.scopes,
-        codeChallenge: request.codeChallenge,
-        codeChallengeMethod: request.codeChallengeMethod,
-        usePKCE: true,
-      });
-
-      console.log(
-        "📋 IMPORTANT: Add this redirect URI to your Google Cloud Console:"
-      );
-      console.log(`   ${request.redirectUri}`);
-
       // Prompt the user to authenticate with Google
       const result = await promptAsync();
-      console.log("🔍 OAuth Result:", result);
 
       if (result.type === "success") {
-        console.log("✅ OAuth success! Processing result...");
         // Extract the authorization code from the response
         const authCode = result.params.code;
 
         if (!authCode) {
           console.error(
-            "❌ No authorization code in result params:",
+            "No authorization code in result params:",
             result.params
           );
           throw new Error("No authorization code received from Google");
         }
 
-        console.log(
-          "✅ Authorization code received:",
-          authCode.substring(0, 20) + "..."
-        );
-
         // Check if we have the discovery document
         if (!discovery) {
           throw new Error("Discovery document not available");
         }
-
-        console.log("🔍 Exchanging code for tokens...");
 
         // Exchange the authorization code for tokens
         const tokenResult = await AuthSession.exchangeCodeAsync(
@@ -295,17 +264,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           discovery
         );
 
-        console.log("🔍 Token Result:", tokenResult);
-
         if (tokenResult.idToken) {
-          console.log("✅ Sending ID token to backend...");
-
           // Send the ID token to our backend - FIX: use idToken not token
           const { data } = await googleSignInMutation({
             variables: { idToken: tokenResult.idToken },
           });
-
-          console.log("🔍 Backend response:", data);
 
           // FIX: Access authPayload structure correctly
           if (data?.googleSignIn?.ok && data.googleSignIn.authPayload) {
@@ -318,8 +281,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               lastName: userData.lastName,
               email: userData.email,
             };
-
-            console.log("✅ User authenticated:", user.email);
 
             // Store tokens securely using expo-secure-store
             await storeTokens({
@@ -334,37 +295,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             setToken(authPayload.accessToken);
             setUser(user);
 
-            console.log("✅ Google Sign-In complete!");
             return true;
           } else {
-            console.error("❌ Backend did not return valid auth data");
+            console.error("Backend did not return valid auth data");
             Alert.alert(
               "Google Sign In Failed",
               "Authentication failed. Please try again."
             );
           }
         } else {
-          console.error("❌ No ID token received from Google");
+          console.error(" No ID token received from Google");
           Alert.alert(
             "Google Sign In Failed",
             "Failed to get authentication token from Google."
           );
         }
       } else if (result.type === "cancel") {
-        console.log("ℹ️ User cancelled the login flow");
         return false;
       } else if (result.type === "error") {
-        console.error("❌ OAuth error:", result.error);
+        console.error("OAuth error:", result.error);
         Alert.alert(
           "Google Sign In Failed",
           `Error: ${result.error?.message || "Unknown error"}`
         );
         return false;
       } else if (result.type === "dismiss") {
-        console.log("ℹ️ OAuth dismissed");
         return false;
       } else {
-        console.error("❌ Unknown OAuth result type:", result.type, result);
+        console.error(" Unknown OAuth result type:", result.type, result);
         Alert.alert("Google Sign In Failed", "Please try again later.");
       }
 

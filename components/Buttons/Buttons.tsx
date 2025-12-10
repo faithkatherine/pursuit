@@ -17,6 +17,7 @@ interface ButtonProps {
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
+  textStyle?: object;
   circleDimensions?: CircleDimensions;
 }
 
@@ -27,6 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
   onPress,
   disabled,
   style,
+  textStyle,
   circleDimensions,
 }) => {
   switch (variant) {
@@ -38,7 +40,9 @@ export const Button: React.FC<ButtonProps> = ({
           style={[styles.primary, style]}
           testID="button-primary"
         >
-          {text && <Text style={styles.primaryButtonText}>{text}</Text>}
+          {text && (
+            <Text style={[styles.primaryButtonText, textStyle]}>{text}</Text>
+          )}
           {icon && icon}
         </Pressable>
       );
@@ -52,6 +56,20 @@ export const Button: React.FC<ButtonProps> = ({
         >
           {text && <Text style={styles.secondaryButtonText}>{text}</Text>}
           {icon && icon}
+        </Pressable>
+      );
+
+    case "tertiary":
+      return (
+        <Pressable
+          onPress={onPress}
+          disabled={disabled}
+          style={[style]}
+          testID="button-tertiary"
+        >
+          {text && (
+            <Text style={[styles.tertiaryButtonText, textStyle]}>{text}</Text>
+          )}
         </Pressable>
       );
   }
@@ -99,6 +117,12 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.thunder,
     textAlign: "center",
+    fontWeight: "500",
+  },
+  tertiaryButtonText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: typography.body.fontSize,
+    color: colors.white,
     fontWeight: "500",
   },
 });
