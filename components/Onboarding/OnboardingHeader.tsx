@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { Button } from "components/Buttons";
 import BackIcon from "assets/icons/back.svg";
 import colors from "themes/tokens/colors";
+import { skip } from "node:test";
 
 interface OnboardingHeaderProps {
   showBackButton?: boolean;
@@ -30,7 +31,12 @@ export const OnboardingHeader = ({
         />
       )}
       {showBackButton && (
-        <Button variant="tertiary" text="Skip" onPress={onSkipPress} />
+        <Button
+          variant="tertiary"
+          text="Skip"
+          textStyle={styles.skipButtonText}
+          onPress={onSkipPress}
+        />
       )}
     </View>
   );
@@ -43,5 +49,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 16,
+  },
+  skipButtonText: {
+    color: colors.white50,
   },
 });

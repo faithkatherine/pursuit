@@ -1,6 +1,6 @@
 import colors from "themes/tokens/colors";
 import { fontSizes, fontWeights, typography } from "themes/tokens/typography";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Switch, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface CircleDimensions {
@@ -10,15 +10,21 @@ interface CircleDimensions {
   backgroundColor?: string;
 }
 
+interface SwitchProps {
+  isEnabled: boolean;
+  onToggle: () => void;
+}
+
 interface ButtonProps {
   text?: string;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "tertiary";
+  variant?: "primary" | "secondary" | "tertiary" | "switch";
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
   textStyle?: object;
   circleDimensions?: CircleDimensions;
+  switchProps?: SwitchProps;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -30,6 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   circleDimensions,
+  switchProps,
 }) => {
   switch (variant) {
     case "primary":
@@ -71,6 +78,19 @@ export const Button: React.FC<ButtonProps> = ({
             <Text style={[styles.tertiaryButtonText, textStyle]}>{text}</Text>
           )}
         </Pressable>
+      );
+
+    case "switch":
+      return (
+        <Switch
+          value={switchProps?.isEnabled}
+          onValueChange={switchProps?.onToggle}
+          thumbColor={switchProps?.isEnabled ? colors.white : colors.black}
+          trackColor={{ false: colors.gray, true: colors.black }}
+          ios_backgroundColor={colors.aluminium}
+          style={[styles.switch, style]}
+          testID="button-switch"
+        />
       );
   }
 };
@@ -120,9 +140,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   tertiaryButtonText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
+    fontFamily: typography.h3.fontFamily,
+    fontSize: typography.h3.fontSize,
     color: colors.white,
     fontWeight: "500",
+  },
+  switch: {
+    transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
   },
 });
