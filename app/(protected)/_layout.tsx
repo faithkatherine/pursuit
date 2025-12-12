@@ -24,9 +24,9 @@ export default function ProtectedLayout() {
     return <Redirect href="/onboarding/" />;
   }
 
-  // Redirect to tabs if onboarding is complete but user is still on onboarding screens
+  // Redirect to home if onboarding is complete but user is still on onboarding screens
   if (!needsOnboarding && inOnboarding) {
-    return <Redirect href="/(tabs)/" />;
+    return <Redirect href="/" />;
   }
 
   return (

@@ -1,5 +1,6 @@
 import { useRouter, useSegments } from "expo-router";
 import React, { createContext } from "react";
+import { useAuth } from "./AuthProvider";
 
 interface OnboardingContextType {
   currentStep: number;
@@ -51,6 +52,7 @@ export const useOnboarding = () => {
 const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
+  const { completeOnboarding: completeOnboardingAuth, skipOnboarding: skipOnboardingAuth } = useAuth();
   const totalSteps = steps.length;
 
   // Derive current step from route segments
@@ -100,11 +102,14 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const skipOnboarding = () => {
+  const skipOnboarding = async () => {
+    await skipOnboardingAuth();
     router.replace("/");
   };
 
-  const completeOnboarding = () => {
+  const completeOnboarding = async () => {
+    // This would be called from the final confirmation screen with the user's interests
+    // For now, just navigate to home - the actual implementation will pass interests
     router.replace("/");
   };
 

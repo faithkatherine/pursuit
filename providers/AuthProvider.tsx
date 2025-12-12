@@ -19,6 +19,7 @@ export interface User {
   email: string;
   avatar?: string;
   hasCompletedOnboarding?: boolean;
+  hasSkippedOnboarding?: boolean;
   interests?: string[];
 }
 
@@ -31,6 +32,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   completeOnboarding: (interests: string[]) => Promise<void>;
+  skipOnboarding: () => Promise<void>;
   needsOnboarding: boolean;
 }
 
@@ -364,6 +366,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const skipOnboarding = async (): Promise<void> => {
+    if (!user) return;
+
+    try {
+      const updatedUser = {
+        ...user,
+        hasSkippedOnboarding: true,
+      };
+
+      await storeUserData(updatedUser);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error("Error skipping onboarding:", error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -373,7 +391,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signOut,
     isAuthenticated: !!user,
     completeOnboarding,
-    needsOnboarding: !!user && !user.hasCompletedOnboarding,
+    skipOnboarding,
+    needsOnboarding: !!user && !user.hasCompletedOnboarding && !user.hasSkippedOnboarding,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

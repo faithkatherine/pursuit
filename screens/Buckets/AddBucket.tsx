@@ -80,7 +80,7 @@ export const AddBucket = ({ onClose }: AddBucketProps) => {
 
       // Show error alert with retry option
       Alert.alert(
-        "❌ Oops!",
+        "Oops!",
         "Something went wrong while creating your bucket category. Would you like to try again?",
         [
           {

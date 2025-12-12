@@ -25,7 +25,7 @@ export default function AuthLayout() {
 
   // Redirect if already authenticated
   if (isAuthenticated && !needsOnboarding) {
-    return <Redirect href="/(tabs)/" />;
+    return <Redirect href="/" />;
   }
 
   if (isAuthenticated && needsOnboarding) {

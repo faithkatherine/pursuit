@@ -132,7 +132,7 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
       
       // Show error alert with retry option
       Alert.alert(
-        "❌ Oops!", 
+        " Oops!", 
         "Something went wrong while adding your bucket list item. Would you like to try again?",
         [
           {
