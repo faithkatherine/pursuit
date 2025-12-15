@@ -7,8 +7,6 @@ const OnboardingLayout = () => {
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: "slide_from_right",
-          animationDuration: 400,
         }}
       >
         <Stack.Screen name="index" />

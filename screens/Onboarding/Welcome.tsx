@@ -16,7 +16,7 @@ const WelcomeScreen = () => {
   const { currentStep, nextStep, prevStep, skipOnboarding } = useOnboarding();
 
   return (
-    <Layout backgroundColor={colors.careysPink}>
+    <Layout backgroundColor={colors.shilo}>
       <OnboardingLayout
         currentStep={currentStep}
         totalSteps={4}

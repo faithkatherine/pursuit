@@ -7,12 +7,13 @@ interface CircleDimensions {
   width?: number;
   height?: number;
   borderRadius?: number;
+  borderWidth?: number;
   backgroundColor?: string;
 }
 
 interface SwitchProps {
   isEnabled: boolean;
-  onToggle: () => void;
+  onToggle: (enabled: boolean) => void;
 }
 
 interface ButtonProps {
@@ -85,8 +86,10 @@ export const Button: React.FC<ButtonProps> = ({
         <Switch
           value={switchProps?.isEnabled}
           onValueChange={switchProps?.onToggle}
-          thumbColor={switchProps?.isEnabled ? colors.white : colors.black}
-          trackColor={{ false: colors.gray, true: colors.black }}
+          thumbColor={
+            switchProps?.isEnabled ? colors.white : colors.graniteGray
+          }
+          trackColor={{ false: colors.white, true: colors.black }}
           ios_backgroundColor={colors.aluminium}
           style={[styles.switch, style]}
           testID="button-switch"

@@ -32,8 +32,6 @@ export default function ProtectedLayout() {
   return (
     <Stack
       screenOptions={{
-        animation: "slide_from_right",
-        animationDuration: 500,
         headerShown: false,
       }}
     >

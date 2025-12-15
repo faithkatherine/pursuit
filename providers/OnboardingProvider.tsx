@@ -5,6 +5,10 @@ import { useAuth } from "./AuthProvider";
 interface OnboardingContextType {
   currentStep: number;
   totalSteps: number;
+  locationPermissionGranted: boolean;
+  notificationPermissionGranted: boolean;
+  toggleLocationPermission: (enabled: boolean) => void;
+  toggleNotificationPermission: (enabled: boolean) => void;
   nextStep: () => void;
   prevStep: () => void;
   skipOnboarding: () => void;
@@ -14,6 +18,10 @@ interface OnboardingContextType {
 const OnboardingContext = createContext<OnboardingContextType | undefined>({
   currentStep: 1,
   totalSteps: 4,
+  locationPermissionGranted: false,
+  notificationPermissionGranted: false,
+  toggleLocationPermission: () => {},
+  toggleNotificationPermission: () => {},
   nextStep: () => {},
   prevStep: () => {},
   skipOnboarding: () => {},
@@ -52,8 +60,15 @@ export const useOnboarding = () => {
 const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
-  const { completeOnboarding: completeOnboardingAuth, skipOnboarding: skipOnboardingAuth } = useAuth();
+  const {
+    completeOnboarding: completeOnboardingAuth,
+    skipOnboarding: skipOnboardingAuth,
+  } = useAuth();
   const totalSteps = steps.length;
+  const [locationPermissionGranted, setLocationPermissionGranted] =
+    React.useState<boolean>(false);
+  const [notificationPermissionGranted, setNotificationPermissionGranted] =
+    React.useState<boolean>(false);
 
   // Derive current step from route segments
   const getCurrentStepName = (): StepName => {
@@ -84,6 +99,16 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const currentStepConfig = steps[safeStepIndex];
   const currentStep = safeStepIndex + 1;
 
+  const toggleLocationPermission = (enabled: boolean) => {
+    setLocationPermissionGranted(enabled);
+    // TODO: Add actual permission request logic here
+  };
+
+  const toggleNotificationPermission = (enabled: boolean) => {
+    setNotificationPermissionGranted(enabled);
+    // TODO: Add actual permission request logic here
+  };
+
   const nextStep = () => {
     if (currentStepConfig.next) {
       const nextRoute =
@@ -98,7 +123,11 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const prevStep = () => {
     if (currentStepConfig.prev) {
-      router.back();
+      const prevRoute =
+        currentStepConfig.prev === "welcome"
+          ? "/onboarding/"
+          : `/onboarding/${currentStepConfig.prev}`;
+      router.push(prevRoute);
     }
   };
 
@@ -118,6 +147,10 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         currentStep,
         totalSteps,
+        locationPermissionGranted,
+        notificationPermissionGranted,
+        toggleLocationPermission,
+        toggleNotificationPermission,
         nextStep,
         prevStep,
         skipOnboarding,

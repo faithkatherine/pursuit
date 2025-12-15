@@ -9,15 +9,25 @@ import { Button } from "components/Buttons";
 import { Switch } from "react-native-gesture-handler";
 import { SwitchCard } from "components/Cards/SwitchCard/SwitchCard";
 import { connect } from "http2";
+import typography from "themes/tokens/typography";
 
 export const Prefernces = () => {
-  const { currentStep, totalSteps, nextStep, prevStep } = useOnboarding();
+  const {
+    currentStep,
+    totalSteps,
+    nextStep,
+    prevStep,
+    locationPermissionGranted,
+    notificationPermissionGranted,
+    toggleLocationPermission,
+    toggleNotificationPermission,
+  } = useOnboarding();
   const { height, width } = useWindowDimensions();
   const illustrationHeight = height * 0.4;
   const buttonWidth = Math.min(width * 0.9, 320);
 
   return (
-    <Layout backgroundColor={colors.lightBlue}>
+    <Layout backgroundColor={colors.lightPurple}>
       <OnboardingLayout
         currentStep={currentStep}
         totalSteps={totalSteps}
@@ -32,18 +42,18 @@ export const Prefernces = () => {
           <View style={styles.switchContainer}>
             <SwitchCard
               title="Use Location"
-              isEnabled={true}
-              onToggle={() => {}}
+              isEnabled={locationPermissionGranted}
+              onToggle={toggleLocationPermission}
             />
             <SwitchCard
               title="Receive Notifications"
-              isEnabled={true}
-              onToggle={() => {}}
+              isEnabled={notificationPermissionGranted}
+              onToggle={toggleNotificationPermission}
             />
 
             <Button
               variant="primary"
-              text="Connect your calendar"
+              text="CONNECT YOUR CALENDAR"
               style={[styles.connectButton, {}]}
               textStyle={styles.connectButtonText}
             />
@@ -61,14 +71,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 27,
   },
   switchContainer: {
+    width: "100%",
     marginTop: 20,
-    gap: 24,
+    gap: 28,
   },
   connectButton: {
+    width: "100%",
     backgroundColor: colors.careysPink,
     height: 60,
+    borderRadius: 16,
+    shadowColor: colors.careysPink,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   connectButtonText: {
     color: colors.black,
+    fontFamily: typography.h4.fontFamily,
+    fontSize: typography.h4.fontSize,
+    fontWeight: typography.h4.fontWeight as any,
+    textTransform: "uppercase",
   },
 });

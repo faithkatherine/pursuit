@@ -9,6 +9,8 @@ export const colors = {
   roseFog: "rgb(234, 192, 197)",
   deluge: "rgb(124, 92, 156)",
   delugeLight: "rgb(134, 102, 166)",
+  purple: "rgba(168, 85, 247, 0.5)",
+  lightPurple: "rgb(109, 40, 217)",
   black: "rgb(0, 0, 0)",
   white: "rgb(255, 255, 255)",
   white02: "rgba(255, 255, 255, 0.2)",

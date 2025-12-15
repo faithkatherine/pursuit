@@ -6,12 +6,16 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "providers/AuthProvider";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
+import { OnboardingLayout } from "components/Onboarding";
+import { useOnboarding } from "providers/OnboardingProvider";
+import { Layout } from "components/Layout";
 
 interface Interest {
   id: string;
@@ -102,6 +106,9 @@ export const InterestSelection: React.FC = () => {
   const { completeOnboarding } = useAuth();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { currentStep, totalSteps, nextStep, prevStep } = useOnboarding();
+  const { width } = useWindowDimensions();
+  const containerWidth = Math.min(width * 0.9, 400);
 
   const toggleInterest = (interestId: string) => {
     setSelectedInterests((prev) =>
@@ -155,97 +162,80 @@ export const InterestSelection: React.FC = () => {
   }, {} as Record<string, Interest[]>);
 
   return (
-    <LinearGradient
-      colors={[colors.deluge, colors.careysPink, colors.roseFog]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
+    <Layout
+      backgroundComponent={
+        <LinearGradient
+          colors={[colors.purple, colors.deluge]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.gradient}
+        />
+      }
     >
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
+        decelerationRate="fast"
+        scrollEventThrottle={16}
       >
-        <View style={styles.headerSection}>
-          <Text style={styles.title}>What interests you? 🌟</Text>
-          <Text style={styles.subtitle}>
-            Select your interests to help us suggest personalized bucket list
-            items
-          </Text>
-        </View>
-
-        <View style={styles.contentContainer}>
-          {Object.entries(groupedInterests).map(([category, interests]) => (
-            <View key={category} style={styles.categorySection}>
-              <Text style={styles.categoryTitle}>{category}</Text>
-              <View style={styles.interestsGrid}>
-                {interests.map((interest) => (
-                  <TouchableOpacity
-                    key={interest.id}
-                    style={[
-                      styles.interestItem,
-                      selectedInterests.includes(interest.id) &&
-                        styles.interestItemSelected,
-                    ]}
-                    onPress={() => toggleInterest(interest.id)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.interestEmoji}>{interest.emoji}</Text>
-                    <Text
-                      style={[
-                        styles.interestText,
-                        selectedInterests.includes(interest.id) &&
-                          styles.interestTextSelected,
-                      ]}
-                    >
-                      {interest.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ))}
-
-          <View style={styles.actionSection}>
-            <Text style={styles.selectedCount}>
-              {selectedInterests.length} interests selected
+        <OnboardingLayout
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          buttonText="Continue"
+          showBackButton={true}
+          onBackPress={prevStep}
+          onNextPress={nextStep}
+          onSkipPress={nextStep}
+        >
+          <View style={styles.headerSection}>
+            <Text style={styles.title}>What interests you?</Text>
+            <Text style={styles.subtitle}>
+              Select your interests to help us suggest personalized bucket list
+              items
             </Text>
-
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                selectedInterests.length === 0 && styles.continueButtonDisabled,
-              ]}
-              onPress={handleContinue}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={
-                  selectedInterests.length > 0
-                    ? [colors.deluge, colors.delugeLight]
-                    : [colors.aluminium, colors.silverSand]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.continueButtonGradient}
-              >
-                <Text style={styles.continueButtonText}>
-                  {isLoading ? "Setting Up..." : "Continue"}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.skipButton}
-              onPress={handleSkip}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.skipButtonText}>Skip for now</Text>
-            </TouchableOpacity>
           </View>
-        </View>
+
+          <View style={[styles.contentContainer, { width: containerWidth }]}>
+            {Object.entries(groupedInterests).map(([category, interests]) => (
+              <View key={category} style={styles.categorySection}>
+                <Text style={styles.categoryTitle}>{category}</Text>
+                <View style={styles.interestsGrid}>
+                  {interests.map((interest) => (
+                    <TouchableOpacity
+                      key={interest.id}
+                      style={[
+                        styles.interestItem,
+                        selectedInterests.includes(interest.id) &&
+                          styles.interestItemSelected,
+                      ]}
+                      onPress={() => toggleInterest(interest.id)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.interestEmoji}>{interest.emoji}</Text>
+                      <Text
+                        style={[
+                          styles.interestText,
+                          selectedInterests.includes(interest.id) &&
+                            styles.interestTextSelected,
+                        ]}
+                      >
+                        {interest.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ))}
+
+            <View style={styles.actionSection}>
+              <Text style={styles.selectedCount}>
+                {selectedInterests.length} interests selected
+              </Text>
+            </View>
+          </View>
+        </OnboardingLayout>
       </ScrollView>
-    </LinearGradient>
+    </Layout>
   );
 };
 
@@ -255,25 +245,19 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 40,
+    alignItems: "center",
   },
   headerSection: {
     alignItems: "center",
-    paddingVertical: 30,
-    paddingBottom: 40,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 32,
-    fontWeight: "800",
-    color: colors.white,
+    fontWeight: "600",
+    color: colors.black,
     marginBottom: 12,
     textAlign: "center",
     fontFamily: typography.h1.fontFamily,
-    textShadowColor: colors.black,
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
@@ -288,7 +272,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     backgroundColor: theme.background,
-    borderRadius: 32,
+    borderRadius: 24,
     padding: 24,
     elevation: 20,
     shadowColor: theme.text.primary,
@@ -297,14 +281,14 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
   },
   categorySection: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   categoryTitle: {
     fontSize: 20,
     fontWeight: "700",
     color: theme.text.primary,
     fontFamily: typography.h2.fontFamily,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   interestsGrid: {
     flexDirection: "row",
@@ -317,10 +301,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.background,
     borderWidth: 2,
     borderColor: theme.border,
-    borderRadius: 25,
+    borderRadius: 28,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginBottom: 8,
+    marginBottom: 4,
     elevation: 2,
     shadowColor: theme.text.primary,
     shadowOffset: { width: 0, height: 2 },
@@ -328,12 +312,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   interestItemSelected: {
-    borderColor: theme.secondary,
-    backgroundColor: theme.secondary,
-    borderWidth: 3,
-    elevation: 4,
-    shadowOpacity: 0.15,
-    shadowColor: theme.secondary,
+    borderColor: colors.delugeLight,
+    backgroundColor: colors.deluge,
+    borderWidth: 2,
+    shadowColor: colors.delugeLight,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 8,
+    transform: [{ scale: 1.02 }],
   },
   interestEmoji: {
     fontSize: 18,
@@ -359,44 +346,5 @@ const styles = StyleSheet.create({
     fontFamily: typography.body.fontFamily,
     marginBottom: 24,
     fontWeight: "600",
-  },
-  continueButton: {
-    width: "100%",
-    borderRadius: 25,
-    elevation: 8,
-    shadowColor: theme.secondary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    overflow: "hidden",
-    marginBottom: 16,
-  },
-  continueButtonDisabled: {
-    elevation: 2,
-    shadowOpacity: 0.1,
-  },
-  continueButtonGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 56,
-  },
-  continueButtonText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: theme.background,
-    fontFamily: typography.button.fontFamily,
-  },
-  skipButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  skipButtonText: {
-    fontSize: 16,
-    color: theme.text.secondary,
-    fontFamily: typography.body.fontFamily,
-    fontWeight: "600",
-    textDecorationLine: "underline",
   },
 });
