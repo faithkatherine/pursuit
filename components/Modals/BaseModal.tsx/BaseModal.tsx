@@ -6,18 +6,24 @@ import { Button } from "components/Buttons";
 interface BaseModalProps {
   children?: React.ReactNode;
   visible?: boolean;
+  shouldShowCloseIcon?: boolean;
   animationType?: "slide" | "fade" | "none";
   onClose?: () => void;
   variant?: "fullScreen" | "bottomSheet";
   title?: string;
+  backgroundComponent?: React.ReactNode;
+  backgroundColor?: string;
 }
 export const BaseModal: React.FC<BaseModalProps> = ({
   children,
   visible = false,
+  shouldShowCloseIcon = true,
   animationType = "slide",
   onClose,
   variant = "bottomSheet",
   title,
+  backgroundComponent,
+  backgroundColor = colors.white,
 }) => {
   switch (variant) {
     case "bottomSheet":
@@ -25,24 +31,33 @@ export const BaseModal: React.FC<BaseModalProps> = ({
         <Modal
           visible={visible}
           animationType={animationType}
-          presentationStyle="pageSheet"
+          presentationStyle="fullScreen"
           transparent
         >
           <View style={[styles.container, styles.bottomSheetContainer]}>
-            <View style={styles.bottomSheet}>
+            <View style={[styles.bottomSheet, { backgroundColor }]}>
+              {backgroundComponent && (
+                <View style={styles.backgroundContainer}>
+                  {backgroundComponent}
+                </View>
+              )}
               <View style={styles.bottomSheetHandle} />
-              <Button
-                variant="secondary"
-                circleDimensions={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
-                  backgroundColor: colors.black,
-                }}
-                onPress={onClose}
-                icon={<CloseIcon width={24} height={24} color={colors.white} />}
-                style={styles.bottomSheetClose}
-              />
+              {shouldShowCloseIcon && (
+                <Button
+                  variant="secondary"
+                  circleDimensions={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: colors.black,
+                  }}
+                  onPress={onClose}
+                  icon={
+                    <CloseIcon width={24} height={24} color={colors.white} />
+                  }
+                  style={styles.bottomSheetClose}
+                />
+              )}
               <View>{children}</View>
             </View>
           </View>
@@ -55,21 +70,44 @@ export const BaseModal: React.FC<BaseModalProps> = ({
           animationType={animationType}
           presentationStyle="formSheet"
         >
-          <View style={styles.fullScreenHeader}>
-            <Button
-              variant="secondary"
-              circleDimensions={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
-                backgroundColor: colors.black,
-              }}
-              onPress={onClose}
-              icon={<CloseIcon width={24} height={24} color={colors.white} />}
-              style={styles.bottomSheetClose}
-            />
+          <View style={[styles.fullScreenContainer, { backgroundColor }]}>
+            {backgroundComponent && (
+              <View style={styles.backgroundContainer}>
+                {backgroundComponent}
+              </View>
+            )}
+            <View
+              style={[
+                styles.fullScreenHeader,
+                shouldShowCloseIcon ? { padding: 16 } : {},
+              ]}
+            >
+              {shouldShowCloseIcon && (
+                <Button
+                  variant="secondary"
+                  circleDimensions={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: colors.black,
+                  }}
+                  onPress={onClose}
+                  icon={
+                    <CloseIcon width={24} height={24} color={colors.white} />
+                  }
+                  style={styles.bottomSheetClose}
+                />
+              )}
+            </View>
+            <View
+              style={[
+                styles.content,
+                shouldShowCloseIcon ? { paddingTop: 20 } : {},
+              ]}
+            >
+              {children}
+            </View>
           </View>
-          <View style={styles.content}>{children}</View>
         </Modal>
       );
   }
@@ -78,7 +116,6 @@ export const BaseModal: React.FC<BaseModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
   },
   bottomSheetContainer: {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -90,6 +127,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingVertical: 12,
     maxHeight: "80%",
+    overflow: "hidden",
   },
   bottomSheetHandle: {
     width: 36,
@@ -102,19 +140,21 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     marginRight: 8,
   },
-
+  fullScreenContainer: {
+    flex: 1,
+  },
   fullScreenHeader: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
-    padding: 16,
   },
-
+  backgroundContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
   closeIcon: {
     transform: [{ rotate: "90deg" }],
   },
   content: {
     flex: 1,
-    paddingTop: 20,
   },
 });

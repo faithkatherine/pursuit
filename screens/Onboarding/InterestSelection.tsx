@@ -5,110 +5,26 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   useWindowDimensions,
+  Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { useAuth } from "providers/AuthProvider";
+import { BlurView } from "expo-blur";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
-import { OnboardingLayout } from "components/Onboarding";
+import { PurpleRadialGradient } from "themes/gradients";
 import { useOnboarding } from "providers/OnboardingProvider";
+import { getGroupedInterests } from "utils/interests";
+import {
+  OnboardingHeader,
+  OnboardingFooter,
+  OnboardingProgressMarkers,
+} from "components/Onboarding";
 import { Layout } from "components/Layout";
 
-interface Interest {
-  id: string;
-  name: string;
-  emoji: string;
-  category: string;
-}
-
-const INTERESTS: Interest[] = [
-  // Adventure & Travel
-  { id: "travel", name: "Travel", emoji: "✈️", category: "Adventure" },
-  { id: "hiking", name: "Hiking", emoji: "🥾", category: "Adventure" },
-  { id: "camping", name: "Camping", emoji: "🏕️", category: "Adventure" },
-  {
-    id: "scuba-diving",
-    name: "Scuba Diving",
-    emoji: "🤿",
-    category: "Adventure",
-  },
-  { id: "skydiving", name: "Skydiving", emoji: "🪂", category: "Adventure" },
-  {
-    id: "rock-climbing",
-    name: "Rock Climbing",
-    emoji: "🧗",
-    category: "Adventure",
-  },
-
-  // Arts & Culture
-  { id: "photography", name: "Photography", emoji: "📸", category: "Arts" },
-  { id: "painting", name: "Painting", emoji: "🎨", category: "Arts" },
-  { id: "music", name: "Music", emoji: "🎵", category: "Arts" },
-  { id: "theater", name: "Theater", emoji: "🎭", category: "Arts" },
-  { id: "museums", name: "Museums", emoji: "🏛️", category: "Arts" },
-  { id: "concerts", name: "Concerts", emoji: "🎤", category: "Arts" },
-
-  // Sports & Fitness
-  { id: "running", name: "Running", emoji: "🏃", category: "Fitness" },
-  { id: "yoga", name: "Yoga", emoji: "🧘", category: "Fitness" },
-  { id: "swimming", name: "Swimming", emoji: "🏊", category: "Fitness" },
-  { id: "cycling", name: "Cycling", emoji: "🚴", category: "Fitness" },
-  {
-    id: "martial-arts",
-    name: "Martial Arts",
-    emoji: "🥋",
-    category: "Fitness",
-  },
-  { id: "surfing", name: "Surfing", emoji: "🏄", category: "Fitness" },
-
-  // Food & Lifestyle
-  { id: "cooking", name: "Cooking", emoji: "👨‍🍳", category: "Lifestyle" },
-  {
-    id: "wine-tasting",
-    name: "Wine Tasting",
-    emoji: "🍷",
-    category: "Lifestyle",
-  },
-  { id: "coffee", name: "Coffee Culture", emoji: "☕", category: "Lifestyle" },
-  { id: "gardening", name: "Gardening", emoji: "🌱", category: "Lifestyle" },
-  {
-    id: "volunteering",
-    name: "Volunteering",
-    emoji: "🤝",
-    category: "Lifestyle",
-  },
-  { id: "reading", name: "Reading", emoji: "📚", category: "Lifestyle" },
-
-  // Learning & Skills
-  {
-    id: "languages",
-    name: "Learn Languages",
-    emoji: "🗣️",
-    category: "Learning",
-  },
-  { id: "coding", name: "Programming", emoji: "💻", category: "Learning" },
-  { id: "writing", name: "Writing", emoji: "✍️", category: "Learning" },
-  { id: "dancing", name: "Dancing", emoji: "💃", category: "Learning" },
-  {
-    id: "instruments",
-    name: "Musical Instruments",
-    emoji: "🎸",
-    category: "Learning",
-  },
-  { id: "crafting", name: "Arts & Crafts", emoji: "🧵", category: "Learning" },
-];
-
 export const InterestSelection: React.FC = () => {
-  const router = useRouter();
-  const { completeOnboarding } = useAuth();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const { currentStep, totalSteps, nextStep, prevStep } = useOnboarding();
-  const { width } = useWindowDimensions();
-  const containerWidth = Math.min(width * 0.9, 400);
+  const { width, height } = useWindowDimensions();
 
   const toggleInterest = (interestId: string) => {
     setSelectedInterests((prev) =>
@@ -118,150 +34,127 @@ export const InterestSelection: React.FC = () => {
     );
   };
 
-  const handleContinue = async () => {
-    if (selectedInterests.length === 0) {
-      Alert.alert(
-        "Select Some Interests",
-        "Please select at least one interest to help us personalize your experience."
-      );
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await completeOnboarding(selectedInterests);
-
-      // Navigation will be handled automatically by the auth context
-      // But we can also explicitly navigate to ensure it works
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.error("Error saving interests:", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSkip = async () => {
-    try {
-      await completeOnboarding([]);
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.error("Error skipping onboarding:", error);
-      router.replace("/(tabs)");
-    }
-  };
-
-  const groupedInterests = INTERESTS.reduce((acc, interest) => {
-    if (!acc[interest.category]) {
-      acc[interest.category] = [];
-    }
-    acc[interest.category].push(interest);
-    return acc;
-  }, {} as Record<string, Interest[]>);
+  const groupedInterests = getGroupedInterests();
 
   return (
     <Layout
       backgroundComponent={
-        <LinearGradient
-          colors={[colors.purple, colors.deluge]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.gradient}
-        />
+        <PurpleRadialGradient width={width} height={height} />
       }
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        decelerationRate="fast"
-        scrollEventThrottle={16}
-      >
-        <OnboardingLayout
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          buttonText="Continue"
+      <View style={styles.container}>
+        <OnboardingHeader
           showBackButton={true}
           onBackPress={prevStep}
-          onNextPress={nextStep}
           onSkipPress={nextStep}
-        >
-          <View style={styles.headerSection}>
-            <Text style={styles.title}>What interests you?</Text>
-            <Text style={styles.subtitle}>
-              Select your interests to help us suggest personalized bucket list
-              items
-            </Text>
-          </View>
+        />
 
-          <View style={[styles.contentContainer, { width: containerWidth }]}>
-            {Object.entries(groupedInterests).map(([category, interests]) => (
-              <View key={category} style={styles.categorySection}>
-                <Text style={styles.categoryTitle}>{category}</Text>
-                <View style={styles.interestsGrid}>
-                  {interests.map((interest) => (
-                    <TouchableOpacity
-                      key={interest.id}
-                      style={[
-                        styles.interestItem,
-                        selectedInterests.includes(interest.id) &&
-                          styles.interestItemSelected,
-                      ]}
-                      onPress={() => toggleInterest(interest.id)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={styles.interestEmoji}>{interest.emoji}</Text>
-                      <Text
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>What interests you?</Text>
+          <Text style={styles.subtitle}>
+            Select your interests to help us suggest personalized bucket list
+            items
+          </Text>
+        </View>
+
+        {/* Glassmorphism sheet with interests and footer */}
+        <View style={styles.modalContainer}>
+          <View style={styles.glassOverlay} />
+          <BlurView
+            intensity={Platform.OS === "ios" ? 50 : 90}
+            tint="light"
+            style={styles.blurContainer}
+          >
+            <View style={styles.dragHandle} />
+
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              decelerationRate="fast"
+              scrollEventThrottle={16}
+            >
+              {Object.entries(groupedInterests).map(([category, interests]) => (
+                <View key={category} style={styles.categorySection}>
+                  <Text style={styles.categoryTitle}>{category}</Text>
+                  <View style={styles.interestsGrid}>
+                    {interests.map((interest) => (
+                      <TouchableOpacity
+                        key={interest.id}
                         style={[
-                          styles.interestText,
+                          styles.interestItem,
                           selectedInterests.includes(interest.id) &&
-                            styles.interestTextSelected,
+                            styles.interestItemSelected,
                         ]}
+                        onPress={() => toggleInterest(interest.id)}
+                        activeOpacity={0.8}
                       >
-                        {interest.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                        <Text style={styles.interestEmoji}>
+                          {interest.emoji}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.interestText,
+                            selectedInterests.includes(interest.id) &&
+                              styles.interestTextSelected,
+                          ]}
+                        >
+                          {interest.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))}
+            </ScrollView>
 
-            <View style={styles.actionSection}>
-              <Text style={styles.selectedCount}>
-                {selectedInterests.length} interests selected
-              </Text>
+            {/* Footer inside glassmorphism */}
+            <View style={styles.footerContainer}>
+              <OnboardingProgressMarkers
+                currentStep={currentStep}
+                totalSteps={totalSteps}
+              />
+              <OnboardingFooter
+                currentStep={currentStep}
+                totalSteps={totalSteps}
+                buttonText="Submit"
+                onNextPress={nextStep}
+              />
             </View>
-          </View>
-        </OnboardingLayout>
-      </ScrollView>
+          </BlurView>
+        </View>
+      </View>
     </Layout>
   );
 };
 
 const styles = StyleSheet.create({
-  gradient: {
+  screenContainer: {
     flex: 1,
   },
-  scrollContainer: {
-    flexGrow: 1,
-    alignItems: "center",
+  backgroundContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  container: {
+    flex: 1,
   },
   headerSection: {
     alignItems: "center",
+    paddingTop: 24,
     paddingBottom: 16,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: "600",
-    color: colors.black,
+    color: colors.white,
+    marginTop: 8,
     marginBottom: 12,
     textAlign: "center",
     fontFamily: typography.h1.fontFamily,
   },
   subtitle: {
     fontSize: 16,
-    color: colors.white50,
+    color: colors.white80,
     textAlign: "center",
     fontFamily: typography.body.fontFamily,
     textShadowColor: colors.white02,
@@ -270,18 +163,51 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     lineHeight: 24,
   },
-  contentContainer: {
-    backgroundColor: theme.background,
-    borderRadius: 24,
-    padding: 24,
-    elevation: 20,
-    shadowColor: theme.text.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
+  modalContainer: {
+    flex: 1,
+    marginTop: 8,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    overflow: "visible",
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.3,
     shadowRadius: 20,
+    elevation: 16,
+  },
+  glassOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.white65,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+  },
+  blurContainer: {
+    flex: 1,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    overflow: "hidden",
+    borderWidth: 1.5,
+    borderBottomWidth: 0,
+    borderColor: colors.white80,
+    backgroundColor:
+      Platform.OS === "android" ? "rgba(255, 255, 255, 0.85)" : "transparent",
+  },
+  dragHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: colors.silverSand,
+    borderRadius: 3,
+    alignSelf: "center",
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  scrollContent: {
+    padding: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   categorySection: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   categoryTitle: {
     fontSize: 20,
@@ -298,9 +224,9 @@ const styles = StyleSheet.create({
   interestItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: theme.background,
+    backgroundColor: colors.white,
     borderWidth: 2,
-    borderColor: theme.border,
+    borderColor: colors.silverSand,
     borderRadius: 28,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -308,7 +234,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     shadowColor: theme.text.primary,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
   },
   interestItemSelected: {
@@ -317,7 +243,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     shadowColor: colors.delugeLight,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
+    shadowOpacity: 0.5,
     shadowRadius: 8,
     elevation: 8,
     transform: [{ scale: 1.02 }],
@@ -329,22 +255,18 @@ const styles = StyleSheet.create({
   interestText: {
     fontSize: 14,
     fontWeight: "600",
-    color: theme.text.secondary,
+    color: theme.text.primary,
     fontFamily: typography.body.fontFamily,
   },
   interestTextSelected: {
     color: colors.white,
     fontWeight: "700",
   },
-  actionSection: {
+  footerContainer: {
     alignItems: "center",
-    paddingTop: 20,
-  },
-  selectedCount: {
-    fontSize: 16,
-    color: theme.text.secondary,
-    fontFamily: typography.body.fontFamily,
-    marginBottom: 24,
-    fontWeight: "600",
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.silverSand,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
 });

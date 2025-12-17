@@ -1,14 +1,14 @@
-import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import { Button } from "components/Buttons/Buttons";
-import colors, { theme } from "themes/tokens/colors";
+import { Button } from "components/Buttons";
+import colors from "themes/tokens/colors";
 import typography from "themes/tokens/typography";
 
 interface SwitchCardProps {
   title: string;
   isEnabled: boolean;
-  onToggle: (enabled: boolean) => void;
+  onToggle: (value: boolean) => void;
 }
 
 export const SwitchCard: React.FC<SwitchCardProps> = ({
@@ -18,28 +18,12 @@ export const SwitchCard: React.FC<SwitchCardProps> = ({
 }) => {
   return (
     <View style={styles.container}>
-      {/* Glassmorphism blur layer - gray frost */}
-      <BlurView intensity={80} tint="dark" style={styles.blurContainer}>
-        {/* Glass gradient overlay for depth */}
-        <LinearGradient
-          colors={[
-            "rgba(120, 120, 130, 0.5)",
-            "rgba(80, 80, 90, 0.3)",
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.glassOverlay}
-        />
-        {/* Inner highlight for glass effect */}
-        <LinearGradient
-          colors={[
-            "rgba(180, 180, 190, 0.4)",
-            "rgba(120, 120, 130, 0)",
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.innerHighlight}
-        />
+      <View style={styles.glassOverlay} />
+      <BlurView
+        intensity={Platform.OS === "ios" ? 40 : 80}
+        tint="regular"
+        style={styles.blurContainer}
+      >
         <View style={styles.content}>
           <Text style={styles.title}>{title}</Text>
           <Button variant="switch" switchProps={{ isEnabled, onToggle }} />
@@ -53,52 +37,45 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: 60,
-    borderRadius: 20,
-    overflow: "hidden",
-    // Gray frost glassmorphism border
-    borderWidth: 1.5,
-    borderColor: "rgba(150, 150, 160, 0.3)",
-    // Glass shadow for floating effect
-    shadowColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: 16,
+    overflow: "visible",
+    shadowColor: colors.black87,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 12,
-    // Gray frost background base
-    backgroundColor: "rgba(100, 100, 110, 0.4)",
   },
-  blurContainer: {
-    flex: 1,
-    overflow: "hidden",
-    borderRadius: 20,
-  },
+
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.8,
+    backgroundColor: colors.white50,
+    borderRadius: 16,
   },
-  innerHighlight: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 30,
-    opacity: 0.5,
+
+  blurContainer: {
+    flex: 1,
+    height: 60,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1.5,
+    borderColor: colors.white65,
+    backgroundColor:
+      Platform.OS === "android" ? "rgba(255, 255, 255, 0.25)" : "transparent",
   },
+
   content: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   title: {
     fontFamily: typography.body.fontFamily,
     fontSize: typography.body.fontSize,
     fontWeight: "600",
-    color: colors.white,
-    // Text shadow for readability on gray frost
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    color: colors.thunder,
+    letterSpacing: 0.3,
   },
 });

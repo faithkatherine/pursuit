@@ -2,7 +2,6 @@ import { StyleSheet, View } from "react-native";
 import { Button } from "components/Buttons";
 import BackIcon from "assets/icons/back.svg";
 import colors from "themes/tokens/colors";
-import { skip } from "node:test";
 
 interface OnboardingHeaderProps {
   showBackButton?: boolean;
@@ -25,7 +24,7 @@ export const OnboardingHeader = ({
             height: 40,
             borderRadius: 20,
             borderWidth: 0,
-            backgroundColor: colors.white50,
+            backgroundColor: colors.white02,
           }}
           icon={<BackIcon fill={colors.white} width={24} height={24} />}
           onPress={onBackPress}
@@ -52,6 +51,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   skipButtonText: {
-    color: colors.white50,
+    color: colors.white,
   },
 });

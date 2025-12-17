@@ -155,6 +155,14 @@ export const SIGN_IN = gql`
           email
           firstName
           lastName
+          profilePicture
+          isEmailVerified
+          authProvider
+          profile {
+            isOnboardingCompleted
+            bio
+            location
+          }
         }
       }
     }
@@ -185,6 +193,14 @@ export const SIGN_UP = gql`
           email
           firstName
           lastName
+          profilePicture
+          isEmailVerified
+          authProvider
+          profile {
+            isOnboardingCompleted
+            bio
+            location
+          }
         }
       }
     }
@@ -205,6 +221,14 @@ export const GOOGLE_SIGN_IN = gql`
           email
           firstName
           lastName
+          profilePicture
+          isEmailVerified
+          authProvider
+          profile {
+            isOnboardingCompleted
+            bio
+            location
+          }
         }
       }
     }
@@ -226,6 +250,35 @@ export const REFRESH_ACCESS_TOKEN = gql`
       accessToken
       refreshToken
       expiresIn
+    }
+  }
+`;
+
+export const GET_USER = gql`
+  query GetUser {
+    user {
+      id
+      email
+      firstName
+      lastName
+      profilePicture
+      isEmailVerified
+      authProvider
+      profile {
+        isOnboardingCompleted
+        bio
+        location
+      }
+    }
+  }
+`;
+
+export const GET_USER_PROFILE = gql`
+  query GetUserProfile {
+    userProfile {
+      isOnboardingCompleted
+      bio
+      location
     }
   }
 `;

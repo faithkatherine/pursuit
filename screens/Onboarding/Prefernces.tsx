@@ -8,8 +8,8 @@ import { useForm } from "react-hook-form";
 import { Button } from "components/Buttons";
 import { Switch } from "react-native-gesture-handler";
 import { SwitchCard } from "components/Cards/SwitchCard/SwitchCard";
-import { connect } from "http2";
 import typography from "themes/tokens/typography";
+import { BlushPurpleRadialGradient } from "themes/gradients";
 
 export const Prefernces = () => {
   const {
@@ -23,11 +23,15 @@ export const Prefernces = () => {
     toggleNotificationPermission,
   } = useOnboarding();
   const { height, width } = useWindowDimensions();
-  const illustrationHeight = height * 0.4;
+  const illustrationHeight = height * 0.3;
   const buttonWidth = Math.min(width * 0.9, 320);
 
   return (
-    <Layout backgroundColor={colors.lightPurple}>
+    <Layout
+      backgroundComponent={
+        <BlushPurpleRadialGradient width={width} height={height} />
+      }
+    >
       <OnboardingLayout
         currentStep={currentStep}
         totalSteps={totalSteps}
@@ -44,6 +48,11 @@ export const Prefernces = () => {
               title="Use Location"
               isEnabled={locationPermissionGranted}
               onToggle={toggleLocationPermission}
+            />
+            <SwitchCard
+              title="Receive Email Updates"
+              isEnabled={notificationPermissionGranted}
+              onToggle={toggleNotificationPermission}
             />
             <SwitchCard
               title="Receive Notifications"
@@ -77,17 +86,17 @@ const styles = StyleSheet.create({
   },
   connectButton: {
     width: "100%",
-    backgroundColor: colors.careysPink,
+    backgroundColor: colors.deluge,
     height: 60,
     borderRadius: 16,
-    shadowColor: colors.careysPink,
+    shadowColor: colors.black87,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 12,
   },
   connectButtonText: {
-    color: colors.black,
+    color: colors.white,
     fontFamily: typography.h4.fontFamily,
     fontSize: typography.h4.fontSize,
     fontWeight: typography.h4.fontWeight as any,

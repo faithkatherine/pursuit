@@ -1,39 +1,22 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Alert, Platform } from "react-native";
-import { useMutation } from "@apollo/client";
+import { useMutation, useLazyQuery } from "@apollo/client";
 import * as AuthSession from "expo-auth-session";
 import * as Crypto from "expo-crypto";
-import { SIGN_IN, SIGN_UP, GOOGLE_SIGN_IN } from "../graphql/queries";
-import {
-  storeTokens,
-  getTokens,
-  storeUserData,
-  getUserData,
-  clearAllData,
-} from "../utils/secureStorage";
-
-export interface User {
-  id: string;
-  firstName: string;
-  lastName?: string;
-  email: string;
-  avatar?: string;
-  hasCompletedOnboarding?: boolean;
-  hasSkippedOnboarding?: boolean;
-  interests?: string[];
-}
+import { SIGN_IN, SIGN_UP, GOOGLE_SIGN_IN, GET_USER } from "../graphql/queries";
+import { storeTokens, getTokens, clearAllData } from "../utils/secureStorage";
+import type { UserType } from "../graphql/generated/graphql";
 
 interface AuthContextType {
-  user: User | null;
+  user: UserType | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (name: string, email: string, password: string) => Promise<boolean>;
   signInWithGoogle: () => Promise<boolean>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
-  completeOnboarding: (interests: string[]) => Promise<void>;
-  skipOnboarding: () => Promise<void>;
   needsOnboarding: boolean;
+  hasSkippedOnboarding?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,13 +26,14 @@ export { AuthContext };
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
 
   const [signInMutation] = useMutation(SIGN_IN);
   const [signUpMutation] = useMutation(SIGN_UP);
   const [googleSignInMutation] = useMutation(GOOGLE_SIGN_IN);
+  const [getUserQuery, { data: userData }] = useLazyQuery(GET_USER);
 
   // Google OAuth configuration
   const discovery = AuthSession.useAutoDiscovery("https://accounts.google.com");
@@ -64,13 +48,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "";
   }, []);
 
-  // For iOS native client, use reverse domain redirect URI
   const redirectUri = React.useMemo(() => {
     if (Platform.OS === "ios") {
-      // iOS uses reverse domain notation from client ID
       return "com.googleusercontent.apps.924582733350-h1v2t6aufre40fsgslfkausj4piiedvt:/oauth2redirect/google";
     }
-    // For Android and web, use standard redirect
     return AuthSession.makeRedirectUri({
       scheme: "pursuit",
     });
@@ -88,7 +69,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     discovery
   );
 
-  // Load user from secure storage on app start
   useEffect(() => {
     loadStoredUser();
   }, []);
@@ -102,19 +82,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [response]);
 
+  // Update user when fresh data is fetched from backend
+  useEffect(() => {
+    if (userData?.user) {
+      setUser(userData.user);
+    }
+  }, [userData]);
+
   const loadStoredUser = async () => {
     try {
-      const [tokens, storedUser] = await Promise.all([
-        getTokens(),
-        getUserData<User>(),
-      ]);
+      const tokens = await getTokens();
 
-      if (storedUser && tokens.accessToken) {
-        setUser(storedUser);
+      if (tokens.accessToken) {
         setToken(tokens.accessToken);
+
+        // Fetch user data from backend
+        try {
+          await getUserQuery();
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          // If query fails, user will be null and redirect to login
+        }
       }
     } catch (error) {
-      console.error("Error loading stored user:", error);
+      console.error("Error loading stored tokens:", error);
     } finally {
       setIsLoading(false);
     }
@@ -130,14 +121,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (data?.signIn?.ok && data.signIn.authPayload) {
         const { authPayload } = data.signIn;
-        const userData = authPayload.user;
-
-        const user: User = {
-          id: userData.id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-        };
 
         // Store tokens securely
         await storeTokens({
@@ -146,11 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           refreshToken: authPayload.refreshToken,
         });
 
-        // Store user data securely
-        await storeUserData(user);
-
         setToken(authPayload.accessToken);
-        setUser(user);
+        setUser(authPayload.user);
         return true;
       }
 
@@ -184,14 +164,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (data?.signUp?.ok && data.signUp.authPayload) {
         const { authPayload } = data.signUp;
-        const userData = authPayload.user;
-
-        const user: User = {
-          id: userData.id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-        };
 
         // Store tokens securely
         await storeTokens({
@@ -200,11 +172,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           refreshToken: authPayload.refreshToken,
         });
 
-        // Store user data securely
-        await storeUserData(user);
-
         setToken(authPayload.accessToken);
-        setUser(user);
+        setUser(authPayload.user);
         return true;
       }
 
@@ -275,14 +244,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           // FIX: Access authPayload structure correctly
           if (data?.googleSignIn?.ok && data.googleSignIn.authPayload) {
             const { authPayload } = data.googleSignIn;
-            const userData = authPayload.user;
-
-            const user: User = {
-              id: userData.id,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              email: userData.email,
-            };
 
             // Store tokens securely using expo-secure-store
             await storeTokens({
@@ -291,11 +252,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               refreshToken: authPayload.refreshToken,
             });
 
-            // Store user data securely
-            await storeUserData(user);
-
             setToken(authPayload.accessToken);
-            setUser(user);
+            setUser(authPayload.user);
 
             return true;
           } else {
@@ -349,39 +307,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const completeOnboarding = async (interests: string[]): Promise<void> => {
-    if (!user) return;
-
-    try {
-      const updatedUser = {
-        ...user,
-        hasCompletedOnboarding: true,
-        interests,
-      };
-
-      await storeUserData(updatedUser);
-      setUser(updatedUser);
-    } catch (error) {
-      console.error("Error completing onboarding:", error);
-    }
-  };
-
-  const skipOnboarding = async (): Promise<void> => {
-    if (!user) return;
-
-    try {
-      const updatedUser = {
-        ...user,
-        hasSkippedOnboarding: true,
-      };
-
-      await storeUserData(updatedUser);
-      setUser(updatedUser);
-    } catch (error) {
-      console.error("Error skipping onboarding:", error);
-    }
-  };
-
   const value: AuthContextType = {
     user,
     isLoading,
@@ -389,10 +314,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signUp,
     signInWithGoogle,
     signOut,
-    isAuthenticated: !!user,
-    completeOnboarding,
-    skipOnboarding,
-    needsOnboarding: !!user && !user.hasCompletedOnboarding && !user.hasSkippedOnboarding,
+    isAuthenticated: user !== null,
+    needsOnboarding:
+      user !== null && user.profile?.isOnboardingCompleted === false,
+    hasSkippedOnboarding: false,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,6 +1,9 @@
 import { useRouter, useSegments } from "expo-router";
 import React, { createContext } from "react";
 import { useAuth } from "./AuthProvider";
+import * as Location from "expo-location";
+import * as Notifications from "expo-notifications";
+import { Alert } from "react-native";
 
 interface OnboardingContextType {
   currentStep: number;
@@ -9,6 +12,7 @@ interface OnboardingContextType {
   notificationPermissionGranted: boolean;
   toggleLocationPermission: (enabled: boolean) => void;
   toggleNotificationPermission: (enabled: boolean) => void;
+  toggleEmailPermission?: (enabled: boolean) => void;
   nextStep: () => void;
   prevStep: () => void;
   skipOnboarding: () => void;
@@ -22,6 +26,7 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>({
   notificationPermissionGranted: false,
   toggleLocationPermission: () => {},
   toggleNotificationPermission: () => {},
+  toggleEmailPermission: () => {},
   nextStep: () => {},
   prevStep: () => {},
   skipOnboarding: () => {},
@@ -60,12 +65,10 @@ export const useOnboarding = () => {
 const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
-  const {
-    completeOnboarding: completeOnboardingAuth,
-    skipOnboarding: skipOnboardingAuth,
-  } = useAuth();
   const totalSteps = steps.length;
   const [locationPermissionGranted, setLocationPermissionGranted] =
+    React.useState<boolean>(false);
+  const [emailPermissionGranted, setEmailPermissionGranted] =
     React.useState<boolean>(false);
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
     React.useState<boolean>(false);
@@ -99,14 +102,46 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const currentStepConfig = steps[safeStepIndex];
   const currentStep = safeStepIndex + 1;
 
-  const toggleLocationPermission = (enabled: boolean) => {
+  const toggleLocationPermission = async (enabled: boolean) => {
     setLocationPermissionGranted(enabled);
-    // TODO: Add actual permission request logic here
+    if (enabled) {
+      try {
+        const result = await Location.requestForegroundPermissionsAsync();
+        if (result.status !== "granted") {
+          setLocationPermissionGranted(false);
+        }
+      } catch (error) {
+        console.error("Failed to request location permission:", error);
+        setLocationPermissionGranted(false);
+        Alert.alert(
+          "Permission Error",
+          "Unable to request location permission. Please try again later."
+        );
+      }
+    }
   };
 
-  const toggleNotificationPermission = (enabled: boolean) => {
+  const toggleNotificationPermission = async (enabled: boolean) => {
     setNotificationPermissionGranted(enabled);
-    // TODO: Add actual permission request logic here
+    if (enabled) {
+      try {
+        const result = await Notifications.requestPermissionsAsync();
+        if (result.status !== "granted") {
+          setNotificationPermissionGranted(false);
+        }
+      } catch (error) {
+        console.error("Failed to request notification permission:", error);
+        setNotificationPermissionGranted(false);
+        Alert.alert(
+          "Permission Error",
+          "Unable to request notification permission. Please try again later."
+        );
+      }
+    }
+  };
+
+  const toggleEmailPermission = async (enabled: boolean) => {
+    setEmailPermissionGranted(enabled);
   };
 
   const nextStep = () => {
@@ -132,13 +167,10 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const skipOnboarding = async () => {
-    await skipOnboardingAuth();
     router.replace("/");
   };
 
   const completeOnboarding = async () => {
-    // This would be called from the final confirmation screen with the user's interests
-    // For now, just navigate to home - the actual implementation will pass interests
     router.replace("/");
   };
 
@@ -151,6 +183,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         notificationPermissionGranted,
         toggleLocationPermission,
         toggleNotificationPermission,
+        toggleEmailPermission,
         nextStep,
         prevStep,
         skipOnboarding,
