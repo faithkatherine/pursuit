@@ -1,15 +1,19 @@
 import { useRouter, useSegments } from "expo-router";
-import React, { createContext } from "react";
+import React, { createContext, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { Alert } from "react-native";
+import { useMutation } from "@apollo/client";
+import { SKIP_ONBOARDING } from "graphql/queries";
+import { SkipOnboardingMutation } from "graphql/generated/graphql";
 
 interface OnboardingContextType {
   currentStep: number;
   totalSteps: number;
   locationPermissionGranted: boolean;
   notificationPermissionGranted: boolean;
+  skipOnboardingMutationLoading: boolean;
   toggleLocationPermission: (enabled: boolean) => void;
   toggleNotificationPermission: (enabled: boolean) => void;
   toggleEmailPermission?: (enabled: boolean) => void;
@@ -24,6 +28,7 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>({
   totalSteps: 4,
   locationPermissionGranted: false,
   notificationPermissionGranted: false,
+  skipOnboardingMutationLoading: false,
   toggleLocationPermission: () => {},
   toggleNotificationPermission: () => {},
   toggleEmailPermission: () => {},
@@ -66,12 +71,16 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
   const totalSteps = steps.length;
+  const { updateUser } = useAuth();
   const [locationPermissionGranted, setLocationPermissionGranted] =
     React.useState<boolean>(false);
   const [emailPermissionGranted, setEmailPermissionGranted] =
     React.useState<boolean>(false);
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
     React.useState<boolean>(false);
+
+  const [skipOnboardingMutation, { loading: skipOnboardingMutationLoading }] =
+    useMutation<SkipOnboardingMutation>(SKIP_ONBOARDING);
 
   // Derive current step from route segments
   const getCurrentStepName = (): StepName => {
@@ -101,6 +110,32 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const safeStepIndex = currentStepIndex >= 0 ? currentStepIndex : 0;
   const currentStepConfig = steps[safeStepIndex];
   const currentStep = safeStepIndex + 1;
+
+  const skipOnboarding = async () => {
+    await skipOnboardingMutation({
+      errorPolicy: "all",
+    })
+      .then((result) => {
+        console.log("Skip onboarding full result:", result);
+        console.log("Skip onboarding data:", result.data);
+
+        if (result.data?.skipOnboarding?.ok) {
+          if (result.data?.skipOnboarding?.user) {
+            updateUser(result.data.skipOnboarding.user);
+          }
+          router.replace("/");
+        } else {
+          console.warn("Skip onboarding failed - ok was false or undefined");
+        }
+      })
+      .catch((error) => {
+        console.error("Error skipping onboarding:", error);
+        Alert.alert(
+          "Error",
+          "There was an issue skipping onboarding. Please try again later."
+        );
+      });
+  };
 
   const toggleLocationPermission = async (enabled: boolean) => {
     setLocationPermissionGranted(enabled);
@@ -166,10 +201,6 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const skipOnboarding = async () => {
-    router.replace("/");
-  };
-
   const completeOnboarding = async () => {
     router.replace("/");
   };
@@ -181,6 +212,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         totalSteps,
         locationPermissionGranted,
         notificationPermissionGranted,
+        skipOnboardingMutationLoading,
         toggleLocationPermission,
         toggleNotificationPermission,
         toggleEmailPermission,

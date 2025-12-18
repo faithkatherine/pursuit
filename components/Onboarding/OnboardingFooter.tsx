@@ -1,5 +1,10 @@
 import { Button } from "components/Buttons";
-import { useWindowDimensions, View, StyleSheet } from "react-native";
+import {
+  useWindowDimensions,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import colors, { theme } from "themes/tokens/colors";
 import spacing from "themes/tokens/spacing";
@@ -10,6 +15,7 @@ interface OnboardingFooterProps {
   currentStep: number;
   totalSteps: number;
   buttonText?: string;
+  skipOnboardingMutationLoading?: boolean;
   onNextPress: () => void;
   onSkipAllPress?: () => void;
 }
@@ -17,6 +23,7 @@ export const OnboardingFooter = ({
   currentStep,
   totalSteps,
   buttonText,
+  skipOnboardingMutationLoading,
   onNextPress,
   onSkipAllPress,
 }: OnboardingFooterProps) => {
@@ -38,13 +45,18 @@ export const OnboardingFooter = ({
         onPress={onNextPress}
       />
       {currentStep === 1 && onSkipAllPress && (
-        <Button
-          text="Maybe Later"
-          style={styles.skipButton}
-          textStyle={styles.skipButtonText}
-          variant="tertiary"
-          onPress={onSkipAllPress}
-        />
+        <View style={styles.skipContainer}>
+          <Button
+            text="Maybe Later"
+            style={styles.skipButton}
+            textStyle={styles.skipButtonText}
+            variant="tertiary"
+            onPress={onSkipAllPress}
+          />
+          {skipOnboardingMutationLoading && (
+            <ActivityIndicator size="small" color={colors.black} />
+          )}
+        </View>
       )}
     </View>
   );
@@ -65,6 +77,12 @@ const styles = StyleSheet.create({
     fontFamily: typography.h4.fontFamily,
     fontSize: typography.h4.fontSize,
     color: theme.text.white,
+  },
+  skipContainer: {
+    marginTop: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   skipButton: {
     alignSelf: "center",

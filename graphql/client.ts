@@ -3,13 +3,19 @@ import {
   InMemoryCache,
   createHttpLink,
   from,
+  Observable,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { getTokens } from "../utils/secureStorage";
+import { onError } from "@apollo/client/link/error";
+import { getTokens, storeTokens, clearAllData } from "../utils/secureStorage";
 
 const httpLink = createHttpLink({
   uri: process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/graphql/",
 });
+
+// Track if we're currently refreshing to avoid multiple simultaneous refresh attempts
+let isRefreshing = false;
+let pendingRequests: Array<() => void> = [];
 
 const authLink = setContext(async (_, { headers }) => {
   // Get the authentication token from secure storage
@@ -24,7 +30,117 @@ const authLink = setContext(async (_, { headers }) => {
   };
 });
 
-const link = from([authLink, httpLink]);
+// Error handling link for token refresh
+const errorLink = onError(
+  ({ graphQLErrors, networkError, operation, forward }) => {
+    if (graphQLErrors) {
+      for (const err of graphQLErrors) {
+        // Check if error is due to expired token
+        if (
+          err.extensions?.code === "TOKEN_EXPIRED" ||
+          err.extensions?.code === "NOT_AUTHENTICATED" ||
+          err.message?.includes("Token has expired") ||
+          err.message?.includes("Not authenticated")
+        ) {
+          console.log("[Apollo] Token expired, attempting refresh...");
+
+          if (!isRefreshing) {
+            isRefreshing = true;
+
+            return new Observable((observer) => {
+              getTokens()
+                .then(async (tokens) => {
+                  if (!tokens.refreshToken) {
+                    throw new Error("No refresh token available");
+                  }
+
+                  // Call refresh token mutation
+                  const response = await fetch(
+                    process.env.EXPO_PUBLIC_API_URL ||
+                      "http://localhost:8000/graphql/",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        query: `
+                        mutation RefreshAccessToken($refreshToken: String!) {
+                          refreshAccessToken(refreshToken: $refreshToken) {
+                            ok
+                            accessToken
+                            refreshToken
+                            expiresIn
+                          }
+                        }
+                      `,
+                        variables: { refreshToken: tokens.refreshToken },
+                      }),
+                    }
+                  );
+
+                  const result = await response.json();
+
+                  if (result.data?.refreshAccessToken?.ok) {
+                    const { accessToken, refreshToken } =
+                      result.data.refreshAccessToken;
+
+                    // Store new tokens
+                    await storeTokens({
+                      accessToken,
+                      refreshToken,
+                      sessionToken: tokens.sessionToken ?? undefined,
+                    });
+
+                    // Retry all pending requests
+                    pendingRequests.forEach((callback) => callback());
+                    pendingRequests = [];
+                  } else {
+                    throw new Error("Token refresh failed");
+                  }
+                })
+                .catch(async (error) => {
+                  // Clear all data and force re-login
+                  await clearAllData();
+                  pendingRequests = [];
+                  observer.error(error);
+                  return;
+                })
+                .finally(() => {
+                  isRefreshing = false;
+                })
+                .then(() => {
+                  // Retry the operation after refresh
+                  forward(operation).subscribe({
+                    next: observer.next.bind(observer),
+                    error: observer.error.bind(observer),
+                    complete: observer.complete.bind(observer),
+                  });
+                });
+            });
+          } else {
+            // Already refreshing, queue this request
+            return new Observable((observer) => {
+              pendingRequests.push(() => {
+                forward(operation).subscribe({
+                  next: observer.next.bind(observer),
+                  error: observer.error.bind(observer),
+                  complete: observer.complete.bind(observer),
+                });
+              });
+            });
+          }
+        }
+      }
+    }
+
+    if (networkError) {
+      console.error("[Apollo] Network error:", networkError);
+    }
+  }
+);
+
+const link = from([errorLink, authLink, httpLink]);
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -271,9 +387,9 @@ export const client = new ApolloClient({
   cache,
   defaultOptions: {
     watchQuery: {
-      errorPolicy: "ignore",
-      fetchPolicy: "cache-first", // Use cache first, then network
-      nextFetchPolicy: "cache-first",
+      errorPolicy: "all", // Changed from "ignore" to show errors
+      fetchPolicy: "cache-and-network", // Use cache first, then network
+      nextFetchPolicy: "cache-and-network",
     },
     query: {
       errorPolicy: "all",

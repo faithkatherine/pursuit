@@ -14,22 +14,32 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  fragment AuthPayloadFields on AuthPayloadType {\n    accessToken\n    sessionToken\n    refreshToken\n    expiresIn\n    user {\n      ...AuthUser\n    }\n  }\n": typeof types.AuthPayloadFieldsFragmentDoc,
+    "\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n": typeof types.AuthUserFragmentDoc,
+    "\n  fragment FullProfile on UserProfileType {\n    bio\n    location\n    coordinates\n    hasLocation\n    searchRadiusKm\n    timezone\n    birthDate\n    phoneNumber\n    interests {\n      id\n      name\n      icon\n    }\n    isOnboardingCompleted\n    hasSkippedOnboarding\n    isProfilePublic\n    allowEmailNotifications\n    allowPushNotifications\n    calendarIntegrated\n    calendarProvider\n    paymentPlan\n    isPremium\n    subscriptionExpiresAt\n    theme\n    lastActiveAt\n    loginCount\n  }\n": typeof types.FullProfileFragmentDoc,
+    "\n  fragment UserBasic on UserType {\n    id\n    email\n    firstName\n    lastName\n    fullName\n    profilePicture\n  }\n": typeof types.UserBasicFragmentDoc,
     "\n  mutation SignIn($email: String!, $password: String!) {\n    signIn(email: $email, password: $password) {\n      ok\n      authPayload {\n        accessToken\n        sessionToken\n        refreshToken\n        expiresIn\n        user {\n          id\n          email\n          firstName\n          lastName\n          profilePicture\n          isEmailVerified\n          authProvider\n          profile {\n            isOnboardingCompleted\n            bio\n            location\n          }\n        }\n      }\n    }\n  }\n": typeof types.SignInDocument,
     "\n  mutation SignUp(\n    $firstName: String!\n    $lastName: String\n    $email: String!\n    $password: String!\n  ) {\n    signUp(\n      firstName: $firstName\n      lastName: $lastName\n      email: $email\n      password: $password\n    ) {\n      ok\n      authPayload {\n        accessToken\n        sessionToken\n        refreshToken\n        expiresIn\n        user {\n          id\n          email\n          firstName\n          lastName\n          profilePicture\n          isEmailVerified\n          authProvider\n          profile {\n            isOnboardingCompleted\n            bio\n            location\n          }\n        }\n      }\n    }\n  }\n": typeof types.SignUpDocument,
     "\n  mutation GoogleSignIn($idToken: String!) {\n    googleSignIn(idToken: $idToken) {\n      ok\n      authPayload {\n        accessToken\n        sessionToken\n        refreshToken\n        expiresIn\n        user {\n          id\n          email\n          firstName\n          lastName\n          profilePicture\n          isEmailVerified\n          authProvider\n          profile {\n            isOnboardingCompleted\n            bio\n            location\n          }\n        }\n      }\n    }\n  }\n": typeof types.GoogleSignInDocument,
     "\n  mutation SignOut($refreshToken: String!) {\n    signOut(refreshToken: $refreshToken) {\n      ok\n    }\n  }\n": typeof types.SignOutDocument,
     "\n  mutation RefreshAccessToken($refreshToken: String!) {\n    refreshAccessToken(refreshToken: $refreshToken) {\n      ok\n      accessToken\n      refreshToken\n      expiresIn\n    }\n  }\n": typeof types.RefreshAccessTokenDocument,
-    "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        bio\n        location\n      }\n    }\n  }\n": typeof types.GetUserDocument,
+    "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        location\n      }\n    }\n  }\n": typeof types.GetUserDocument,
     "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      location\n    }\n  }\n": typeof types.GetUserProfileDocument,
+    "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n": typeof types.SkipOnboardingDocument,
 };
 const documents: Documents = {
+    "\n  fragment AuthPayloadFields on AuthPayloadType {\n    accessToken\n    sessionToken\n    refreshToken\n    expiresIn\n    user {\n      ...AuthUser\n    }\n  }\n": types.AuthPayloadFieldsFragmentDoc,
+    "\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n": types.AuthUserFragmentDoc,
+    "\n  fragment FullProfile on UserProfileType {\n    bio\n    location\n    coordinates\n    hasLocation\n    searchRadiusKm\n    timezone\n    birthDate\n    phoneNumber\n    interests {\n      id\n      name\n      icon\n    }\n    isOnboardingCompleted\n    hasSkippedOnboarding\n    isProfilePublic\n    allowEmailNotifications\n    allowPushNotifications\n    calendarIntegrated\n    calendarProvider\n    paymentPlan\n    isPremium\n    subscriptionExpiresAt\n    theme\n    lastActiveAt\n    loginCount\n  }\n": types.FullProfileFragmentDoc,
+    "\n  fragment UserBasic on UserType {\n    id\n    email\n    firstName\n    lastName\n    fullName\n    profilePicture\n  }\n": types.UserBasicFragmentDoc,
     "\n  mutation SignIn($email: String!, $password: String!) {\n    signIn(email: $email, password: $password) {\n      ok\n      authPayload {\n        accessToken\n        sessionToken\n        refreshToken\n        expiresIn\n        user {\n          id\n          email\n          firstName\n          lastName\n          profilePicture\n          isEmailVerified\n          authProvider\n          profile {\n            isOnboardingCompleted\n            bio\n            location\n          }\n        }\n      }\n    }\n  }\n": types.SignInDocument,
     "\n  mutation SignUp(\n    $firstName: String!\n    $lastName: String\n    $email: String!\n    $password: String!\n  ) {\n    signUp(\n      firstName: $firstName\n      lastName: $lastName\n      email: $email\n      password: $password\n    ) {\n      ok\n      authPayload {\n        accessToken\n        sessionToken\n        refreshToken\n        expiresIn\n        user {\n          id\n          email\n          firstName\n          lastName\n          profilePicture\n          isEmailVerified\n          authProvider\n          profile {\n            isOnboardingCompleted\n            bio\n            location\n          }\n        }\n      }\n    }\n  }\n": types.SignUpDocument,
     "\n  mutation GoogleSignIn($idToken: String!) {\n    googleSignIn(idToken: $idToken) {\n      ok\n      authPayload {\n        accessToken\n        sessionToken\n        refreshToken\n        expiresIn\n        user {\n          id\n          email\n          firstName\n          lastName\n          profilePicture\n          isEmailVerified\n          authProvider\n          profile {\n            isOnboardingCompleted\n            bio\n            location\n          }\n        }\n      }\n    }\n  }\n": types.GoogleSignInDocument,
     "\n  mutation SignOut($refreshToken: String!) {\n    signOut(refreshToken: $refreshToken) {\n      ok\n    }\n  }\n": types.SignOutDocument,
     "\n  mutation RefreshAccessToken($refreshToken: String!) {\n    refreshAccessToken(refreshToken: $refreshToken) {\n      ok\n      accessToken\n      refreshToken\n      expiresIn\n    }\n  }\n": types.RefreshAccessTokenDocument,
-    "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        bio\n        location\n      }\n    }\n  }\n": types.GetUserDocument,
+    "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        location\n      }\n    }\n  }\n": types.GetUserDocument,
     "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      location\n    }\n  }\n": types.GetUserProfileDocument,
+    "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n": types.SkipOnboardingDocument,
 };
 
 /**
@@ -46,6 +56,22 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment AuthPayloadFields on AuthPayloadType {\n    accessToken\n    sessionToken\n    refreshToken\n    expiresIn\n    user {\n      ...AuthUser\n    }\n  }\n"): (typeof documents)["\n  fragment AuthPayloadFields on AuthPayloadType {\n    accessToken\n    sessionToken\n    refreshToken\n    expiresIn\n    user {\n      ...AuthUser\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n"): (typeof documents)["\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment FullProfile on UserProfileType {\n    bio\n    location\n    coordinates\n    hasLocation\n    searchRadiusKm\n    timezone\n    birthDate\n    phoneNumber\n    interests {\n      id\n      name\n      icon\n    }\n    isOnboardingCompleted\n    hasSkippedOnboarding\n    isProfilePublic\n    allowEmailNotifications\n    allowPushNotifications\n    calendarIntegrated\n    calendarProvider\n    paymentPlan\n    isPremium\n    subscriptionExpiresAt\n    theme\n    lastActiveAt\n    loginCount\n  }\n"): (typeof documents)["\n  fragment FullProfile on UserProfileType {\n    bio\n    location\n    coordinates\n    hasLocation\n    searchRadiusKm\n    timezone\n    birthDate\n    phoneNumber\n    interests {\n      id\n      name\n      icon\n    }\n    isOnboardingCompleted\n    hasSkippedOnboarding\n    isProfilePublic\n    allowEmailNotifications\n    allowPushNotifications\n    calendarIntegrated\n    calendarProvider\n    paymentPlan\n    isPremium\n    subscriptionExpiresAt\n    theme\n    lastActiveAt\n    loginCount\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment UserBasic on UserType {\n    id\n    email\n    firstName\n    lastName\n    fullName\n    profilePicture\n  }\n"): (typeof documents)["\n  fragment UserBasic on UserType {\n    id\n    email\n    firstName\n    lastName\n    fullName\n    profilePicture\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -69,11 +95,15 @@ export function graphql(source: "\n  mutation RefreshAccessToken($refreshToken: 
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        bio\n        location\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        bio\n        location\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        location\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        location\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      location\n    }\n  }\n"): (typeof documents)["\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      location\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n"): (typeof documents)["\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

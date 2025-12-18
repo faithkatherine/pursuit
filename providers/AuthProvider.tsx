@@ -7,6 +7,11 @@ import { SIGN_IN, SIGN_UP, GOOGLE_SIGN_IN, GET_USER } from "../graphql/queries";
 import { storeTokens, getTokens, clearAllData } from "../utils/secureStorage";
 import type { UserType } from "../graphql/generated/graphql";
 
+// Type for partial user updates (allows nested partial objects from mutations)
+type PartialUserUpdate = Partial<Omit<UserType, "profile">> & {
+  profile?: Partial<NonNullable<UserType["profile"]>> | null;
+};
+
 interface AuthContextType {
   user: UserType | null;
   isLoading: boolean;
@@ -14,9 +19,9 @@ interface AuthContextType {
   signUp: (name: string, email: string, password: string) => Promise<boolean>;
   signInWithGoogle: () => Promise<boolean>;
   signOut: () => Promise<void>;
+  updateUser: (updatedUser: PartialUserUpdate) => void;
   isAuthenticated: boolean;
   needsOnboarding: boolean;
-  hasSkippedOnboarding?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,7 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [signInMutation] = useMutation(SIGN_IN);
   const [signUpMutation] = useMutation(SIGN_UP);
   const [googleSignInMutation] = useMutation(GOOGLE_SIGN_IN);
-  const [getUserQuery, { data: userData }] = useLazyQuery(GET_USER);
+  const [getUserQuery, { data: userData }] = useLazyQuery(GET_USER, {
+    fetchPolicy: "network-only",
+  });
 
   // Google OAuth configuration
   const discovery = AuthSession.useAutoDiscovery("https://accounts.google.com");
@@ -98,15 +105,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Fetch user data from backend
         try {
-          await getUserQuery();
+          const { data, error } = await getUserQuery();
+
+          if (data?.user) {
+            setUser(data.user);
+          } else {
+            console.warn(
+              "[AuthProvider] No user data returned from query. Data:",
+              data
+            );
+          }
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          // If query fails, user will be null and redirect to login
+          console.error("[AuthProvider] Error fetching user data:", error);
         }
+      } else {
+        console.log("[AuthProvider] No access token found");
       }
     } catch (error) {
-      console.error("Error loading stored tokens:", error);
+      console.error("[AuthProvider] Error loading stored tokens:", error);
     } finally {
+      console.log("[AuthProvider] Setting isLoading to false");
       setIsLoading(false);
     }
   };
@@ -307,6 +325,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateUser = (updatedUser: PartialUserUpdate) => {
+    setUser((prevUser) => {
+      if (!prevUser) return prevUser;
+
+      // Deep merge for nested profile object
+      const mergedProfile = updatedUser.profile
+        ? { ...prevUser.profile, ...updatedUser.profile }
+        : prevUser.profile;
+
+      return {
+        ...prevUser,
+        ...updatedUser,
+        profile: mergedProfile,
+      } as UserType;
+    });
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -314,10 +349,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signUp,
     signInWithGoogle,
     signOut,
+    updateUser,
     isAuthenticated: user !== null,
     needsOnboarding:
-      user !== null && user.profile?.isOnboardingCompleted === false,
-    hasSkippedOnboarding: false,
+      user !== null &&
+      user.profile?.isOnboardingCompleted === false &&
+      user.profile?.hasSkippedOnboarding !== true,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

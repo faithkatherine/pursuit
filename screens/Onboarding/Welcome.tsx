@@ -13,7 +13,12 @@ const WelcomeScreen = () => {
   // Responsive dimensions
   const illustrationHeight = height * 0.5; // 50% of screen height
 
-  const { currentStep, nextStep, prevStep, skipOnboarding } = useOnboarding();
+  const {
+    currentStep,
+    nextStep,
+    skipOnboarding,
+    skipOnboardingMutationLoading,
+  } = useOnboarding();
 
   return (
     <Layout backgroundColor={colors.shilo}>
@@ -23,6 +28,7 @@ const WelcomeScreen = () => {
         buttonText="Start Onboarding"
         showBackButton={currentStep > 1}
         onNextPress={nextStep}
+        skipOnboardingMutationLoading={skipOnboardingMutationLoading}
         onSkipAllPress={skipOnboarding}
       >
         <View style={styles.container}>

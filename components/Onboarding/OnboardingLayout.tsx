@@ -10,6 +10,7 @@ interface OnboardingLayoutProps {
   totalSteps: number;
   buttonText?: string;
   showBackButton?: boolean;
+  skipOnboardingMutationLoading?: boolean;
   children: React.ReactNode;
   onBackPress?: () => void;
   onSkipPress?: () => void;
@@ -22,6 +23,7 @@ export const OnboardingLayout = ({
   totalSteps,
   buttonText,
   showBackButton,
+  skipOnboardingMutationLoading,
   children,
   onBackPress,
   onSkipPress,

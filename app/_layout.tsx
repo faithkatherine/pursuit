@@ -20,7 +20,7 @@ function RootLayoutContent() {
       try {
         // Load any resources or data here
         // For now, we'll just mark the app as ready
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       } catch (e) {
         console.warn(e);
       } finally {

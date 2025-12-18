@@ -16,12 +16,42 @@ module.exports = {
       config: {
         usesNonExemptEncryption: false,
       },
+      infoPlist: {
+        NSLocationWhenInUseUsageDescription:
+          "Pursuit needs your location to suggest nearby bucket list experiences and show local recommendations.",
+        NSLocationAlwaysAndWhenInUseUsageDescription:
+          "Pursuit needs your location to suggest nearby bucket list experiences and notify you about opportunities near you.",
+        NSLocationAlwaysUsageDescription:
+          "Pursuit needs your location to notify you about bucket list opportunities near you, even when the app is in the background.",
+      },
     },
     android: {
       edgeToEdgeEnabled: true,
       package: "com.pursuit.app",
+      permissions: ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
     },
-    plugins: ["expo-router", "expo-dev-client", "expo-secure-store"],
+    plugins: [
+      "expo-router",
+      "expo-dev-client",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          locationAlwaysAndWhenInUsePermission:
+            "Pursuit needs your location to suggest nearby bucket list experiences and notify you about opportunities near you.",
+          locationAlwaysPermission:
+            "Pursuit needs your location to notify you about bucket list opportunities near you, even when the app is in the background.",
+          locationWhenInUsePermission:
+            "Pursuit needs your location to suggest nearby bucket list experiences and show local recommendations.",
+        },
+      ],
+      [
+        "expo-notifications",
+        {
+          color: "#ffffff",
+        },
+      ],
+    ],
     scheme: "pursuit",
     extra: {
       eas: {
