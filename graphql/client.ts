@@ -9,8 +9,11 @@ import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { getTokens, storeTokens, clearAllData } from "../utils/secureStorage";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/graphql/";
+console.log("[Apollo Client] Using API URL:", apiUrl);
+
 const httpLink = createHttpLink({
-  uri: process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/graphql/",
+  uri: apiUrl,
 });
 
 // Track if we're currently refreshing to avoid multiple simultaneous refresh attempts

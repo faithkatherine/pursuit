@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (Platform.OS === "ios") {
       return process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "";
     } else if (Platform.OS === "android") {
+      // For Android dev builds, use the Android Client ID with native redirect
       return process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "";
     }
     return process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || "";
@@ -59,9 +60,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (Platform.OS === "ios") {
       return "com.googleusercontent.apps.924582733350-h1v2t6aufre40fsgslfkausj4piiedvt:/oauth2redirect/google";
     }
-    return AuthSession.makeRedirectUri({
-      scheme: "pursuit",
-    });
+    // For Android, use the reversed client ID as redirect URI (same pattern as iOS)
+    // Format: com.googleusercontent.apps.<ANDROID_CLIENT_ID>:/oauth2redirect/google
+    return "com.googleusercontent.apps.924582733350-7decpkks5mecejcju75131fm7qnva9dd:/oauth2redirect/google";
   }, []);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       prompt: AuthSession.Prompt.SelectAccount,
       usePKCE: true,
     },
-    discovery
+    discovery,
   );
 
   useEffect(() => {
@@ -112,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           } else {
             console.warn(
               "[AuthProvider] No user data returned from query. Data:",
-              data
+              data,
             );
           }
         } catch (error) {
@@ -165,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signUp = async (
     name: string,
     email: string,
-    password: string
+    password: string,
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
@@ -200,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Sign up error:", error);
       Alert.alert(
         "Sign Up Failed",
-        "Please check your information and try again."
+        "Please check your information and try again.",
       );
       return false;
     } finally {
@@ -228,7 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!authCode) {
           console.error(
             "No authorization code in result params:",
-            result.params
+            result.params,
           );
           throw new Error("No authorization code received from Google");
         }
@@ -250,14 +251,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 }
               : {},
           },
-          discovery
+          discovery,
         );
 
         if (tokenResult.idToken) {
+          console.log("[AuthProvider] Sending ID token to backend...");
           // Send the ID token to our backend - FIX: use idToken not token
           const { data } = await googleSignInMutation({
             variables: { idToken: tokenResult.idToken },
           });
+          console.log("[AuthProvider] Backend response:", data);
 
           // FIX: Access authPayload structure correctly
           if (data?.googleSignIn?.ok && data.googleSignIn.authPayload) {
@@ -278,14 +281,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             console.error("Backend did not return valid auth data");
             Alert.alert(
               "Google Sign In Failed",
-              "Authentication failed. Please try again."
+              "Authentication failed. Please try again.",
             );
           }
         } else {
           console.error(" No ID token received from Google");
           Alert.alert(
             "Google Sign In Failed",
-            "Failed to get authentication token from Google."
+            "Failed to get authentication token from Google.",
           );
         }
       } else if (result.type === "cancel") {
@@ -294,7 +297,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error("OAuth error:", result.error);
         Alert.alert(
           "Google Sign In Failed",
-          `Error: ${result.error?.message || "Unknown error"}`
+          `Error: ${result.error?.message || "Unknown error"}`,
         );
         return false;
       } else if (result.type === "dismiss") {

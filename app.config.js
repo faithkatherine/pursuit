@@ -29,6 +29,20 @@ module.exports = {
       edgeToEdgeEnabled: true,
       package: "com.pursuit.app",
       permissions: ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      intentFilters: [
+        {
+          action: "VIEW",
+          autoVerify: true,
+          data: [
+            {
+              scheme:
+                "com.googleusercontent.apps.924582733350-7decpkks5mecejcju75131fm7qnva9dd",
+              path: "/oauth2redirect/google",
+            },
+          ],
+          category: ["DEFAULT", "BROWSABLE"],
+        },
+      ],
     },
     plugins: [
       "expo-router",

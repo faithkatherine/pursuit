@@ -12,11 +12,12 @@ interface OnboardingContextType {
   currentStep: number;
   totalSteps: number;
   locationPermissionGranted: boolean;
+  emailPermissionGranted: boolean;
   notificationPermissionGranted: boolean;
   skipOnboardingMutationLoading: boolean;
   toggleLocationPermission: (enabled: boolean) => void;
   toggleNotificationPermission: (enabled: boolean) => void;
-  toggleEmailPermission?: (enabled: boolean) => void;
+  toggleEmailPermission: (enabled: boolean) => void;
   nextStep: () => void;
   prevStep: () => void;
   skipOnboarding: () => void;
@@ -26,6 +27,7 @@ interface OnboardingContextType {
 const OnboardingContext = createContext<OnboardingContextType | undefined>({
   currentStep: 1,
   totalSteps: 4,
+  emailPermissionGranted: false,
   locationPermissionGranted: false,
   notificationPermissionGranted: false,
   skipOnboardingMutationLoading: false,
@@ -132,7 +134,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("Error skipping onboarding:", error);
         Alert.alert(
           "Error",
-          "There was an issue skipping onboarding. Please try again later."
+          "There was an issue skipping onboarding. Please try again later.",
         );
       });
   };
@@ -150,7 +152,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         setLocationPermissionGranted(false);
         Alert.alert(
           "Permission Error",
-          "Unable to request location permission. Please try again later."
+          "Unable to request location permission. Please try again later.",
         );
       }
     }
@@ -169,13 +171,13 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         setNotificationPermissionGranted(false);
         Alert.alert(
           "Permission Error",
-          "Unable to request notification permission. Please try again later."
+          "Unable to request notification permission. Please try again later.",
         );
       }
     }
   };
 
-  const toggleEmailPermission = async (enabled: boolean) => {
+  const toggleEmailPermission = (enabled: boolean) => {
     setEmailPermissionGranted(enabled);
   };
 
@@ -211,6 +213,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         currentStep,
         totalSteps,
         locationPermissionGranted,
+        emailPermissionGranted,
         notificationPermissionGranted,
         skipOnboardingMutationLoading,
         toggleLocationPermission,
