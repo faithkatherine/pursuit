@@ -7,10 +7,31 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+import { Platform } from "react-native";
 import { getTokens, storeTokens, clearAllData } from "../utils/secureStorage";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/graphql/";
-console.log("[Apollo Client] Using API URL:", apiUrl);
+// Platform-specific API URL configuration
+const getApiUrl = () => {
+  // If environment variable is set, use it (allows override for physical devices)
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  // Platform-specific defaults
+  if (Platform.OS === "android") {
+    // Android Emulator uses 10.0.2.2 to refer to host machine
+    return "http://10.0.2.2:8000/graphql/";
+  } else if (Platform.OS === "ios") {
+    // iOS Simulator can use localhost
+    return "http://localhost:8000/graphql/";
+  }
+
+  // Fallback for web or other platforms
+  return "http://localhost:8000/graphql/";
+};
+
+const apiUrl = getApiUrl();
+console.log(`[Apollo Client] Platform: ${Platform.OS}, Using API URL: ${apiUrl}`);
 
 const httpLink = createHttpLink({
   uri: apiUrl,

@@ -1,7 +1,14 @@
-import colors from "themes/tokens/colors";
+import colors, { theme } from "themes/tokens/colors";
 import { fontSizes, fontWeights, typography } from "themes/tokens/typography";
-import { Pressable, StyleSheet, Switch, Text } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
+import GoogleIcon from "assets/icons/google.svg";
 
 interface CircleDimensions {
   width?: number;
@@ -18,8 +25,9 @@ interface SwitchProps {
 
 interface ButtonProps {
   text?: string;
+  loading?: boolean;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "tertiary" | "switch";
+  variant?: "primary" | "secondary" | "tertiary" | "switch" | "third-party";
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
@@ -30,6 +38,7 @@ interface ButtonProps {
 
 export const Button: React.FC<ButtonProps> = ({
   text,
+  loading,
   icon,
   variant = "primary",
   onPress,
@@ -52,6 +61,7 @@ export const Button: React.FC<ButtonProps> = ({
             <Text style={[styles.primaryButtonText, textStyle]}>{text}</Text>
           )}
           {icon && icon}
+          {loading && <ActivityIndicator size="small" color={colors.white} />}
         </Pressable>
       );
     case "secondary":
@@ -95,11 +105,22 @@ export const Button: React.FC<ButtonProps> = ({
           testID="button-switch"
         />
       );
+
+    case "third-party":
+      return (
+        <Pressable style={styles.googleSignInButton} onPress={onPress}>
+          <View style={styles.googleIconContainer}>
+            <GoogleIcon width={20} height={20} style={styles.googleIcon} />
+          </View>
+          <Text style={styles.googleButtonText}>Continue with Google</Text>
+        </Pressable>
+      );
   }
 };
 
 const styles = StyleSheet.create({
   primary: {
+    width: "100%",
     backgroundColor: colors.deluge,
     borderRadius: 12,
     paddingVertical: 12,
@@ -117,7 +138,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.body.fontFamily,
     fontSize: fontSizes.lg,
     color: colors.white,
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center",
   },
   secondary: {
@@ -150,5 +171,39 @@ const styles = StyleSheet.create({
   },
   switch: {
     transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
+  },
+  googleSignInButton: {
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: theme.border,
+    backgroundColor: theme.background,
+    elevation: 2,
+    shadowColor: theme.text.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    height: 56,
+  },
+
+  googleIconContainer: {
+    marginRight: 12,
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  googleIcon: {
+    fontSize: 20,
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: theme.text.primary,
+    fontFamily: typography.button.fontFamily,
   },
 });

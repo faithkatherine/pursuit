@@ -6,18 +6,20 @@ import {
   StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
   TouchableOpacity,
   Pressable,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
-import GoogleIcon from "assets/icons/google.svg";
+
 import ItineraryIcon from "assets/icons/itinerary.svg";
 import Svg, { Path } from "react-native-svg";
+import ShowPasswordIcon from "assets/icons/show_password.svg";
+import HidePasswordIcon from "assets/icons/hide_password.svg";
+import { Button } from "components/Buttons";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -45,8 +47,10 @@ export const AuthLayout = React.forwardRef<
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headIcon}>
-          <ItineraryIcon width={96} height={96} />
+        <View style={styles.heroContainer}>
+          <Text style={styles.heroTitle}>{heroTitle}</Text>
+          <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
+          <ItineraryIcon width={60} height={60} />
         </View>
         <View style={styles.envelopeContainer}>
           <Svg
@@ -109,7 +113,7 @@ export const AuthField: React.FC<AuthFieldProps> = ({
   const hasValue = value.length > 0;
 
   return (
-    <View style={styles.fieldContainer}>
+    <View>
       <View
         style={[
           styles.inputContainer,
@@ -140,8 +144,14 @@ export const AuthField: React.FC<AuthFieldProps> = ({
             autoComplete={autoComplete}
           />
           {showPasswordToggle && (
-            <Pressable onPress={onTogglePassword} style={styles.eyeButton}>
-              <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "🙈"}</Text>
+            <Pressable onPress={onTogglePassword}>
+              <Text>
+                {showPassword ? (
+                  <HidePasswordIcon width={24} height={24} />
+                ) : (
+                  <ShowPasswordIcon width={24} height={24} />
+                )}
+              </Text>
             </Pressable>
           )}
         </View>
@@ -172,32 +182,13 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
   loadingText,
 }) => {
   return (
-    <View style={styles.buttonContainer}>
-      <TouchableOpacity
-        style={[
-          styles.authButton,
-          (disabled || loading) && styles.authButtonDisabled,
-        ]}
-        onPress={onPress}
-        disabled={disabled || loading}
-        activeOpacity={0.8}
-      >
-        <LinearGradient
-          colors={
-            disabled || loading
-              ? [colors.aluminium, colors.silverSand]
-              : [colors.deluge, colors.delugeLight]
-          }
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.authButtonGradient}
-        >
-          <Text style={styles.authButtonText}>
-            {loading ? loadingText : text}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    </View>
+    <Button
+      variant="primary"
+      text={text}
+      onPress={onPress}
+      disabled={disabled || loading}
+      style={styles.authButton}
+    />
   );
 };
 
@@ -214,18 +205,7 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({ onPress }) => {
         <View style={styles.dividerLine} />
       </View>
 
-      <TouchableOpacity
-        style={styles.googleSignInButton}
-        onPress={onPress}
-        activeOpacity={0.8}
-      >
-        <View style={styles.googleButtonContent}>
-          <View style={styles.googleIconContainer}>
-            <GoogleIcon width={20} height={20} style={styles.googleIcon} />
-          </View>
-          <Text style={styles.googleButtonText}>Continue with Google</Text>
-        </View>
-      </TouchableOpacity>
+      <Button variant="third-party" onPress={onPress} />
     </>
   );
 };
@@ -260,10 +240,27 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-end",
   },
-  headIcon: {
+  heroContainer: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 12,
   },
+  heroTitle: {
+    fontSize: typography.h2.fontSize,
+    fontWeight: "700",
+    color: colors.white,
+    textAlign: "center",
+    marginBottom: 8,
+    fontFamily: typography.h2.fontFamily,
+  },
+  heroSubtitle: {
+    fontSize: typography.body.fontSize,
+    fontWeight: "500",
+    color: theme.text.secondary,
+    textAlign: "center",
+    marginBottom: 8,
+    fontFamily: typography.body.fontFamily,
+  },
+
   envelopeContainer: {
     width: "100%",
     alignItems: "center",
@@ -285,19 +282,20 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: 24,
+    justifyContent: "flex-start",
   },
-  fieldContainer: {
-    marginBottom: 24,
-  },
+
   inputContainer: {
     backgroundColor: theme.background,
     borderRadius: 20,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: theme.border,
-    paddingHorizontal: 18,
-    paddingTop: 4,
-    paddingBottom: 4,
-    minHeight: 40,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    height: 55,
     elevation: 2,
     shadowColor: theme.text.primary,
     shadowOffset: { width: 0, height: 2 },
@@ -308,8 +306,8 @@ const styles = StyleSheet.create({
 
   inputContainerFocused: {
     borderColor: theme.secondary,
-    borderWidth: 3,
-    elevation: 6,
+    borderWidth: 2,
+    elevation: 4,
     shadowOpacity: 0.15,
     shadowRadius: 8,
     transform: [{ scale: 1.02 }],
@@ -358,17 +356,7 @@ const styles = StyleSheet.create({
   inputWithToggle: {
     marginRight: 8,
   },
-  eyeButton: {
-    padding: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    minWidth: 32,
-    minHeight: 32,
-  },
 
-  eyeIcon: {
-    fontSize: 20,
-  },
   errorContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -386,12 +374,10 @@ const styles = StyleSheet.create({
     fontFamily: typography.caption.fontFamily,
     flex: 1,
   },
-  buttonContainer: {
-    marginBottom: 24,
-  },
+
   authButton: {
     borderRadius: 25,
-    elevation: 8,
+    elevation: 4,
     shadowColor: theme.secondary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
@@ -402,23 +388,10 @@ const styles = StyleSheet.create({
     elevation: 2,
     shadowOpacity: 0.1,
   },
-  authButtonGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 56,
-  },
-  authButtonText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: theme.background,
-    fontFamily: typography.button.fontFamily,
-  },
+
   divider: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
   },
   dividerLine: {
     flex: 1,
@@ -431,42 +404,7 @@ const styles = StyleSheet.create({
     color: theme.text.muted,
     fontFamily: typography.caption.fontFamily,
   },
-  googleSignInButton: {
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: theme.border,
-    backgroundColor: theme.background,
-    marginBottom: 24,
-    elevation: 4,
-    shadowColor: theme.text.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  googleButtonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    minHeight: 56,
-  },
-  googleIconContainer: {
-    marginRight: 12,
-    width: 24,
-    height: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  googleIcon: {
-    fontSize: 20,
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: theme.text.primary,
-    fontFamily: typography.button.fontFamily,
-  },
+
   authPrompt: {
     flexDirection: "row",
     justifyContent: "center",

@@ -79,10 +79,10 @@ export const SignIn = () => {
   return (
     <AuthLayout
       ref={authLayoutRef}
-      heroTitle="Welcome Back🌟"
-      heroSubtitle="Continue your adventure"
+      heroTitle="Welcome Back"
+      heroSubtitle="Sign in to continue exploring!"
     >
-      <View style={styles.form}>
+      <>
         <Controller
           control={control}
           name="email"
@@ -112,45 +112,47 @@ export const SignIn = () => {
           )}
         />
 
-        <Controller
-          control={control}
-          name="password"
-          rules={{
-            required: "Password is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters",
-            },
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AuthField
-              label="Password"
-              value={value}
-              onChangeText={onChange}
-              onBlur={() => {
-                onBlur();
-                setFocusedField(null);
-              }}
-              onFocus={() => setFocusedField("password")}
-              error={errors.password?.message}
-              secureTextEntry={!showPassword}
-              showPasswordToggle={true}
-              onTogglePassword={() => setShowPassword(!showPassword)}
-              showPassword={showPassword}
-              autoComplete="password"
-              focused={focusedField === "password"}
-            />
-          )}
-        />
+        <View>
+          <Controller
+            control={control}
+            name="password"
+            rules={{
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters",
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthField
+                label="Password"
+                value={value}
+                onChangeText={onChange}
+                onBlur={() => {
+                  onBlur();
+                  setFocusedField(null);
+                }}
+                onFocus={() => setFocusedField("password")}
+                error={errors.password?.message}
+                secureTextEntry={!showPassword}
+                showPasswordToggle={true}
+                onTogglePassword={() => setShowPassword(!showPassword)}
+                showPassword={showPassword}
+                autoComplete="password"
+                focused={focusedField === "password"}
+              />
+            )}
+          />
 
-        <TouchableOpacity style={styles.forgotPasswordButton}>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.forgotPasswordButton}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
 
         <AuthButton
           onPress={handleSubmit(onSubmit, onError)}
           loading={isSubmitting || isLoading}
-          text="🚀 Sign In"
+          text="Sign In"
           loadingText="✨ Signing In..."
         />
 
@@ -161,20 +163,15 @@ export const SignIn = () => {
           linkText="Sign Up"
           onPress={() => router.push("/auth/signup")}
         />
-      </View>
+      </>
     </AuthLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  form: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
   forgotPasswordButton: {
     alignSelf: "flex-end",
-    marginBottom: 24,
-    paddingVertical: 8,
+    marginTop: 8,
   },
   forgotPasswordText: {
     fontSize: 14,
