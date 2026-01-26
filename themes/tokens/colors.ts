@@ -27,6 +27,10 @@ export const colors = {
   lightBlue: "rgb(107, 78, 255)",
   graniteGray: "rgb(102, 102, 102)",
   gray: "rgb(128, 128, 128)",
+  // Dark gradient colors
+  midnightBlue: "#1a1a2e",
+  darkNavy: "#16213e",
+  deepCharcoal: "#0f0f23",
 } as const;
 
 // Semantic color names for easier usage

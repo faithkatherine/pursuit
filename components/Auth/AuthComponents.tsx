@@ -11,12 +11,19 @@ import {
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
 
 import ItineraryIcon from "assets/icons/itinerary.svg";
-import Svg, { Path } from "react-native-svg";
+import Svg, {
+  Path,
+  Defs,
+  RadialGradient,
+  Stop,
+  Circle,
+} from "react-native-svg";
 import ShowPasswordIcon from "assets/icons/show_password.svg";
 import HidePasswordIcon from "assets/icons/hide_password.svg";
 import { Button } from "components/Buttons";
@@ -39,41 +46,68 @@ export const AuthLayout = React.forwardRef<
   }));
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <ScrollView
-        contentContainerStyle={[
-          styles.scrollContainer,
-          { paddingTop: insets.top + 20 },
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.heroContainer}>
-          <Text style={styles.heroTitle}>{heroTitle}</Text>
-          <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
-          <ItineraryIcon width={60} height={60} />
-        </View>
-        <View style={styles.envelopeContainer}>
-          <Svg
-            width="100%"
-            height={120}
-            viewBox="0 0 400 100"
-            preserveAspectRatio="none"
-            style={styles.flapSvg}
-          >
-            <Path
-              d="M 0 100 C 0 92, 5 88, 15 82 L 190 3 C 195 0, 205 0, 210 3 L 385 82 C 395 88, 400 92, 400 100"
-              fill={theme.background}
-              stroke="transparent"
-              strokeWidth={0}
-            />
-          </Svg>
+    <LinearGradient
+      colors={[colors.midnightBlue, colors.darkNavy, colors.deepCharcoal]}
+      locations={[0, 0.5, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientContainer}
+    >
+      {/* Subtle decorative glow */}
+      <View style={styles.glowContainer}>
+        <Svg width="100%" height="100%" style={StyleSheet.absoluteFill}>
+          <Defs>
+            <RadialGradient id="glow1" cx="20%" cy="30%" r="50%">
+              <Stop offset="0%" stopColor={colors.deluge} stopOpacity="0.15" />
+              <Stop offset="100%" stopColor="transparent" stopOpacity="0" />
+            </RadialGradient>
+            <RadialGradient id="glow2" cx="80%" cy="60%" r="40%">
+              <Stop offset="0%" stopColor={colors.ube} stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="transparent" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="20%" cy="30%" r="200" fill="url(#glow1)" />
+          <Circle cx="80%" cy="60%" r="150" fill="url(#glow2)" />
+        </Svg>
+      </View>
 
-          <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
-            <View style={styles.form}>{children}</View>
-          </ShakeAnimatedView>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <KeyboardAvoidingView behavior="padding" style={styles.container}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContainer,
+            { paddingTop: insets.top + 20 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.envelopeContainer}>
+            <Svg
+              width="100%"
+              height={100}
+              viewBox="0 0 400 100"
+              preserveAspectRatio="none"
+              style={styles.flapSvg}
+            >
+              <Path
+                d="M 0 100 C 0 92, 5 88, 15 82 L 190 3 C 195 0, 205 0, 210 3 L 385 82 C 395 88, 400 92, 400 100"
+                fill={theme.background}
+                stroke="transparent"
+                strokeWidth={0}
+              />
+            </Svg>
+
+            <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
+              <View style={styles.form}>
+                <View style={styles.heroContainer}>
+                  <Text style={styles.heroTitle}>{heroTitle}</Text>
+                  <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
+                </View>
+                {children}
+              </View>
+            </ShakeAnimatedView>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 });
 
@@ -144,14 +178,12 @@ export const AuthField: React.FC<AuthFieldProps> = ({
             autoComplete={autoComplete}
           />
           {showPasswordToggle && (
-            <Pressable onPress={onTogglePassword}>
-              <Text>
-                {showPassword ? (
-                  <HidePasswordIcon width={24} height={24} />
-                ) : (
-                  <ShowPasswordIcon width={24} height={24} />
-                )}
-              </Text>
+            <Pressable onPress={onTogglePassword} style={styles.passwordToggle}>
+              {showPassword ? (
+                <HidePasswordIcon width={20} height={20} color={colors.gray} />
+              ) : (
+                <ShowPasswordIcon width={20} height={20} color={colors.gray} />
+              )}
             </Pressable>
           )}
         </View>
@@ -232,22 +264,30 @@ export const AuthPrompt: React.FC<AuthPromptProps> = ({
 };
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
+  glowContainer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
+  },
   container: {
-    backgroundColor: colors.black,
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "flex-end",
   },
+
   heroContainer: {
-    alignItems: "center",
-    marginBottom: 12,
+    alignItems: "flex-start",
+    marginBottom: 6,
   },
+
   heroTitle: {
-    fontSize: typography.h2.fontSize,
+    fontSize: typography.h3.fontSize,
     fontWeight: "700",
-    color: colors.white,
+    color: colors.black,
     textAlign: "center",
     marginBottom: 8,
     fontFamily: typography.h2.fontFamily,
@@ -275,17 +315,15 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
-    padding: "8%",
+    padding: "6%",
     paddingTop: 12,
-    minHeight: "50%",
+    paddingBottom: 32,
     width: "100%",
   },
   form: {
-    flex: 1,
     display: "flex",
     flexDirection: "column",
     gap: 24,
-    justifyContent: "flex-start",
   },
 
   inputContainer: {
@@ -355,6 +393,9 @@ const styles = StyleSheet.create({
   },
   inputWithToggle: {
     marginRight: 8,
+  },
+  passwordToggle: {
+    padding: 4,
   },
 
   errorContainer: {

@@ -86,150 +86,141 @@ export const SignUp = () => {
   return (
     <AuthLayout
       ref={authLayoutRef}
-      heroTitle="Join the Adventure"
-      heroSubtitle="Start tracking your bucket list"
+      heroTitle="Join The Pursuit Experience"
+      heroSubtitle="Start planning your next adventure!"
     >
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="name"
-          rules={{
-            required: "Name is required",
-            minLength: {
-              value: 2,
-              message: "Name must be at least 2 characters",
-            },
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AuthField
-              label="Full Name"
-              value={value}
-              onChangeText={onChange}
-              onBlur={() => {
-                onBlur();
-                setFocusedField(null);
-              }}
-              onFocus={() => setFocusedField("name")}
-              error={errors.name?.message}
-              autoCapitalize="words"
-              autoComplete="name"
-              focused={focusedField === "name"}
-            />
-          )}
-        />
+      <Controller
+        control={control}
+        name="name"
+        rules={{
+          required: "Name is required",
+          minLength: {
+            value: 2,
+            message: "Name must be at least 2 characters",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <AuthField
+            label="Full Name"
+            value={value}
+            onChangeText={onChange}
+            onBlur={() => {
+              onBlur();
+              setFocusedField(null);
+            }}
+            onFocus={() => setFocusedField("name")}
+            error={errors.name?.message}
+            autoCapitalize="words"
+            autoComplete="name"
+            focused={focusedField === "name"}
+          />
+        )}
+      />
 
-        <Controller
-          control={control}
-          name="email"
-          rules={{
-            required: "Email is required",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Please enter a valid email address",
-            },
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AuthField
-              label="Email Address"
-              value={value}
-              onChangeText={onChange}
-              onBlur={() => {
-                onBlur();
-                setFocusedField(null);
-              }}
-              onFocus={() => setFocusedField("email")}
-              error={errors.email?.message}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              focused={focusedField === "email"}
-            />
-          )}
-        />
+      <Controller
+        control={control}
+        name="email"
+        rules={{
+          required: "Email is required",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Please enter a valid email address",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <AuthField
+            label="Email Address"
+            value={value}
+            onChangeText={onChange}
+            onBlur={() => {
+              onBlur();
+              setFocusedField(null);
+            }}
+            onFocus={() => setFocusedField("email")}
+            error={errors.email?.message}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            focused={focusedField === "email"}
+          />
+        )}
+      />
 
-        <Controller
-          control={control}
-          name="password"
-          rules={{
-            required: "Password is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters",
-            },
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AuthField
-              label="Password"
-              value={value}
-              onChangeText={onChange}
-              onBlur={() => {
-                onBlur();
-                setFocusedField(null);
-              }}
-              onFocus={() => setFocusedField("password")}
-              error={errors.password?.message}
-              secureTextEntry={!showPassword}
-              showPasswordToggle={true}
-              onTogglePassword={() => setShowPassword(!showPassword)}
-              showPassword={showPassword}
-              autoComplete="new-password"
-              focused={focusedField === "password"}
-            />
-          )}
-        />
+      <Controller
+        control={control}
+        name="password"
+        rules={{
+          required: "Password is required",
+          minLength: {
+            value: 6,
+            message: "Password must be at least 6 characters",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <AuthField
+            label="Password"
+            value={value}
+            onChangeText={onChange}
+            onBlur={() => {
+              onBlur();
+              setFocusedField(null);
+            }}
+            onFocus={() => setFocusedField("password")}
+            error={errors.password?.message}
+            secureTextEntry={!showPassword}
+            showPasswordToggle={true}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+            showPassword={showPassword}
+            autoComplete="new-password"
+            focused={focusedField === "password"}
+          />
+        )}
+      />
 
-        <Controller
-          control={control}
-          name="confirmPassword"
-          rules={{
-            required: "Please confirm your password",
-            validate: (value) => value === password || "Passwords do not match",
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AuthField
-              label="Confirm Password"
-              value={value}
-              onChangeText={onChange}
-              onBlur={() => {
-                onBlur();
-                setFocusedField(null);
-              }}
-              onFocus={() => setFocusedField("confirmPassword")}
-              error={errors.confirmPassword?.message}
-              secureTextEntry={!showConfirmPassword}
-              showPasswordToggle={true}
-              onTogglePassword={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
-              showPassword={showConfirmPassword}
-              autoComplete="new-password"
-              focused={focusedField === "confirmPassword"}
-            />
-          )}
-        />
+      <Controller
+        control={control}
+        name="confirmPassword"
+        rules={{
+          required: "Please confirm your password",
+          validate: (value) => value === password || "Passwords do not match",
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <AuthField
+            label="Confirm Password"
+            value={value}
+            onChangeText={onChange}
+            onBlur={() => {
+              onBlur();
+              setFocusedField(null);
+            }}
+            onFocus={() => setFocusedField("confirmPassword")}
+            error={errors.confirmPassword?.message}
+            secureTextEntry={!showConfirmPassword}
+            showPasswordToggle={true}
+            onTogglePassword={() =>
+              setShowConfirmPassword(!showConfirmPassword)
+            }
+            showPassword={showConfirmPassword}
+            autoComplete="new-password"
+            focused={focusedField === "confirmPassword"}
+          />
+        )}
+      />
 
-        <AuthButton
-          onPress={handleSubmit(onSubmit, onError)}
-          loading={isSubmitting || isLoading}
-          text="🚀 Sign Up"
-          loadingText="✨ Creating Account..."
-        />
+      <AuthButton
+        onPress={handleSubmit(onSubmit, onError)}
+        loading={isSubmitting || isLoading}
+        text="Sign Up"
+        loadingText="✨ Creating Account..."
+      />
 
-        <GoogleButton onPress={handleGoogleSignUp} />
+      <GoogleButton onPress={handleGoogleSignUp} />
 
-        <AuthPrompt
-          text="Already have an account? "
-          linkText="Sign In"
-          onPress={() => router.push("/auth/signin")}
-        />
-      </View>
+      <AuthPrompt
+        text="Already have an account? "
+        linkText="Sign In"
+        onPress={() => router.push("/auth/signin")}
+      />
     </AuthLayout>
   );
 };
-
-const styles = StyleSheet.create({
-  form: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
-});

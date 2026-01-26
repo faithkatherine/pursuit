@@ -79,7 +79,7 @@ export const SignIn = () => {
   return (
     <AuthLayout
       ref={authLayoutRef}
-      heroTitle="Welcome Back"
+      heroTitle="Welcome Back To Pursuit"
       heroSubtitle="Sign in to continue exploring!"
     >
       <>

@@ -19,6 +19,8 @@ export const Prefernces = () => {
     prevStep,
     locationPermissionGranted,
     notificationPermissionGranted,
+    emailPermissionGranted,
+    toggleEmailPermission,
     toggleLocationPermission,
     toggleNotificationPermission,
   } = useOnboarding();
@@ -51,8 +53,8 @@ export const Prefernces = () => {
             />
             <SwitchCard
               title="Receive Email Updates"
-              isEnabled={notificationPermissionGranted}
-              onToggle={toggleNotificationPermission}
+              isEnabled={emailPermissionGranted}
+              onToggle={toggleEmailPermission}
             />
             <SwitchCard
               title="Receive Notifications"
