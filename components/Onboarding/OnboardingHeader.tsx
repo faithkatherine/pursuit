@@ -24,7 +24,7 @@ export const OnboardingHeader = ({
             height: 40,
             borderRadius: 20,
             borderWidth: 0,
-            backgroundColor: colors.white02,
+            backgroundColor: colors.white50,
           }}
           icon={<BackIcon fill={colors.white} width={24} height={24} />}
           onPress={onBackPress}

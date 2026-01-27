@@ -31,14 +31,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 16,
     justifyContent: "center",
-    marginTop: 12,
-    marginBottom: 24,
+    gap: 8,
   },
   marker: {
     flex: 1,
     height: 4,
     backgroundColor: colors.white,
-    marginHorizontal: 4,
     maxWidth: 60,
   },
   activeMarker: {

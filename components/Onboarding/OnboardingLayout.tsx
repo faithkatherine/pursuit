@@ -40,20 +40,20 @@ export const OnboardingLayout = ({
 
       <View style={styles.content}>{children}</View>
 
-      <View style={styles.progressContainer}>
+      <View style={styles.footerSection}>
         <OnboardingProgressMarkers
           currentStep={currentStep}
           totalSteps={totalSteps}
         />
-      </View>
 
-      <OnboardingFooter
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        buttonText={buttonText}
-        onNextPress={onNextPress}
-        onSkipAllPress={onSkipAllPress}
-      />
+        <OnboardingFooter
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          buttonText={buttonText}
+          onNextPress={onNextPress}
+          onSkipAllPress={onSkipAllPress}
+        />
+      </View>
     </View>
   );
 };
@@ -66,8 +66,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.md,
   },
-  progressContainer: {
-    marginBottom: spacing.xl,
+  footerSection: {
+    gap: spacing.md,
+    paddingBottom: spacing.xs,
   },
 });
 

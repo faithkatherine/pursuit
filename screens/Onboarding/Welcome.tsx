@@ -48,9 +48,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.lg,
   },
   textContainer: {
-    marginTop: spacing.lg,
     justifyContent: "center",
   },
   text: {

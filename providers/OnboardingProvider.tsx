@@ -182,7 +182,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const nextStep = () => {
-    if (currentStepConfig.next) {
+    if (currentStepConfig.next ) {
       const nextRoute =
         currentStepConfig.next === "welcome"
           ? "/onboarding/"

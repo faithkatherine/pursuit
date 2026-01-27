@@ -20,8 +20,8 @@ export const SwitchCard: React.FC<SwitchCardProps> = ({
     <View style={styles.container}>
       <View style={styles.glassOverlay} />
       <BlurView
-        intensity={Platform.OS === "ios" ? 40 : 80}
-        tint="regular"
+        intensity={Platform.OS === "ios" ? 40 : 100}
+        tint="light"
         style={styles.blurContainer}
       >
         <View style={styles.content}>
@@ -48,7 +48,8 @@ const styles = StyleSheet.create({
 
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.white50,
+    backgroundColor:
+      Platform.OS === "android" ? "rgba(219, 211, 219, 0.53)" : colors.white50,
     borderRadius: 16,
   },
 
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.white65,
     backgroundColor:
-      Platform.OS === "android" ? "rgba(255, 255, 255, 0.25)" : "transparent",
+      Platform.OS === "android" ? "rgba(219, 211, 219, 0.65)" : "transparent",
   },
 
   content: {
@@ -69,7 +70,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor:
+      Platform.OS === "android"
+        ? "rgba(255, 255, 255, 0.25)"
+        : "rgba(255, 255, 255, 0.1)",
   },
   title: {
     fontFamily: typography.body.fontFamily,

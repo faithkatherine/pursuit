@@ -30,7 +30,7 @@ export const InterestSelection: React.FC = () => {
     setSelectedInterests((prev) =>
       prev.includes(interestId)
         ? prev.filter((id) => id !== interestId)
-        : [...prev, interestId]
+        : [...prev, interestId],
     );
   };
 

@@ -1,4 +1,5 @@
 import { View, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface LayoutProps {
   backgroundColor?: string;
@@ -10,26 +11,29 @@ export const Layout: React.FC<LayoutProps> = ({
   backgroundColor,
   backgroundComponent,
 }) => {
+  const insets = useSafeAreaInsets();
+
   if (backgroundComponent) {
     return (
-      <View style={styles.container}>
-        <View style={StyleSheet.absoluteFillObject}>
-          {backgroundComponent}
-        </View>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={StyleSheet.absoluteFillObject}>{backgroundComponent}</View>
         {children}
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>{children}</View>
+    <View
+      style={[styles.container, { backgroundColor, paddingTop: insets.top }]}
+    >
+      {children}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
     paddingBottom: 10,
   },
 });

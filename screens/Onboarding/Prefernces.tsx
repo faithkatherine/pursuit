@@ -25,7 +25,7 @@ export const Prefernces = () => {
     toggleNotificationPermission,
   } = useOnboarding();
   const { height, width } = useWindowDimensions();
-  const illustrationHeight = height * 0.3;
+  const illustrationHeight = Math.min(height * 0.28, 220);
   const buttonWidth = Math.min(width * 0.9, 320);
 
   return (
@@ -62,12 +62,12 @@ export const Prefernces = () => {
               onToggle={toggleNotificationPermission}
             />
 
-            <Button
+            {/* <Button
               variant="primary"
               text="CONNECT YOUR CALENDAR"
               style={[styles.connectButton, {}]}
               textStyle={styles.connectButtonText}
-            />
+            /> */}
           </View>
         </View>
       </OnboardingLayout>
@@ -80,11 +80,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     marginHorizontal: 27,
+    justifyContent: "center",
+    gap: 16,
   },
   switchContainer: {
     width: "100%",
-    marginTop: 20,
-    gap: 28,
+    gap: 16,
   },
   connectButton: {
     width: "100%",

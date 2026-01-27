@@ -69,7 +69,12 @@ export const Button: React.FC<ButtonProps> = ({
         <Pressable
           onPress={onPress}
           disabled={disabled}
-          style={[styles.secondary, circleDimensions, style]}
+          style={[
+            styles.secondary,
+            circleDimensions,
+            circleDimensions?.borderWidth === 0 && { elevation: 0 },
+            style,
+          ]}
           testID="button-secondary"
         >
           {text && <Text style={styles.secondaryButtonText}>{text}</Text>}
@@ -99,7 +104,10 @@ export const Button: React.FC<ButtonProps> = ({
           thumbColor={
             switchProps?.isEnabled ? colors.white : colors.graniteGray
           }
-          trackColor={{ false: colors.white, true: colors.black }}
+          trackColor={{
+            false: colors.white,
+            true: colors.black,
+          }}
           ios_backgroundColor={colors.aluminium}
           style={[styles.switch, style]}
           testID="button-switch"
