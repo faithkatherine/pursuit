@@ -32,7 +32,7 @@ export const useBucketCategories = () => {
 
 export const useBucketItems = (selectedCategory?: string | null) => {
   const result = useQuery<GetBucketItemsQuery>(GET_BUCKET_ITEMS, {
-    variables: { category: selectedCategory || undefined },
+    variables: { categoryId: selectedCategory || undefined },
     ...getCachePolicy("dynamic"), // Items change frequently
     notifyOnNetworkStatusChange: true,
   });
