@@ -37,7 +37,7 @@ export const RECOMMENDATION_FRAGMENT = gql`
     image
     title
     date
-    location
+    locationName
   }
 `;
 
@@ -116,7 +116,7 @@ export const AUTH_PAYLOAD_FRAGMENT = gql`
 export const FULL_PROFILE_FRAGMENT = gql`
   fragment FullProfile on UserProfileType {
     bio
-    location
+    locationName
     coordinates
     hasLocation
     searchRadiusKm

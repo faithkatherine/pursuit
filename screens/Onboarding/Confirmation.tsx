@@ -7,8 +7,7 @@ import colors from "themes/tokens/colors";
 import typography from "themes/tokens/typography";
 
 export const Confirmation = () => {
-  const { currentStep, totalSteps, prevStep, completeOnboarding } =
-    useOnboarding();
+  const { currentStep, totalSteps, prevStep, nextStep } = useOnboarding();
   const { width, height } = useWindowDimensions();
   const iconHeight = height * 0.5;
 
@@ -19,7 +18,7 @@ export const Confirmation = () => {
         totalSteps={totalSteps}
         buttonText="Begin Your Journey"
         onBackPress={prevStep}
-        onNextPress={completeOnboarding}
+        onNextPress={nextStep}
       >
         <View style={styles.container}>
           <Text style={styles.title}>

@@ -29,7 +29,7 @@ export interface Recommendation {
   image: string;
   title: string;
   date: string;
-  location: string;
+  locationName: string;
   amount?: number;
 }
 

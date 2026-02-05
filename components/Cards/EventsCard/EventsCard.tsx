@@ -23,7 +23,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommen
       <View style={styles.content}>
         <Text style={styles.title}>{recommendation.title}</Text>
         <Text style={styles.date}>{recommendation.date}</Text>
-        <Text style={styles.location}>{recommendation.location}</Text>
+        <Text style={styles.location}>{recommendation.locationName}</Text>
       </View>
     </Pressable>
   );

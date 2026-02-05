@@ -3,7 +3,7 @@ import HomeIcon from "assets/icons/home.svg";
 import BackpackIcon from "assets/icons/backpack.svg";
 import WalletIcon from "assets/icons/wallet.svg";
 import ProfileIcon from "assets/icons/profile.svg";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import colors from "themes/tokens/colors";
 
 const TabLayout = () => {
@@ -63,11 +63,12 @@ const TabLayout = () => {
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: "transparent",
+    backgroundColor: Platform.OS === "android" ? colors.white : "transparent",
     borderTopWidth: 0,
     height: 70,
-    paddingBottom: 11,
+    paddingBottom: Platform.OS === "android" ? 8 : 11,
     paddingTop: 5,
+    elevation: 0,
   },
 });
 

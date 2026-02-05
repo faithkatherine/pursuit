@@ -74,58 +74,56 @@ const Home = () => {
         imageUrl={item.image}
         category={item.category?.name || "Adventure"}
       />
-    )
+    ),
   );
 
   return (
-    <>
+    <Layout>
       <ScrollView>
-        <Layout>
-          <View style={styles.horizontalPadding}>
-            <View style={styles.headerContainer}>
-              <Text style={styles.greeting}>{greeting}</Text>
-              <Button
-                text="Sign Out"
-                variant="secondary"
-                onPress={handleSignOut}
-                style={styles.signOutButton}
-              />
-            </View>
-            <InsightsCard insightsData={insights} />
+        <View style={styles.horizontalPadding}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.greeting}>{greeting}</Text>
+            <Button
+              text="Sign Out"
+              variant="secondary"
+              onPress={handleSignOut}
+              style={styles.signOutButton}
+            />
           </View>
+          <InsightsCard insightsData={insights} />
+        </View>
 
-          <Carousel
-            items={buckets}
-            header={
-              <SectionHeader
-                title="Your Buckets"
-                buttonText="+"
-                onButtonPress={() => setShowAddBucketModal(true)}
-                variant="secondary"
-              />
-            }
-          />
+        <Carousel
+          items={buckets}
+          header={
+            <SectionHeader
+              title="Your Buckets"
+              buttonText="+"
+              onButtonPress={() => setShowAddBucketModal(true)}
+              variant="secondary"
+            />
+          }
+        />
 
-          <View style={styles.horizontalPadding}>
-            <SectionHeader title="Recommendations" />
-            <View style={styles.eventsSection}>
-              {recommendations?.map(
-                (recommendation: Recommendation, index: number) => (
-                  <RecommendationCard
-                    key={index}
-                    recommendation={recommendation}
-                    onPress={() => {}}
-                  />
-                )
-              )}
-            </View>
+        <View style={styles.horizontalPadding}>
+          <SectionHeader title="Recommendations" />
+          <View style={styles.eventsSection}>
+            {recommendations?.map(
+              (recommendation: Recommendation, index: number) => (
+                <RecommendationCard
+                  key={index}
+                  recommendation={recommendation}
+                  onPress={() => {}}
+                />
+              ),
+            )}
           </View>
-          <Carousel
-            items={bucketItemsComponents}
-            header={<SectionHeader title="Upcoming" />}
-            gap={16}
-          />
-        </Layout>
+        </View>
+        <Carousel
+          items={bucketItemsComponents}
+          header={<SectionHeader title="Upcoming" />}
+          gap={16}
+        />
       </ScrollView>
       <BaseModal
         visible={showAddBucketModal}
@@ -134,7 +132,7 @@ const Home = () => {
         onClose={() => setShowAddBucketModal(false)}
         children={<AddBucket />}
       />
-    </>
+    </Layout>
   );
 };
 

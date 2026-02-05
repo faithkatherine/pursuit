@@ -9,6 +9,40 @@ import {
   AUTH_USER_FRAGMENT,
 } from "./fragments";
 
+export const COMPLETE_ONBOARDING = gql`
+  mutation CompleteOnboarding(
+    $allowLocationSharing: Boolean
+    $locationName: String
+    $location: [Float]
+    $allowPushNotifications: Boolean
+    $allowEmailNotifications: Boolean
+    $interests: [String]
+  ) {
+    completeOnboarding(
+      allowLocationSharing: $allowLocationSharing
+      locationName: $locationName
+      location: $location
+      allowPushNotifications: $allowPushNotifications
+      allowEmailNotifications: $allowEmailNotifications
+      interests: $interests
+    ) {
+      ok
+      user {
+        id
+        email
+        firstName
+        lastName
+        fullName
+        isEmailVerified
+        authProvider
+        profile {
+          isOnboardingCompleted
+        }
+      }
+    }
+  }
+`;
+
 export const GET_INSIGHTS_DATA = gql`
   query GetInsightsData {
     getInsightsData {
@@ -140,7 +174,7 @@ export const SIGN_IN = gql`
           profile {
             isOnboardingCompleted
             bio
-            location
+            locationName
           }
         }
       }
@@ -178,7 +212,7 @@ export const SIGN_UP = gql`
           profile {
             isOnboardingCompleted
             bio
-            location
+            locationName
           }
         }
       }
@@ -206,7 +240,7 @@ export const GOOGLE_SIGN_IN = gql`
           profile {
             isOnboardingCompleted
             bio
-            location
+            locationName
           }
         }
       }
@@ -247,7 +281,7 @@ export const GET_USER = gql`
         isOnboardingCompleted
         hasSkippedOnboarding
         bio
-        location
+        locationName
       }
     }
   }
@@ -258,7 +292,7 @@ export const GET_USER_PROFILE = gql`
     userProfile {
       isOnboardingCompleted
       bio
-      location
+      locationName
     }
   }
 `;

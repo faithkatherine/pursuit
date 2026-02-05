@@ -116,13 +116,13 @@ describe("Home Screen", () => {
           id: "1",
           title: "Beach Cleanup",
           date: "2023-10-15",
-          location: "Santa Monica",
+          locationName: "Santa Monica",
         },
         {
           id: "2",
           title: "Tech Conference",
           date: "2023-11-20",
-          location: "LA",
+          locationName: "LA",
         },
       ],
       upcoming: [

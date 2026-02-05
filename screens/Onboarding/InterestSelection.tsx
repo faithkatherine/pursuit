@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
 import { PurpleRadialGradient } from "themes/gradients";
@@ -25,6 +26,7 @@ export const InterestSelection: React.FC = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const { currentStep, totalSteps, nextStep, prevStep } = useOnboarding();
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const toggleInterest = (interestId: string) => {
     setSelectedInterests((prev) =>
@@ -108,7 +110,12 @@ export const InterestSelection: React.FC = () => {
             </ScrollView>
 
             {/* Footer inside glassmorphism */}
-            <View style={styles.footerContainer}>
+            <View
+              style={[
+                styles.footerContainer,
+                { paddingBottom: Math.max(insets.bottom, 16) },
+              ]}
+            >
               <OnboardingProgressMarkers
                 currentStep={currentStep}
                 totalSteps={totalSteps}
@@ -174,6 +181,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 16,
+    marginBottom: -50, // Extend beyond the Layout padding to reach bottom of screen
   },
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -264,7 +272,8 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     alignItems: "center",
-    paddingTop: 8,
+    paddingTop: 12,
+    gap: 12,
     borderTopWidth: 1,
     borderTopColor: colors.silverSand,
     backgroundColor: "rgba(255, 255, 255, 0.3)",

@@ -35,6 +35,18 @@ export type Scalars = {
   UUID: { input: string; output: string; }
 };
 
+/** Add bucket category mutation */
+export type AddBucketCategory = {
+  __typename?: 'AddBucketCategory';
+  category?: Maybe<CategoryType>;
+};
+
+/** Add bucket item mutation */
+export type AddBucketItem = {
+  __typename?: 'AddBucketItem';
+  bucketItem?: Maybe<BucketItemType>;
+};
+
 /** Standard auth response */
 export type AuthPayloadType = {
   __typename?: 'AuthPayloadType';
@@ -45,10 +57,73 @@ export type AuthPayloadType = {
   user: UserType;
 };
 
+/** GraphQL BucketItem type */
+export type BucketItemType = {
+  __typename?: 'BucketItemType';
+  amount?: Maybe<Scalars['Float']['output']>;
+  category?: Maybe<CategoryType>;
+  categoryId?: Maybe<Scalars['String']['output']>;
+  completed?: Maybe<Scalars['Boolean']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  difficulty: BucketsBucketItemDifficultyChoices;
+  estimatedCost?: Maybe<Scalars['Decimal']['output']>;
+  id: Scalars['UUID']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  isCompleted: Scalars['Boolean']['output'];
+  locationName: Scalars['String']['output'];
+  priority: BucketsBucketItemPriorityChoices;
+  progressPercentage: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** An enumeration. */
+export enum BucketsBucketItemDifficultyChoices {
+  /** Challenging */
+  Challenging = 'CHALLENGING',
+  /** Easy */
+  Easy = 'EASY',
+  /** Extreme */
+  Extreme = 'EXTREME',
+  /** Moderate */
+  Moderate = 'MODERATE'
+}
+
+/** An enumeration. */
+export enum BucketsBucketItemPriorityChoices {
+  /** High */
+  High = 'HIGH',
+  /** Low */
+  Low = 'LOW',
+  /** Medium */
+  Medium = 'MEDIUM',
+  /** Urgent */
+  Urgent = 'URGENT'
+}
+
+/** GraphQL Category type */
+export type CategoryType = {
+  __typename?: 'CategoryType';
+  color: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  emoji: Scalars['String']['output'];
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
+};
+
 /** Complete onboarding mutation */
 export type CompleteOnboarding = {
   __typename?: 'CompleteOnboarding';
   ok?: Maybe<Scalars['Boolean']['output']>;
+  user?: Maybe<UserType>;
+};
+
+/** GraphQL Destination type */
+export type DestinationType = {
+  __typename?: 'DestinationType';
+  daysAway?: Maybe<Scalars['Int']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
 };
 
 /** Google sign in mutation - handles both sign up and sign in */
@@ -56,6 +131,29 @@ export type GoogleSignIn = {
   __typename?: 'GoogleSignIn';
   authPayload?: Maybe<AuthPayloadType>;
   ok?: Maybe<Scalars['Boolean']['output']>;
+};
+
+/** GraphQL HomeData type */
+export type HomeDataType = {
+  __typename?: 'HomeDataType';
+  bucketCategories?: Maybe<Array<Maybe<CategoryType>>>;
+  greeting?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  insights?: Maybe<InsightsDataType>;
+  recommendations?: Maybe<Array<Maybe<RecommendationType>>>;
+  timeOfDay?: Maybe<Scalars['String']['output']>;
+  upcoming?: Maybe<Array<Maybe<BucketItemType>>>;
+  weather?: Maybe<WeatherType>;
+};
+
+/** GraphQL InsightsData type */
+export type InsightsDataType = {
+  __typename?: 'InsightsDataType';
+  id?: Maybe<Scalars['String']['output']>;
+  nextDestination?: Maybe<DestinationType>;
+  progress?: Maybe<ProgressType>;
+  recentAchievement?: Maybe<Scalars['String']['output']>;
+  weather?: Maybe<WeatherType>;
 };
 
 /** Interest GraphQL type */
@@ -70,6 +168,10 @@ export type InterestType = {
 /** Root Mutation combining all app mutations */
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Add bucket category mutation */
+  addBucketCategory?: Maybe<AddBucketCategory>;
+  /** Add bucket item mutation */
+  addBucketItem?: Maybe<AddBucketItem>;
   /** Complete onboarding mutation */
   completeOnboarding?: Maybe<CompleteOnboarding>;
   /** Google sign in mutation - handles both sign up and sign in */
@@ -90,10 +192,30 @@ export type Mutation = {
 
 
 /** Root Mutation combining all app mutations */
-export type MutationCompleteOnboardingArgs = {
-  bio?: InputMaybe<Scalars['String']['input']>;
-  interests?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+export type MutationAddBucketCategoryArgs = {
+  emoji?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+/** Root Mutation combining all app mutations */
+export type MutationAddBucketItemArgs = {
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  estimatedCost?: InputMaybe<Scalars['Float']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+
+/** Root Mutation combining all app mutations */
+export type MutationCompleteOnboardingArgs = {
+  allowEmailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  allowLocationSharing?: InputMaybe<Scalars['Boolean']['input']>;
+  allowPushNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  interests?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  location?: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  locationName?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -136,14 +258,76 @@ export type MutationSignUpArgs = {
   password: Scalars['String']['input'];
 };
 
+/** GraphQL Progress type */
+export type ProgressType = {
+  __typename?: 'ProgressType';
+  completed?: Maybe<Scalars['Int']['output']>;
+  percentage?: Maybe<Scalars['Int']['output']>;
+  remaining?: Maybe<Scalars['Int']['output']>;
+  yearlyGoal?: Maybe<Scalars['Int']['output']>;
+};
+
 /** Root Query combining all app queries */
 export type Query = {
   __typename?: 'Query';
+  getBucketCategories?: Maybe<Array<Maybe<CategoryType>>>;
+  getBucketItems?: Maybe<Array<Maybe<BucketItemType>>>;
+  getHome?: Maybe<HomeDataType>;
+  getInsightsData?: Maybe<InsightsDataType>;
+  getRecommendations?: Maybe<Array<Maybe<RecommendationType>>>;
   /** API health check */
   health?: Maybe<Scalars['String']['output']>;
   user?: Maybe<UserType>;
   userProfile?: Maybe<UserProfileType>;
 };
+
+
+/** Root Query combining all app queries */
+export type QueryGetBucketItemsArgs = {
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Root Query combining all app queries */
+export type QueryGetHomeArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** Root Query combining all app queries */
+export type QueryGetRecommendationsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** GraphQL Recommendation type */
+export type RecommendationType = {
+  __typename?: 'RecommendationType';
+  amount?: Maybe<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  date?: Maybe<Scalars['String']['output']>;
+  description: Scalars['String']['output'];
+  estimatedCost?: Maybe<Scalars['Decimal']['output']>;
+  id: Scalars['UUID']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  locationName: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  recommendationType: RecommendationsRecommendationRecommendationTypeChoices;
+  title: Scalars['String']['output'];
+};
+
+/** An enumeration. */
+export enum RecommendationsRecommendationRecommendationTypeChoices {
+  /** Activity */
+  Activity = 'ACTIVITY',
+  /** Destination */
+  Destination = 'DESTINATION',
+  /** Event */
+  Event = 'EVENT',
+  /** Experience */
+  Experience = 'EXPERIENCE'
+}
 
 /** Get new access token using refresh token */
 export type RefreshAccessToken = {
@@ -204,10 +388,6 @@ export type UserProfileType = {
   createdAt: Scalars['DateTime']['output'];
   hasLocation?: Maybe<Scalars['Boolean']['output']>;
   hasSkippedOnboarding: Scalars['Boolean']['output'];
-  /** Latitude coordinate */
-  homeLatitude?: Maybe<Scalars['Decimal']['output']>;
-  /** Longitude coordinate */
-  homeLongitude?: Maybe<Scalars['Decimal']['output']>;
   interests?: Maybe<Array<Maybe<InterestType>>>;
   isOnboardingCompleted: Scalars['Boolean']['output'];
   isPremium?: Maybe<Scalars['Boolean']['output']>;
@@ -215,7 +395,7 @@ export type UserProfileType = {
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   lastBillingDate?: Maybe<Scalars['DateTime']['output']>;
   /** City, State/Country display name */
-  location: Scalars['String']['output'];
+  locationName: Scalars['String']['output'];
   loginCount: Scalars['Int']['output'];
   paymentPlan: UsersUserProfilePaymentPlanChoices;
   phoneNumber: Scalars['String']['output'];
@@ -302,13 +482,99 @@ export enum UsersUserProfileThemeChoices {
   Light = 'LIGHT'
 }
 
-export type AuthPayloadFieldsFragment = { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, profilePicture?: string | null, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, isPremium?: boolean | null } | null } };
+/** GraphQL Weather type */
+export type WeatherType = {
+  __typename?: 'WeatherType';
+  city?: Maybe<Scalars['String']['output']>;
+  condition?: Maybe<Scalars['String']['output']>;
+  temperature?: Maybe<Scalars['Float']['output']>;
+};
+
+export type WeatherInfoFragment = { __typename?: 'WeatherType', city?: string | null, condition?: string | null, temperature?: number | null };
+
+export type DestinationInfoFragment = { __typename?: 'DestinationType', location?: string | null, daysAway?: number | null };
+
+export type ProgressInfoFragment = { __typename?: 'ProgressType', completed?: number | null, yearlyGoal?: number | null, percentage?: number | null };
+
+export type CategoryInfoFragment = { __typename?: 'CategoryType', id: string, name: string, emoji: string };
+
+export type RecommendationInfoFragment = { __typename?: 'RecommendationType', id: string, image?: string | null, title: string, date?: string | null, locationName: string };
+
+export type BucketItemInfoFragment = { __typename?: 'BucketItemType', id: string, title: string, description: string, image?: string | null, completed?: boolean | null, categoryId?: string | null, category?: { __typename?: 'CategoryType', id: string, name: string, emoji: string } | null };
+
+export type InsightsInfoFragment = { __typename?: 'InsightsDataType', id?: string | null, recentAchievement?: string | null, weather?: { __typename?: 'WeatherType', city?: string | null, condition?: string | null, temperature?: number | null } | null, nextDestination?: { __typename?: 'DestinationType', location?: string | null, daysAway?: number | null } | null, progress?: { __typename?: 'ProgressType', completed?: number | null, yearlyGoal?: number | null, percentage?: number | null } | null };
+
+export type UserBasicFragment = { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, profilePicture?: string | null };
 
 export type AuthUserFragment = { __typename?: 'UserType', isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, profilePicture?: string | null, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, isPremium?: boolean | null } | null };
 
-export type FullProfileFragment = { __typename?: 'UserProfileType', bio: string, location: string, coordinates?: Array<number | null> | null, hasLocation?: boolean | null, searchRadiusKm: number, timezone: string, birthDate?: string | null, phoneNumber: string, isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, isProfilePublic: boolean, allowEmailNotifications: boolean, allowPushNotifications: boolean, calendarIntegrated: boolean, calendarProvider: UsersUserProfileCalendarProviderChoices, paymentPlan: UsersUserProfilePaymentPlanChoices, isPremium?: boolean | null, subscriptionExpiresAt?: string | null, theme: UsersUserProfileThemeChoices, lastActiveAt?: string | null, loginCount: number, interests?: Array<{ __typename?: 'InterestType', id: string, name: string, icon?: string | null } | null> | null };
+export type AuthPayloadFieldsFragment = { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, profilePicture?: string | null, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, isPremium?: boolean | null } | null } };
 
-export type UserBasicFragment = { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, profilePicture?: string | null };
+export type FullProfileFragment = { __typename?: 'UserProfileType', bio: string, locationName: string, coordinates?: Array<number | null> | null, hasLocation?: boolean | null, searchRadiusKm: number, timezone: string, birthDate?: string | null, phoneNumber: string, isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, isProfilePublic: boolean, allowEmailNotifications: boolean, allowPushNotifications: boolean, calendarIntegrated: boolean, calendarProvider: UsersUserProfileCalendarProviderChoices, paymentPlan: UsersUserProfilePaymentPlanChoices, isPremium?: boolean | null, subscriptionExpiresAt?: string | null, theme: UsersUserProfileThemeChoices, lastActiveAt?: string | null, loginCount: number, interests?: Array<{ __typename?: 'InterestType', id: string, name: string, icon?: string | null } | null> | null };
+
+export type CompleteOnboardingMutationVariables = Exact<{
+  allowLocationSharing?: InputMaybe<Scalars['Boolean']['input']>;
+  locationName?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>> | InputMaybe<Scalars['Float']['input']>>;
+  allowPushNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  allowEmailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  interests?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>> | InputMaybe<Scalars['String']['input']>>;
+}>;
+
+
+export type CompleteOnboardingMutation = { __typename?: 'Mutation', completeOnboarding?: { __typename?: 'CompleteOnboarding', ok?: boolean | null, user?: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean } | null } | null } | null };
+
+export type GetInsightsDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetInsightsDataQuery = { __typename?: 'Query', getInsightsData?: { __typename?: 'InsightsDataType', id?: string | null, recentAchievement?: string | null, weather?: { __typename?: 'WeatherType', city?: string | null, condition?: string | null, temperature?: number | null } | null, nextDestination?: { __typename?: 'DestinationType', location?: string | null, daysAway?: number | null } | null, progress?: { __typename?: 'ProgressType', completed?: number | null, yearlyGoal?: number | null, percentage?: number | null } | null } | null };
+
+export type GetRecommendationsQueryVariables = Exact<{
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetRecommendationsQuery = { __typename?: 'Query', getRecommendations?: Array<{ __typename?: 'RecommendationType', id: string, image?: string | null, title: string, date?: string | null, locationName: string } | null> | null };
+
+export type GetHomeQueryVariables = Exact<{
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetHomeQuery = { __typename?: 'Query', getHome?: { __typename?: 'HomeDataType', id?: string | null, greeting?: string | null, timeOfDay?: string | null, weather?: { __typename?: 'WeatherType', city?: string | null, condition?: string | null, temperature?: number | null } | null, insights?: { __typename?: 'InsightsDataType', id?: string | null, recentAchievement?: string | null, weather?: { __typename?: 'WeatherType', city?: string | null, condition?: string | null, temperature?: number | null } | null, nextDestination?: { __typename?: 'DestinationType', location?: string | null, daysAway?: number | null } | null, progress?: { __typename?: 'ProgressType', completed?: number | null, yearlyGoal?: number | null, percentage?: number | null } | null } | null, bucketCategories?: Array<{ __typename?: 'CategoryType', id: string, name: string, emoji: string } | null> | null, recommendations?: Array<{ __typename?: 'RecommendationType', id: string, image?: string | null, title: string, date?: string | null, locationName: string } | null> | null, upcoming?: Array<{ __typename?: 'BucketItemType', id: string, title: string, description: string, image?: string | null, completed?: boolean | null, categoryId?: string | null, category?: { __typename?: 'CategoryType', id: string, name: string, emoji: string } | null } | null> | null } | null };
+
+export type AddBucketCategoryMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  emoji: Scalars['String']['input'];
+}>;
+
+
+export type AddBucketCategoryMutation = { __typename?: 'Mutation', addBucketCategory?: { __typename?: 'AddBucketCategory', category?: { __typename?: 'CategoryType', id: string, name: string, emoji: string } | null } | null };
+
+export type AddBucketItemMutationVariables = Exact<{
+  title: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  estimatedCost?: InputMaybe<Scalars['Float']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AddBucketItemMutation = { __typename?: 'Mutation', addBucketItem?: { __typename?: 'AddBucketItem', bucketItem?: { __typename?: 'BucketItemType', id: string, title: string, description: string, amount?: number | null, image?: string | null, completed?: boolean | null, categoryId?: string | null, category?: { __typename?: 'CategoryType', id: string, name: string, emoji: string } | null } | null } | null };
+
+export type GetBucketCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetBucketCategoriesQuery = { __typename?: 'Query', getBucketCategories?: Array<{ __typename?: 'CategoryType', id: string, name: string, emoji: string } | null> | null };
+
+export type GetBucketItemsQueryVariables = Exact<{
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetBucketItemsQuery = { __typename?: 'Query', getBucketItems?: Array<{ __typename?: 'BucketItemType', id: string, title: string, description: string, image?: string | null, completed?: boolean | null, categoryId?: string | null, category?: { __typename?: 'CategoryType', id: string, name: string, emoji: string } | null } | null> | null };
 
 export type SignInMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -316,7 +582,7 @@ export type SignInMutationVariables = Exact<{
 }>;
 
 
-export type SignInMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'SignIn', ok?: boolean | null, authPayload?: { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, location: string } | null } } | null } | null };
+export type SignInMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'SignIn', ok?: boolean | null, authPayload?: { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, locationName: string } | null } } | null } | null };
 
 export type SignUpMutationVariables = Exact<{
   firstName: Scalars['String']['input'];
@@ -326,14 +592,14 @@ export type SignUpMutationVariables = Exact<{
 }>;
 
 
-export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'SignUp', ok?: boolean | null, authPayload?: { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, location: string } | null } } | null } | null };
+export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'SignUp', ok?: boolean | null, authPayload?: { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, locationName: string } | null } } | null } | null };
 
 export type GoogleSignInMutationVariables = Exact<{
   idToken: Scalars['String']['input'];
 }>;
 
 
-export type GoogleSignInMutation = { __typename?: 'Mutation', googleSignIn?: { __typename?: 'GoogleSignIn', ok?: boolean | null, authPayload?: { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, location: string } | null } } | null } | null };
+export type GoogleSignInMutation = { __typename?: 'Mutation', googleSignIn?: { __typename?: 'GoogleSignIn', ok?: boolean | null, authPayload?: { __typename?: 'AuthPayloadType', accessToken: string, sessionToken: string, refreshToken: string, expiresIn?: number | null, user: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, locationName: string } | null } } | null } | null };
 
 export type SignOutMutationVariables = Exact<{
   refreshToken: Scalars['String']['input'];
@@ -352,27 +618,42 @@ export type RefreshAccessTokenMutation = { __typename?: 'Mutation', refreshAcces
 export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, bio: string, location: string } | null } | null };
+export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'UserType', id: string, email: string, firstName: string, lastName?: string | null, profilePicture?: string | null, isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, bio: string, locationName: string } | null } | null };
 
 export type GetUserProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserProfileQuery = { __typename?: 'Query', userProfile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, location: string } | null };
+export type GetUserProfileQuery = { __typename?: 'Query', userProfile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, bio: string, locationName: string } | null };
 
 export type SkipOnboardingMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SkipOnboardingMutation = { __typename?: 'Mutation', skipOnboarding?: { __typename?: 'SkipOnboarding', ok?: boolean | null, user?: { __typename?: 'UserType', isEmailVerified: boolean, authProvider: UsersUserAuthProviderChoices, id: string, email: string, firstName: string, lastName?: string | null, fullName?: string | null, profilePicture?: string | null, profile?: { __typename?: 'UserProfileType', isOnboardingCompleted: boolean, hasSkippedOnboarding: boolean, isPremium?: boolean | null } | null } | null } | null };
 
+export const RecommendationInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RecommendationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecommendationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]} as unknown as DocumentNode<RecommendationInfoFragment, unknown>;
+export const CategoryInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CategoryInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CategoryType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}}]} as unknown as DocumentNode<CategoryInfoFragment, unknown>;
+export const BucketItemInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BucketItemInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BucketItemType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"categoryId"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CategoryInfo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CategoryInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CategoryType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}}]} as unknown as DocumentNode<BucketItemInfoFragment, unknown>;
+export const WeatherInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WeatherInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"WeatherType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"condition"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}}]}}]} as unknown as DocumentNode<WeatherInfoFragment, unknown>;
+export const DestinationInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DestinationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DestinationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"daysAway"}}]}}]} as unknown as DocumentNode<DestinationInfoFragment, unknown>;
+export const ProgressInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ProgressInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ProgressType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"yearlyGoal"}},{"kind":"Field","name":{"kind":"Name","value":"percentage"}}]}}]} as unknown as DocumentNode<ProgressInfoFragment, unknown>;
+export const InsightsInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InsightsInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"InsightsDataType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"weather"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"WeatherInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextDestination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DestinationInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"progress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ProgressInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recentAchievement"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WeatherInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"WeatherType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"condition"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DestinationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DestinationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"daysAway"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ProgressInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ProgressType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"yearlyGoal"}},{"kind":"Field","name":{"kind":"Name","value":"percentage"}}]}}]} as unknown as DocumentNode<InsightsInfoFragment, unknown>;
 export const UserBasicFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserBasic"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}}]}}]} as unknown as DocumentNode<UserBasicFragment, unknown>;
 export const AuthUserFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"AuthUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserBasic"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"isPremium"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserBasic"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}}]}}]} as unknown as DocumentNode<AuthUserFragment, unknown>;
 export const AuthPayloadFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"AuthPayloadFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AuthPayloadType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"AuthUser"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserBasic"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"AuthUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserBasic"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"isPremium"}}]}}]}}]} as unknown as DocumentNode<AuthPayloadFieldsFragment, unknown>;
-export const FullProfileFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"FullProfile"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserProfileType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}},{"kind":"Field","name":{"kind":"Name","value":"hasLocation"}},{"kind":"Field","name":{"kind":"Name","value":"searchRadiusKm"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"birthDate"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"interests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"icon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"isProfilePublic"}},{"kind":"Field","name":{"kind":"Name","value":"allowEmailNotifications"}},{"kind":"Field","name":{"kind":"Name","value":"allowPushNotifications"}},{"kind":"Field","name":{"kind":"Name","value":"calendarIntegrated"}},{"kind":"Field","name":{"kind":"Name","value":"calendarProvider"}},{"kind":"Field","name":{"kind":"Name","value":"paymentPlan"}},{"kind":"Field","name":{"kind":"Name","value":"isPremium"}},{"kind":"Field","name":{"kind":"Name","value":"subscriptionExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"lastActiveAt"}},{"kind":"Field","name":{"kind":"Name","value":"loginCount"}}]}}]} as unknown as DocumentNode<FullProfileFragment, unknown>;
-export const SignInDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignIn"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signIn"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"authPayload"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"location"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<SignInMutation, SignInMutationVariables>;
-export const SignUpDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignUp"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"firstName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"lastName"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signUp"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"firstName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"firstName"}}},{"kind":"Argument","name":{"kind":"Name","value":"lastName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"lastName"}}},{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"authPayload"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"location"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<SignUpMutation, SignUpMutationVariables>;
-export const GoogleSignInDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"GoogleSignIn"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"idToken"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"googleSignIn"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"idToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"idToken"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"authPayload"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"location"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GoogleSignInMutation, GoogleSignInMutationVariables>;
+export const FullProfileFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"FullProfile"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserProfileType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}},{"kind":"Field","name":{"kind":"Name","value":"hasLocation"}},{"kind":"Field","name":{"kind":"Name","value":"searchRadiusKm"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"birthDate"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"interests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"icon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"isProfilePublic"}},{"kind":"Field","name":{"kind":"Name","value":"allowEmailNotifications"}},{"kind":"Field","name":{"kind":"Name","value":"allowPushNotifications"}},{"kind":"Field","name":{"kind":"Name","value":"calendarIntegrated"}},{"kind":"Field","name":{"kind":"Name","value":"calendarProvider"}},{"kind":"Field","name":{"kind":"Name","value":"paymentPlan"}},{"kind":"Field","name":{"kind":"Name","value":"isPremium"}},{"kind":"Field","name":{"kind":"Name","value":"subscriptionExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"lastActiveAt"}},{"kind":"Field","name":{"kind":"Name","value":"loginCount"}}]}}]} as unknown as DocumentNode<FullProfileFragment, unknown>;
+export const CompleteOnboardingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CompleteOnboarding"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"allowLocationSharing"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locationName"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"location"}},"type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"allowPushNotifications"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"allowEmailNotifications"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"interests"}},"type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completeOnboarding"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"allowLocationSharing"},"value":{"kind":"Variable","name":{"kind":"Name","value":"allowLocationSharing"}}},{"kind":"Argument","name":{"kind":"Name","value":"locationName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locationName"}}},{"kind":"Argument","name":{"kind":"Name","value":"location"},"value":{"kind":"Variable","name":{"kind":"Name","value":"location"}}},{"kind":"Argument","name":{"kind":"Name","value":"allowPushNotifications"},"value":{"kind":"Variable","name":{"kind":"Name","value":"allowPushNotifications"}}},{"kind":"Argument","name":{"kind":"Name","value":"allowEmailNotifications"},"value":{"kind":"Variable","name":{"kind":"Name","value":"allowEmailNotifications"}}},{"kind":"Argument","name":{"kind":"Name","value":"interests"},"value":{"kind":"Variable","name":{"kind":"Name","value":"interests"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CompleteOnboardingMutation, CompleteOnboardingMutationVariables>;
+export const GetInsightsDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetInsightsData"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getInsightsData"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InsightsInfo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WeatherInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"WeatherType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"condition"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DestinationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DestinationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"daysAway"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ProgressInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ProgressType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"yearlyGoal"}},{"kind":"Field","name":{"kind":"Name","value":"percentage"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InsightsInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"InsightsDataType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"weather"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"WeatherInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextDestination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DestinationInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"progress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ProgressInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recentAchievement"}}]}}]} as unknown as DocumentNode<GetInsightsDataQuery, GetInsightsDataQueryVariables>;
+export const GetRecommendationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetRecommendations"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"0"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getRecommendations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RecommendationInfo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RecommendationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecommendationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]} as unknown as DocumentNode<GetRecommendationsQuery, GetRecommendationsQueryVariables>;
+export const GetHomeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetHome"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"0"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getHome"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"greeting"}},{"kind":"Field","name":{"kind":"Name","value":"timeOfDay"}},{"kind":"Field","name":{"kind":"Name","value":"weather"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"WeatherInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"insights"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"InsightsInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bucketCategories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CategoryInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recommendations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RecommendationInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upcoming"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BucketItemInfo"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"WeatherInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"WeatherType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"condition"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"DestinationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DestinationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"daysAway"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ProgressInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ProgressType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"yearlyGoal"}},{"kind":"Field","name":{"kind":"Name","value":"percentage"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CategoryInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CategoryType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"InsightsInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"InsightsDataType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"weather"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"WeatherInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextDestination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DestinationInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"progress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ProgressInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recentAchievement"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"RecommendationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecommendationType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BucketItemInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BucketItemType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"categoryId"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CategoryInfo"}}]}}]}}]} as unknown as DocumentNode<GetHomeQuery, GetHomeQueryVariables>;
+export const AddBucketCategoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddBucketCategory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"emoji"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addBucketCategory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"emoji"},"value":{"kind":"Variable","name":{"kind":"Name","value":"emoji"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}}]}}]}}]} as unknown as DocumentNode<AddBucketCategoryMutation, AddBucketCategoryMutationVariables>;
+export const AddBucketItemDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddBucketItem"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"title"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"description"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"estimatedCost"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"location"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"categoryId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addBucketItem"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"title"},"value":{"kind":"Variable","name":{"kind":"Name","value":"title"}}},{"kind":"Argument","name":{"kind":"Name","value":"description"},"value":{"kind":"Variable","name":{"kind":"Name","value":"description"}}},{"kind":"Argument","name":{"kind":"Name","value":"estimatedCost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"estimatedCost"}}},{"kind":"Argument","name":{"kind":"Name","value":"location"},"value":{"kind":"Variable","name":{"kind":"Name","value":"location"}}},{"kind":"Argument","name":{"kind":"Name","value":"categoryId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"categoryId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bucketItem"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"categoryId"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}}]}}]}}]}}]} as unknown as DocumentNode<AddBucketItemMutation, AddBucketItemMutationVariables>;
+export const GetBucketCategoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBucketCategories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBucketCategories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CategoryInfo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CategoryInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CategoryType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}}]} as unknown as DocumentNode<GetBucketCategoriesQuery, GetBucketCategoriesQueryVariables>;
+export const GetBucketItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBucketItems"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"categoryId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBucketItems"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"categoryId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"categoryId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BucketItemInfo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CategoryInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CategoryType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BucketItemInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"BucketItemType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"completed"}},{"kind":"Field","name":{"kind":"Name","value":"categoryId"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CategoryInfo"}}]}}]}}]} as unknown as DocumentNode<GetBucketItemsQuery, GetBucketItemsQueryVariables>;
+export const SignInDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignIn"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signIn"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"authPayload"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<SignInMutation, SignInMutationVariables>;
+export const SignUpDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignUp"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"firstName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"lastName"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signUp"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"firstName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"firstName"}}},{"kind":"Argument","name":{"kind":"Name","value":"lastName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"lastName"}}},{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"authPayload"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<SignUpMutation, SignUpMutationVariables>;
+export const GoogleSignInDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"GoogleSignIn"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"idToken"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"googleSignIn"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"idToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"idToken"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"authPayload"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GoogleSignInMutation, GoogleSignInMutationVariables>;
 export const SignOutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignOut"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"refreshToken"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signOut"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"refreshToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"refreshToken"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}}]}}]}}]} as unknown as DocumentNode<SignOutMutation, SignOutMutationVariables>;
 export const RefreshAccessTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshAccessToken"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"refreshToken"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshAccessToken"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"refreshToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"refreshToken"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}},{"kind":"Field","name":{"kind":"Name","value":"expiresIn"}}]}}]}}]} as unknown as DocumentNode<RefreshAccessTokenMutation, RefreshAccessTokenMutationVariables>;
-export const GetUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"location"}}]}}]}}]}}]} as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;
-export const GetUserProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"location"}}]}}]}}]} as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>;
+export const GetUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]}}]}}]} as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;
+export const GetUserProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"locationName"}}]}}]}}]} as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>;
 export const SkipOnboardingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SkipOnboarding"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"skipOnboarding"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"AuthUser"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserBasic"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"profilePicture"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"AuthUser"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserBasic"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailVerified"}},{"kind":"Field","name":{"kind":"Name","value":"authProvider"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnboardingCompleted"}},{"kind":"Field","name":{"kind":"Name","value":"hasSkippedOnboarding"}},{"kind":"Field","name":{"kind":"Name","value":"isPremium"}}]}}]}}]} as unknown as DocumentNode<SkipOnboardingMutation, SkipOnboardingMutationVariables>;

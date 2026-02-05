@@ -16,6 +16,7 @@ interface OnboardingFooterProps {
   totalSteps: number;
   buttonText?: string;
   skipOnboardingMutationLoading?: boolean;
+  submitLoading?: boolean;
   onNextPress: () => void;
   onSkipAllPress?: () => void;
 }
@@ -24,6 +25,7 @@ export const OnboardingFooter = ({
   totalSteps,
   buttonText,
   skipOnboardingMutationLoading,
+  submitLoading,
   onNextPress,
   onSkipAllPress,
 }: OnboardingFooterProps) => {
@@ -42,6 +44,7 @@ export const OnboardingFooter = ({
         style={[styles.button, { width: buttonWidth }]}
         textStyle={styles.buttonText}
         variant="primary"
+        loading={submitLoading}
         onPress={onNextPress}
       />
       {currentStep === 1 && onSkipAllPress && (

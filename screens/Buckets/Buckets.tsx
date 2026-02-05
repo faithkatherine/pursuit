@@ -114,7 +114,7 @@ export const Buckets = () => {
         image:
           "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=400",
         date: "2025-04-10",
-        location: "Kyoto, Japan",
+        locationName: "Kyoto, Japan",
       },
       {
         id: "rec-2",
@@ -123,7 +123,7 @@ export const Buckets = () => {
         image:
           "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
         date: "2024-09-25",
-        location: "Tuscany, Italy",
+        locationName: "Tuscany, Italy",
       },
     ];
   }, [recommendations]);

@@ -44,20 +44,11 @@ export default function ProtectedLayout() {
       <Stack.Screen
         name="(tabs)"
         options={{
-          header() {
-            return <View style={styles.header}></View>;
-          },
-          headerShown: true,
-          headerTitle: "",
+          headerShown: false,
         }}
       />
     </Stack>
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    height: 70,
-    backgroundColor: "transparent",
-  },
-});
+const styles = StyleSheet.create({});

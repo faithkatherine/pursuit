@@ -5,8 +5,12 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { Alert } from "react-native";
 import { useMutation } from "@apollo/client";
-import { SKIP_ONBOARDING } from "graphql/queries";
-import { SkipOnboardingMutation } from "graphql/generated/graphql";
+import { SKIP_ONBOARDING, COMPLETE_ONBOARDING } from "graphql/queries";
+import {
+  SkipOnboardingMutation,
+  CompleteOnboardingMutation,
+  CompleteOnboardingMutationVariables,
+} from "graphql/generated/graphql";
 
 interface OnboardingContextType {
   currentStep: number;
@@ -21,7 +25,6 @@ interface OnboardingContextType {
   nextStep: () => void;
   prevStep: () => void;
   skipOnboarding: () => void;
-  completeOnboarding: () => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>({
@@ -37,7 +40,6 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>({
   nextStep: () => {},
   prevStep: () => {},
   skipOnboarding: () => {},
-  completeOnboarding: () => {},
 });
 
 type StepName = "welcome" | "preferences" | "interests" | "confirmation";
@@ -76,6 +78,9 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const { updateUser } = useAuth();
   const [locationPermissionGranted, setLocationPermissionGranted] =
     React.useState<boolean>(false);
+  const [location, setLocation] =
+    React.useState<Location.LocationObject | null>(null);
+  const [locationName, setLocationName] = React.useState<string | null>(null);
   const [emailPermissionGranted, setEmailPermissionGranted] =
     React.useState<boolean>(false);
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
@@ -83,6 +88,16 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [skipOnboardingMutation, { loading: skipOnboardingMutationLoading }] =
     useMutation<SkipOnboardingMutation>(SKIP_ONBOARDING);
+  const [
+    completeOnboardingMutation,
+    {
+      loading: completeOnboardingMutationLoading,
+      error: completeOnboardingError,
+    },
+  ] = useMutation<
+    CompleteOnboardingMutation,
+    CompleteOnboardingMutationVariables
+  >(COMPLETE_ONBOARDING);
 
   // Derive current step from route segments
   const getCurrentStepName = (): StepName => {
@@ -115,12 +130,10 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const skipOnboarding = async () => {
     await skipOnboardingMutation({
+      fetchPolicy: "network-only",
       errorPolicy: "all",
     })
       .then((result) => {
-        console.log("Skip onboarding full result:", result);
-        console.log("Skip onboarding data:", result.data);
-
         if (result.data?.skipOnboarding?.ok) {
           if (result.data?.skipOnboarding?.user) {
             updateUser(result.data.skipOnboarding.user);
@@ -141,20 +154,47 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toggleLocationPermission = async (enabled: boolean) => {
     setLocationPermissionGranted(enabled);
-    if (enabled) {
-      try {
-        const result = await Location.requestForegroundPermissionsAsync();
-        if (result.status !== "granted") {
-          setLocationPermissionGranted(false);
-        }
-      } catch (error) {
-        console.error("Failed to request location permission:", error);
+    if (!enabled) {
+      setLocation(null);
+      setLocationName(null);
+      return;
+    }
+
+    try {
+      const result = await Location.requestForegroundPermissionsAsync();
+      if (result.status !== "granted") {
         setLocationPermissionGranted(false);
-        Alert.alert(
-          "Permission Error",
-          "Unable to request location permission. Please try again later.",
-        );
+        return;
       }
+
+      // Get current location
+      const currentLocation = await Location.getCurrentPositionAsync({});
+      setLocation(currentLocation);
+
+      // Reverse geocode to get location name
+      const [geocode] = await Location.reverseGeocodeAsync({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      });
+
+      if (geocode) {
+        const name = [geocode.city, geocode.region || geocode.country]
+          .filter(Boolean)
+          .join(", ");
+        setLocationName(name || null);
+        console.log("Location obtained:", {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          name,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to get location:", error);
+      setLocationPermissionGranted(false);
+      Alert.alert(
+        "Location Error",
+        "Unable to get your location. Please try again later.",
+      );
     }
   };
 
@@ -181,15 +221,55 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
     setEmailPermissionGranted(enabled);
   };
 
-  const nextStep = () => {
-    if (currentStepConfig.next ) {
+  const nextStep = async () => {
+    // Final confirmation step - go to home
+    if (currentStepConfig.name === "confirmation") {
+      router.replace("/");
+      return;
+    }
+
+    // No next step
+    if (!currentStepConfig.next) return;
+
+    // Regular step navigation
+    if (currentStepConfig.next !== "confirmation") {
       const nextRoute =
         currentStepConfig.next === "welcome"
           ? "/onboarding/"
           : `/onboarding/${currentStepConfig.next}`;
       router.push(nextRoute);
-    } else {
-      completeOnboarding();
+      return;
+    }
+
+    // Complete onboarding mutation
+    try {
+      const response = await completeOnboardingMutation({
+        variables: {
+          allowLocationSharing: locationPermissionGranted,
+          locationName,
+          location: location?.coords
+            ? [location.coords.latitude, location.coords.longitude]
+            : null,
+          allowEmailNotifications: emailPermissionGranted,
+          allowPushNotifications: notificationPermissionGranted,
+        },
+      });
+      if (response.data?.completeOnboarding?.ok) {
+        if (response.data.completeOnboarding.user) {
+          updateUser(response.data.completeOnboarding.user);
+        }
+        router.push("/onboarding/confirmation");
+      }
+    } catch (error) {
+      console.error("Error completing onboarding:", error);
+      Alert.alert(
+        "Error",
+        "There was an issue completing onboarding. Please try again.",
+        [
+          { text: "Retry", onPress: nextStep },
+          { text: "Cancel Onboarding", onPress: () => router.push("/") },
+        ],
+      );
     }
   };
 
@@ -201,10 +281,6 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
           : `/onboarding/${currentStepConfig.prev}`;
       router.push(prevRoute);
     }
-  };
-
-  const completeOnboarding = async () => {
-    router.replace("/");
   };
 
   return (
@@ -222,7 +298,6 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
         nextStep,
         prevStep,
         skipOnboarding,
-        completeOnboarding,
       }}
     >
       {children}
