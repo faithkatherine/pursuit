@@ -404,7 +404,7 @@ export const AddBucketItem = ({ visible, onClose }: AddBucketItemProps) => {
                         {bucketCategories.map((category) => (
                           <Picker.Item
                             key={category.id}
-                            label={`${category.emoji} ${category.name}`}
+                            label={`${category.icon} ${category.name}`}
                             value={category.id}
                             style={{ color: colors.thunder }}
                           />

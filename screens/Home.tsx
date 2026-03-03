@@ -60,7 +60,7 @@ const Home = () => {
       key={category.id}
       id={category.id}
       name={category.name}
-      emoji={category.emoji}
+      icon={category.icon}
       gradientColors={getGradientByIndex(index)}
     />
   ));
@@ -78,17 +78,11 @@ const Home = () => {
   );
 
   return (
-    <Layout>
+    <Layout backgroundColor={colors.white}>
       <ScrollView>
         <View style={styles.horizontalPadding}>
           <View style={styles.headerContainer}>
             <Text style={styles.greeting}>{greeting}</Text>
-            <Button
-              text="Sign Out"
-              variant="secondary"
-              onPress={handleSignOut}
-              style={styles.signOutButton}
-            />
           </View>
           <InsightsCard insightsData={insights} />
         </View>
@@ -137,13 +131,8 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    height: 320,
-    borderRadius: 24,
-    padding: 24,
-  },
   horizontalPadding: {
-    paddingHorizontal: 27,
+    paddingHorizontal: 20,
   },
   headerContainer: {
     flexDirection: "row",

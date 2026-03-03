@@ -1,0 +1,833 @@
+"Issue Id","Parent Id","Issue Type","Summary","Description","Acceptance Criteria","Status","Priority","Labels"
+"1","","Story","[FE] User Registration Flow","As a user, I want to create an account so that I can save events and itineraries.
+
+This ticket covers the complete user registration flow including form input, validation, backend integration, error handling, and post-registration navigation.","- User can enter required registration details (name, email, password, confirm password)
+- Validation errors are shown for invalid input
+- Backend validation errors are displayed to the user (e.g., duplicate email)
+- Loading state is shown during form submission
+- Account is successfully created and auth tokens are stored securely
+- User is redirected appropriately after successful registration","To Do","Medium","auth registration mvp"
+"2","1","Sub-task","US-01.1: Implement/verify frontend form with all required fields","Implement/verify frontend form with all required fields","","To Do","Medium","auth registration mvp"
+"3","1","Sub-task","US-01.2: Implement/verify client-side validation (required fields, email format, password strength, password match)","Implement/verify client-side validation (required fields, email format, password strength, password match)","","To Do","Medium","auth registration mvp"
+"4","1","Sub-task","US-01.3: Integrate with backend signUp GraphQL mutation","Integrate with backend signUp GraphQL mutation","","To Do","Medium","auth registration mvp"
+"5","1","Sub-task","US-01.4: Handle and display backend error responses","Handle and display backend error responses","","To Do","Medium","auth registration mvp"
+"6","1","Sub-task","US-01.5: Implement post-registration redirect logic","Implement post-registration redirect logic","","To Do","Medium","auth registration mvp"
+"7","1","Sub-task","US-01.6: Write unit and integration tests","Write unit and integration tests","","To Do","Medium","auth registration mvp"
+"8","","Story","[BE] User Registration API","As a backend service, I need to provide a secure user registration endpoint so that the frontend can create new user accounts.
+
+This ticket covers the backend implementation of the signUp GraphQL mutation including user creation, password hashing, token generation, and profile initialization.","- signUp mutation accepts email, password, firstName, lastName
+- Password is hashed before storage
+- Duplicate email returns USER_EXISTS error
+- User profile is auto-created on registration
+- Access and refresh tokens are generated
+- Session is created and tracked
+- Response includes authPayload with user data","Done","Medium","auth registration backend mvp"
+"9","8","Sub-task","US-01-BE.1: Verify signUp mutation arguments and response","Verify signUp mutation arguments and response","","Done","Medium","auth registration backend mvp"
+"10","8","Sub-task","US-01-BE.2: Verify password hashing (not plaintext)","Verify password hashing (not plaintext)","","Done","Medium","auth registration backend mvp"
+"11","8","Sub-task","US-01-BE.3: Verify duplicate email handling","Verify duplicate email handling","","Done","Medium","auth registration backend mvp"
+"12","8","Sub-task","US-01-BE.4: Verify UserProfile signal creates profile","Verify UserProfile signal creates profile","","Done","Medium","auth registration backend mvp"
+"13","8","Sub-task","US-01-BE.5: Verify JWT token generation","Verify JWT token generation","","Done","Medium","auth registration backend mvp"
+"14","8","Sub-task","US-01-BE.6: Verify RefreshToken storage","Verify RefreshToken storage","","Done","Medium","auth registration backend mvp"
+"15","8","Sub-task","US-01-BE.7: Write pytest unit tests for signUp mutation","Write pytest unit tests for signUp mutation","","Done","Medium","auth registration backend mvp"
+"16","","Story","[BE] User Login/Logout API","As a backend service, I need to provide secure login and logout endpoints so that users can authenticate and manage their sessions.
+
+This ticket covers the backend implementation of the signIn and signOut GraphQL mutations including credential validation, session management, and token handling.","- signIn mutation validates email and password
+- Invalid credentials return INVALID_CREDENTIALS error
+- Deactivated accounts return ACCOUNT_DEACTIVATED error
+- Access and refresh tokens are generated
+- Session is created with device info
+- Existing valid refresh tokens are reused
+- signOut clears session/tokens","Done","Medium","auth login logout backend mvp"
+"17","16","Sub-task","US-02-BE.1: Verify signIn mutation arguments and response","Verify signIn mutation arguments and response","","Done","Medium","auth login logout backend mvp"
+"18","16","Sub-task","US-02-BE.2: Verify password validation","Verify password validation","","Done","Medium","auth login logout backend mvp"
+"19","16","Sub-task","US-02-BE.3: Verify inactive account handling","Verify inactive account handling","","Done","Medium","auth login logout backend mvp"
+"20","16","Sub-task","US-02-BE.4: Verify session creation with device info","Verify session creation with device info","","Done","Medium","auth login logout backend mvp"
+"21","16","Sub-task","US-02-BE.5: Verify refresh token reuse logic","Verify refresh token reuse logic","","Done","Medium","auth login logout backend mvp"
+"22","16","Sub-task","US-02-BE.6: Verify signOut clears session","Verify signOut clears session","","Done","Medium","auth login logout backend mvp"
+"23","16","Sub-task","US-02-BE.7: Write pytest unit tests for signIn/signOut","Write pytest unit tests for signIn/signOut","","Done","Medium","auth login logout backend mvp"
+"24","","Story","[FE] User Login/Logout Flow","As a user, I want to log in and log out so that I can securely access my data.
+
+This ticket covers the complete login and logout flow including credential validation, session persistence, error handling, and secure token management.","- User can log in with valid credentials
+- Invalid login shows error message
+- Session persists while active (tokens stored securely)
+- User can log out successfully
+- After logout, user cannot access protected routes","Done","Medium","auth login logout mvp"
+"25","24","Sub-task","US-02.1: Verify login form with email/password fields","Verify login form with email/password fields","","Done","Medium","auth login logout mvp"
+"26","24","Sub-task","US-02.2: Verify client-side validation (required fields, email format)","Verify client-side validation (required fields, email format)","","Done","Medium","auth login logout mvp"
+"27","24","Sub-task","US-02.3: Verify signIn GraphQL mutation integration","Verify signIn GraphQL mutation integration","","Done","Medium","auth login logout mvp"
+"28","24","Sub-task","US-02.4: Verify invalid credentials error handling","Verify invalid credentials error handling","","Done","Medium","auth login logout mvp"
+"29","24","Sub-task","US-02.5: Verify session persistence on app restart","Verify session persistence on app restart","","Done","Medium","auth login logout mvp"
+"30","24","Sub-task","US-02.6: Verify logout clears tokens and redirects","Verify logout clears tokens and redirects","","Done","Medium","auth login logout mvp"
+"31","24","Sub-task","US-02.7: Write unit and integration tests","Write unit and integration tests","","Done","Medium","auth login logout mvp"
+"32","","Story","[FE] Browse Event Listings","As a user, I want to view a list of events so that I can discover activities near me.
+
+This ticket introduces the Events browsing feature. Events are admin-created activities that users can browse and discover.","- Event list displays from GraphQL API
+- Each event shows basic info (title, date, location, image)
+- Loading state is present during data fetch
+- Empty state is handled gracefully
+- Events are browsable","To Do","High","events discovery mvp"
+"33","32","Sub-task","US-03.1: Define Event type/interface in graphql/types.ts","Define Event type/interface in graphql/types.ts","","To Do","High","events discovery mvp"
+"34","32","Sub-task","US-03.2: Create GraphQL query for fetching events (GET_EVENTS)","Create GraphQL query for fetching events (GET_EVENTS)","","To Do","High","events discovery mvp"
+"35","32","Sub-task","US-03.3: Generate types with graphql-codegen","Generate types with graphql-codegen","","To Do","High","events discovery mvp"
+"36","32","Sub-task","US-03.4: Create useEvents hook in graphql/hooks.ts","Create useEvents hook in graphql/hooks.ts","","To Do","High","events discovery mvp"
+"37","32","Sub-task","US-03.5: Create EventCard component (components/Cards/EventCard.tsx)","Create EventCard component (components/Cards/EventCard.tsx)","","To Do","High","events discovery mvp"
+"38","32","Sub-task","US-03.6: Create EventList screen (screens/Events/EventList.tsx)","Create EventList screen (screens/Events/EventList.tsx)","","To Do","High","events discovery mvp"
+"39","32","Sub-task","US-03.7: Add Events route to navigation","Add Events route to navigation","","To Do","High","events discovery mvp"
+"40","32","Sub-task","US-03.8: Implement loading state with skeleton/spinner","Implement loading state with skeleton/spinner","","To Do","High","events discovery mvp"
+"41","32","Sub-task","US-03.9: Implement empty state UI","Implement empty state UI","","To Do","High","events discovery mvp"
+"42","32","Sub-task","US-03.10: Write unit tests for EventCard and EventList","Write unit tests for EventCard and EventList","","To Do","High","events discovery mvp"
+"43","","Story","[BE] Events API - List Events","As a backend service, I need to provide an API endpoint to fetch events so that users can browse available activities.
+
+This ticket covers the backend implementation of the Event model and getEvents GraphQL query for fetching admin-created events.","- Event model created with required fields
+- getEvents GraphQL query returns list of events
+- Events can be filtered by category (optional)
+- Events ordered by date (upcoming first)
+- Only active events returned
+- Response includes all event details for display","To Do","High","events discovery backend mvp"
+"44","43","Sub-task","US-03-BE.1: Create Event model in apps/core/models.py or apps/events/","Create Event model in apps/core/models.py or apps/events/","","To Do","High","events discovery backend mvp"
+"45","43","Sub-task","US-03-BE.2: Create and run migrations","Create and run migrations","","To Do","High","events discovery backend mvp"
+"46","43","Sub-task","US-03-BE.3: Register Event in Django admin for admin creation","Register Event in Django admin for admin creation","","To Do","High","events discovery backend mvp"
+"47","43","Sub-task","US-03-BE.4: Create EventType GraphQL type","Create EventType GraphQL type","","To Do","High","events discovery backend mvp"
+"48","43","Sub-task","US-03-BE.5: Create getEvents query with optional filters","Create getEvents query with optional filters","","To Do","High","events discovery backend mvp"
+"49","43","Sub-task","US-03-BE.6: Add seed data for testing (management command)","Add seed data for testing (management command)","","To Do","High","events discovery backend mvp"
+"50","43","Sub-task","US-03-BE.7: Write pytest unit tests for getEvents query","Write pytest unit tests for getEvents query","","To Do","High","events discovery backend mvp"
+"51","","Story","[FE] Event Detail View","As a user, I want to view details of an event so I can decide if I'm interested.
+
+This ticket covers the frontend implementation of the Event Detail screen, displaying full event information when a user taps on an event card.","- Clicking/tapping event card opens detail view
+- Detail view displays: title, description, date, time, location, category, image, price
+- Back navigation available and works correctly
+- Loading state while fetching event details
+- Error state if event not found or fetch fails","To Do","High","events detail mvp"
+"52","51","Sub-task","US-04.1: Create EventDetail screen (screens/Events/EventDetail.tsx)","Create EventDetail screen (screens/Events/EventDetail.tsx)","","To Do","High","events detail mvp"
+"53","51","Sub-task","US-04.2: Add EventDetail route to navigation with event ID param","Add EventDetail route to navigation with event ID param","","To Do","High","events detail mvp"
+"54","51","Sub-task","US-04.3: Create GET_EVENT query for single event fetch","Create GET_EVENT query for single event fetch","","To Do","High","events detail mvp"
+"55","51","Sub-task","US-04.4: Create useEvent hook in graphql/hooks.ts","Create useEvent hook in graphql/hooks.ts","","To Do","High","events detail mvp"
+"56","51","Sub-task","US-04.5: Implement EventDetail UI with all event fields","Implement EventDetail UI with all event fields","","To Do","High","events detail mvp"
+"57","51","Sub-task","US-04.6: Implement back navigation","Implement back navigation","","To Do","High","events detail mvp"
+"58","51","Sub-task","US-04.7: Add loading and error states","Add loading and error states","","To Do","High","events detail mvp"
+"59","51","Sub-task","US-04.8: Wire up navigation from EventCard to EventDetail","Wire up navigation from EventCard to EventDetail","","To Do","High","events detail mvp"
+"60","51","Sub-task","US-04.9: Write unit tests for EventDetail screen","Write unit tests for EventDetail screen","","To Do","High","events detail mvp"
+"61","","Story","[BE] Event Detail API - Get Single Event","As a backend service, I need to provide an API endpoint to fetch a single event by ID so that users can view full event details.
+
+This ticket covers the backend implementation of the getEvent GraphQL query for fetching a single event with all its details.","- getEvent query accepts event ID parameter
+- Returns complete event object with all fields
+- Includes resolved category relationship
+- Returns null/error for non-existent event ID
+- Inactive events return appropriate response","To Do","High","events detail backend mvp"
+"62","61","Sub-task","US-04-BE.1: Create getEvent query in GraphQL schema","Create getEvent query in GraphQL schema","","To Do","High","events detail backend mvp"
+"63","61","Sub-task","US-04-BE.2: Implement getEvent resolver","Implement getEvent resolver","","To Do","High","events detail backend mvp"
+"64","61","Sub-task","US-04-BE.3: Handle non-existent event ID","Handle non-existent event ID","","To Do","High","events detail backend mvp"
+"65","61","Sub-task","US-04-BE.4: Handle inactive event appropriately","Handle inactive event appropriately","","To Do","High","events detail backend mvp"
+"66","61","Sub-task","US-04-BE.5: Ensure category relationship resolves","Ensure category relationship resolves","","To Do","High","events detail backend mvp"
+"67","61","Sub-task","US-04-BE.6: Write pytest unit tests for getEvent query","Write pytest unit tests for getEvent query","","To Do","High","events detail backend mvp"
+"68","","Story","[FE] Save/Unsave Events","As a user, I want to save events so I can reference them later.
+
+This ticket covers the frontend implementation of saving and unsaving events, including UI state management, persistence via API, and access to saved events list.","- User can save an event (tap save icon/button)
+- User can unsave a previously saved event
+- Save state visually indicated on event cards
+- Saved state persists across app sessions
+- User can view list of all saved events
+- Loading state during save/unsave action","To Do","High","events save mvp"
+"69","68","Sub-task","US-05.1: Add save icon/button to EventCard component","Add save icon/button to EventCard component","","To Do","High","events save mvp"
+"70","68","Sub-task","US-05.2: Add save icon/button to EventDetail screen","Add save icon/button to EventDetail screen","","To Do","High","events save mvp"
+"71","68","Sub-task","US-05.3: Create SAVE_EVENT and UNSAVE_EVENT mutations","Create SAVE_EVENT and UNSAVE_EVENT mutations","","To Do","High","events save mvp"
+"72","68","Sub-task","US-05.4: Create useSaveEvent hook with optimistic updates","Create useSaveEvent hook with optimistic updates","","To Do","High","events save mvp"
+"73","68","Sub-task","US-05.5: Create SavedEvents screen (screens/Events/SavedEvents.tsx)","Create SavedEvents screen (screens/Events/SavedEvents.tsx)","","To Do","High","events save mvp"
+"74","68","Sub-task","US-05.6: Add SavedEvents route to navigation","Add SavedEvents route to navigation","","To Do","High","events save mvp"
+"75","68","Sub-task","US-05.7: Create GET_SAVED_EVENTS query","Create GET_SAVED_EVENTS query","","To Do","High","events save mvp"
+"76","68","Sub-task","US-05.8: Update Apollo cache on save/unsave","Update Apollo cache on save/unsave","","To Do","High","events save mvp"
+"77","68","Sub-task","US-05.9: Write unit tests for save functionality","Write unit tests for save functionality","","To Do","High","events save mvp"
+"78","","Story","[BE] Save Events API","As a backend service, I need to provide API endpoints for saving and unsaving events so that users can bookmark events for later reference.
+
+This ticket covers the backend implementation of the SavedEvent model and GraphQL mutations/queries for managing saved events.","- SavedEvent model links User to Event
+- saveEvent mutation adds event to user's saved list
+- unsaveEvent mutation removes event from saved list
+- getSavedEvents query returns user's saved events
+- Duplicate save attempts handled gracefully
+- All endpoints require authentication","To Do","High","events save backend mvp"
+"79","78","Sub-task","US-05-BE.1: Create SavedEvent model (user FK, event FK, saved_at)","Create SavedEvent model (user FK, event FK, saved_at)","","To Do","High","events save backend mvp"
+"80","78","Sub-task","US-05-BE.2: Create and run migrations","Create and run migrations","","To Do","High","events save backend mvp"
+"81","78","Sub-task","US-05-BE.3: Add unique constraint (user + event)","Add unique constraint (user + event)","","To Do","High","events save backend mvp"
+"82","78","Sub-task","US-05-BE.4: Create saveEvent mutation","Create saveEvent mutation","","To Do","High","events save backend mvp"
+"83","78","Sub-task","US-05-BE.5: Create unsaveEvent mutation","Create unsaveEvent mutation","","To Do","High","events save backend mvp"
+"84","78","Sub-task","US-05-BE.6: Create getSavedEvents query","Create getSavedEvents query","","To Do","High","events save backend mvp"
+"85","78","Sub-task","US-05-BE.7: Add is_saved field to Event type (computed for current user)","Add is_saved field to Event type (computed for current user)","","To Do","High","events save backend mvp"
+"86","78","Sub-task","US-05-BE.8: Write pytest unit tests","Write pytest unit tests","","To Do","High","events save backend mvp"
+"87","","Story","[FE] View Saved Events List","As a user, I want to see my saved events so I can plan with them.
+
+This ticket covers the frontend implementation of the Saved Events list view, building on the save functionality from US-05.","- Saved events list displays all user's saved events
+- Empty state shown when no saved events
+- Each saved event card is tappable
+- Tapping navigates to EventDetail
+- Pull-to-refresh updates the list
+- Loading state during fetch","To Do","Medium","events saved mvp"
+"88","87","Sub-task","US-06.1: Implement SavedEvents list UI with EventCard components","Implement SavedEvents list UI with EventCard components","","To Do","Medium","events saved mvp"
+"89","87","Sub-task","US-06.2: Implement empty state with helpful message/CTA","Implement empty state with helpful message/CTA","","To Do","Medium","events saved mvp"
+"90","87","Sub-task","US-06.3: Wire up navigation from saved EventCard to EventDetail","Wire up navigation from saved EventCard to EventDetail","","To Do","Medium","events saved mvp"
+"91","87","Sub-task","US-06.4: Implement pull-to-refresh functionality","Implement pull-to-refresh functionality","","To Do","Medium","events saved mvp"
+"92","87","Sub-task","US-06.5: Add loading skeleton/spinner","Add loading skeleton/spinner","","To Do","Medium","events saved mvp"
+"93","87","Sub-task","US-06.6: Handle error state with retry option","Handle error state with retry option","","To Do","Medium","events saved mvp"
+"94","87","Sub-task","US-06.7: Add saved events count indicator (optional)","Add saved events count indicator (optional)","","To Do","Medium","events saved mvp"
+"95","87","Sub-task","US-06.8: Write unit tests for SavedEvents screen","Write unit tests for SavedEvents screen","","To Do","Medium","events saved mvp"
+"96","","Story","[BE] Saved Events Query Enhancements","As a backend service, I need to provide an optimized query for fetching saved events with full event details for display.
+
+This ticket covers backend enhancements to the getSavedEvents query, ensuring it returns complete event data and handles edge cases.","- getSavedEvents returns full Event objects with all fields
+- Deleted/inactive events filtered out automatically
+- Results ordered by saved_at (most recent first)
+- Pagination supported for large lists
+- Query performance optimized (no N+1)","To Do","Medium","events saved backend mvp"
+"97","96","Sub-task","US-06-BE.1: Optimize getSavedEvents to return full Event objects","Optimize getSavedEvents to return full Event objects","","To Do","Medium","events saved backend mvp"
+"98","96","Sub-task","US-06-BE.2: Filter out deleted/inactive events from results","Filter out deleted/inactive events from results","","To Do","Medium","events saved backend mvp"
+"99","96","Sub-task","US-06-BE.3: Add ordering by saved_at descending","Add ordering by saved_at descending","","To Do","Medium","events saved backend mvp"
+"100","96","Sub-task","US-06-BE.4: Add pagination support (limit/offset or cursor)","Add pagination support (limit/offset or cursor)","","To Do","Medium","events saved backend mvp"
+"101","96","Sub-task","US-06-BE.5: Optimize query to prevent N+1 (select_related/prefetch)","Optimize query to prevent N+1 (select_related/prefetch)","","To Do","Medium","events saved backend mvp"
+"102","96","Sub-task","US-06-BE.6: Add total count field to response","Add total count field to response","","To Do","Medium","events saved backend mvp"
+"103","96","Sub-task","US-06-BE.7: Write pytest tests for edge cases","Write pytest tests for edge cases","","To Do","Medium","events saved backend mvp"
+"104","","Story","[FE] Create Itinerary","As a user, I want to create a travel itinerary so that I can organize my plans.
+
+This ticket covers the frontend implementation of itinerary creation, allowing users to create named itineraries with date ranges to organize their travel plans.","- User can create a new itinerary
+- Itinerary form captures: title (required), start date, end date, description (optional)
+- Form validation for required fields and date logic (end >= start)
+- Created itinerary is stored via API
+- User can view list of their itineraries
+- Loading state during creation","To Do","High","itinerary planning mvp"
+"105","104","Sub-task","US-07.1: Define Itinerary type/interface in graphql/types.ts","Define Itinerary type/interface in graphql/types.ts","","To Do","High","itinerary planning mvp"
+"106","104","Sub-task","US-07.2: Create CREATE_ITINERARY mutation","Create CREATE_ITINERARY mutation","","To Do","High","itinerary planning mvp"
+"107","104","Sub-task","US-07.3: Create GET_ITINERARIES query","Create GET_ITINERARIES query","","To Do","High","itinerary planning mvp"
+"108","104","Sub-task","US-07.4: Generate types with graphql-codegen","Generate types with graphql-codegen","","To Do","High","itinerary planning mvp"
+"109","104","Sub-task","US-07.5: Create useItineraries and useCreateItinerary hooks","Create useItineraries and useCreateItinerary hooks","","To Do","High","itinerary planning mvp"
+"110","104","Sub-task","US-07.6: Create CreateItinerary form/modal component","Create CreateItinerary form/modal component","","To Do","High","itinerary planning mvp"
+"111","104","Sub-task","US-07.7: Create ItineraryList screen (screens/Itineraries/ItineraryList.tsx)","Create ItineraryList screen (screens/Itineraries/ItineraryList.tsx)","","To Do","High","itinerary planning mvp"
+"112","104","Sub-task","US-07.8: Add Itineraries routes to navigation","Add Itineraries routes to navigation","","To Do","High","itinerary planning mvp"
+"113","104","Sub-task","US-07.9: Implement date picker for start/end dates","Implement date picker for start/end dates","","To Do","High","itinerary planning mvp"
+"114","104","Sub-task","US-07.10: Add form validation (title required, date logic)","Add form validation (title required, date logic)","","To Do","High","itinerary planning mvp"
+"115","104","Sub-task","US-07.11: Write unit tests","Write unit tests","","To Do","High","itinerary planning mvp"
+"116","","Story","[BE] Create Itinerary API","As a backend service, I need to provide API endpoints for creating and fetching itineraries so that users can organize their travel plans.","- Itinerary model created with required fields
+- createItinerary mutation creates new itinerary for user
+- getItineraries query returns user's itineraries
+- Validation: title required, date logic
+- All endpoints require authentication
+- Response includes full itinerary data","To Do","High","itinerary planning backend mvp"
+"117","116","Sub-task","US-07-BE.1: Create Itinerary model in apps/core/ or apps/itineraries/","Create Itinerary model in apps/core/ or apps/itineraries/","","To Do","High","itinerary planning backend mvp"
+"118","116","Sub-task","US-07-BE.2: Create and run migrations","Create and run migrations","","To Do","High","itinerary planning backend mvp"
+"119","116","Sub-task","US-07-BE.3: Register Itinerary in Django admin","Register Itinerary in Django admin","","To Do","High","itinerary planning backend mvp"
+"120","116","Sub-task","US-07-BE.4: Create ItineraryType GraphQL type","Create ItineraryType GraphQL type","","To Do","High","itinerary planning backend mvp"
+"121","116","Sub-task","US-07-BE.5: Create createItinerary mutation","Create createItinerary mutation","","To Do","High","itinerary planning backend mvp"
+"122","116","Sub-task","US-07-BE.6: Create getItineraries query","Create getItineraries query","","To Do","High","itinerary planning backend mvp"
+"123","116","Sub-task","US-07-BE.7: Add input validation (title required, dates)","Add input validation (title required, dates)","","To Do","High","itinerary planning backend mvp"
+"124","116","Sub-task","US-07-BE.8: Write pytest unit tests","Write pytest unit tests","","To Do","High","itinerary planning backend mvp"
+"125","","Story","[FE] Manage Itinerary Items","As a user, I want to add/edit itinerary entries so I can structure my trip.
+
+This ticket covers the frontend implementation of managing itinerary items - adding, editing, and deleting entries within an itinerary.","- User can add an item to an itinerary
+- User can edit an existing itinerary item
+- User can delete an itinerary item
+- Changes persist after app restart
+- Itinerary detail shows list of items
+- Loading states during CRUD operations","To Do","High","itinerary planning mvp"
+"126","125","Sub-task","US-08.1: Define ItineraryItem type/interface in graphql/types.ts","Define ItineraryItem type/interface in graphql/types.ts","","To Do","High","itinerary planning mvp"
+"127","125","Sub-task","US-08.2: Create ADD_ITINERARY_ITEM mutation","Create ADD_ITINERARY_ITEM mutation","","To Do","High","itinerary planning mvp"
+"128","125","Sub-task","US-08.3: Create UPDATE_ITINERARY_ITEM mutation","Create UPDATE_ITINERARY_ITEM mutation","","To Do","High","itinerary planning mvp"
+"129","125","Sub-task","US-08.4: Create DELETE_ITINERARY_ITEM mutation","Create DELETE_ITINERARY_ITEM mutation","","To Do","High","itinerary planning mvp"
+"130","125","Sub-task","US-08.5: Create useItineraryItems hook (CRUD operations)","Create useItineraryItems hook (CRUD operations)","","To Do","High","itinerary planning mvp"
+"131","125","Sub-task","US-08.6: Create ItineraryDetail screen (screens/Itineraries/ItineraryDetail.tsx)","Create ItineraryDetail screen (screens/Itineraries/ItineraryDetail.tsx)","","To Do","High","itinerary planning mvp"
+"132","125","Sub-task","US-08.7: Create AddItineraryItem form/modal","Create AddItineraryItem form/modal","","To Do","High","itinerary planning mvp"
+"133","125","Sub-task","US-08.8: Create EditItineraryItem form/modal","Create EditItineraryItem form/modal","","To Do","High","itinerary planning mvp"
+"134","125","Sub-task","US-08.9: Implement delete confirmation dialog","Implement delete confirmation dialog","","To Do","High","itinerary planning mvp"
+"135","125","Sub-task","US-08.10: Add optimistic UI updates for instant feedback","Add optimistic UI updates for instant feedback","","To Do","High","itinerary planning mvp"
+"136","125","Sub-task","US-08.11: Write unit tests for CRUD operations","Write unit tests for CRUD operations","","To Do","High","itinerary planning mvp"
+"137","","Story","[BE] Manage Itinerary Items API","As a backend service, I need to provide API endpoints for managing itinerary items so that users can structure their trip plans.","- ItineraryItem model created with required fields
+- addItineraryItem mutation creates item in user's itinerary
+- updateItineraryItem mutation updates existing item
+- deleteItineraryItem mutation removes item
+- getItinerary query includes items
+- Authorization: user can only modify own itinerary items
+- All endpoints require authentication","To Do","High","itinerary planning backend mvp"
+"138","137","Sub-task","US-08-BE.1: Create ItineraryItem model (itinerary FK, event FK nullable, fields)","Create ItineraryItem model (itinerary FK, event FK nullable, fields)","","To Do","High","itinerary planning backend mvp"
+"139","137","Sub-task","US-08-BE.2: Create and run migrations","Create and run migrations","","To Do","High","itinerary planning backend mvp"
+"140","137","Sub-task","US-08-BE.3: Register ItineraryItem in Django admin (inline on Itinerary)","Register ItineraryItem in Django admin (inline on Itinerary)","","To Do","High","itinerary planning backend mvp"
+"141","137","Sub-task","US-08-BE.4: Create ItineraryItemType GraphQL type","Create ItineraryItemType GraphQL type","","To Do","High","itinerary planning backend mvp"
+"142","137","Sub-task","US-08-BE.5: Create addItineraryItem mutation","Create addItineraryItem mutation","","To Do","High","itinerary planning backend mvp"
+"143","137","Sub-task","US-08-BE.6: Create updateItineraryItem mutation","Create updateItineraryItem mutation","","To Do","High","itinerary planning backend mvp"
+"144","137","Sub-task","US-08-BE.7: Create deleteItineraryItem mutation","Create deleteItineraryItem mutation","","To Do","High","itinerary planning backend mvp"
+"145","137","Sub-task","US-08-BE.8: Add items field to ItineraryType (resolve items)","Add items field to ItineraryType (resolve items)","","To Do","High","itinerary planning backend mvp"
+"146","137","Sub-task","US-08-BE.9: Add authorization checks (user owns itinerary)","Add authorization checks (user owns itinerary)","","To Do","High","itinerary planning backend mvp"
+"147","137","Sub-task","US-08-BE.10: Write pytest unit tests","Write pytest unit tests","","To Do","High","itinerary planning backend mvp"
+"148","","Story","[FE] Attach Events to Itinerary","As a user, I want to add saved events to my itinerary so I can combine discovery and planning.
+
+This ticket covers the frontend implementation of attaching saved events to itineraries, bridging the event discovery and trip planning features.","- User can select from saved events when adding to itinerary
+- Selected event is added to itinerary view
+- Event details (title, date, location) auto-populate
+- User can remove event from itinerary
+- Removing from itinerary does NOT unsave the event
+- Visual indication that item is linked to event","To Do","High","itinerary events planning mvp"
+"149","148","Sub-task","US-09.1: Create SavedEventsPicker component (modal/screen)","Create SavedEventsPicker component (modal/screen)","","To Do","High","itinerary events planning mvp"
+"150","148","Sub-task","US-09.2: Add 'Add to Itinerary' action on SavedEvents screen","Add 'Add to Itinerary' action on SavedEvents screen","","To Do","High","itinerary events planning mvp"
+"151","148","Sub-task","US-09.3: Add 'Add from Saved Events' option in AddItineraryItem","Add 'Add from Saved Events' option in AddItineraryItem","","To Do","High","itinerary events planning mvp"
+"152","148","Sub-task","US-09.4: Create itinerary selection modal (when adding from SavedEvents)","Create itinerary selection modal (when adding from SavedEvents)","","To Do","High","itinerary events planning mvp"
+"153","148","Sub-task","US-09.5: Auto-populate ItineraryItem fields from Event data","Auto-populate ItineraryItem fields from Event data","","To Do","High","itinerary events planning mvp"
+"154","148","Sub-task","US-09.6: Add visual indicator for event-linked items","Add visual indicator for event-linked items","","To Do","High","itinerary events planning mvp"
+"155","148","Sub-task","US-09.7: Implement remove event from itinerary (unlink)","Implement remove event from itinerary (unlink)","","To Do","High","itinerary events planning mvp"
+"156","148","Sub-task","US-09.8: Update Apollo cache after attach/remove","Update Apollo cache after attach/remove","","To Do","High","itinerary events planning mvp"
+"157","148","Sub-task","US-09.9: Write unit tests for attach flow","Write unit tests for attach flow","","To Do","High","itinerary events planning mvp"
+"158","","Story","[BE] Attach Events to Itinerary API","As a backend service, I need to support linking saved events to itinerary items so that users can combine discovery and planning.
+
+This ticket covers backend enhancements to support event-linked itinerary items, building on US-08-BE.","- addItineraryItem accepts optional event_id
+- Event relationship validated (event exists, is active)
+- getItinerary returns items with full Event data
+- Deleted/inactive events handled gracefully
+- User can add same event to multiple itineraries
+- Event data resolved efficiently (no N+1)","To Do","High","itinerary events planning backend mvp"
+"159","158","Sub-task","US-09-BE.1: Add event_id validation in addItineraryItem mutation","Add event_id validation in addItineraryItem mutation","","To Do","High","itinerary events planning backend mvp"
+"160","158","Sub-task","US-09-BE.2: Verify event is active before linking","Verify event is active before linking","","To Do","High","itinerary events planning backend mvp"
+"161","158","Sub-task","US-09-BE.3: Resolve Event relationship in ItineraryItemType","Resolve Event relationship in ItineraryItemType","","To Do","High","itinerary events planning backend mvp"
+"162","158","Sub-task","US-09-BE.4: Handle deleted event gracefully (null or flag)","Handle deleted event gracefully (null or flag)","","To Do","High","itinerary events planning backend mvp"
+"163","158","Sub-task","US-09-BE.5: Optimize query to prevent N+1 on event resolution","Optimize query to prevent N+1 on event resolution","","To Do","High","itinerary events planning backend mvp"
+"164","158","Sub-task","US-09-BE.6: Add is_event_available computed field","Add is_event_available computed field","","To Do","High","itinerary events planning backend mvp"
+"165","158","Sub-task","US-09-BE.7: Write pytest tests for event linking","Write pytest tests for event linking","","To Do","High","itinerary events planning backend mvp"
+"166","","Story","[FE] View Itinerary Detail","As a user, I want to view my itinerary so I understand my schedule.
+
+This ticket covers the frontend implementation of the itinerary detail view, displaying all items/events in a timeline or list format with navigation capabilities.","- Itinerary displays as timeline or list view
+- All items/events are visible with key details
+- Items show: title, time, location, notes preview
+- User can navigate to item details
+- User can navigate to linked event details
+- Empty state when no items
+- Loading state during fetch","To Do","High","itinerary planning mvp"
+"167","166","Sub-task","US-10.1: Enhance ItineraryDetail screen with timeline/list layout","Enhance ItineraryDetail screen with timeline/list layout","","To Do","High","itinerary planning mvp"
+"168","166","Sub-task","US-10.2: Group items by date (for multi-day itineraries)","Group items by date (for multi-day itineraries)","","To Do","High","itinerary planning mvp"
+"169","166","Sub-task","US-10.3: Create ItineraryItemCard component","Create ItineraryItemCard component","","To Do","High","itinerary planning mvp"
+"170","166","Sub-task","US-10.4: Display time/location/notes on each item","Display time/location/notes on each item","","To Do","High","itinerary planning mvp"
+"171","166","Sub-task","US-10.5: Add navigation to item edit/detail","Add navigation to item edit/detail","","To Do","High","itinerary planning mvp"
+"172","166","Sub-task","US-10.6: Add navigation to linked event detail","Add navigation to linked event detail","","To Do","High","itinerary planning mvp"
+"173","166","Sub-task","US-10.7: Implement empty state for no items","Implement empty state for no items","","To Do","High","itinerary planning mvp"
+"174","166","Sub-task","US-10.8: Add pull-to-refresh functionality","Add pull-to-refresh functionality","","To Do","High","itinerary planning mvp"
+"175","166","Sub-task","US-10.9: Write unit tests for ItineraryDetail","Write unit tests for ItineraryDetail","","To Do","High","itinerary planning mvp"
+"176","","Story","[BE] View Itinerary Detail API","As a backend service, I need to provide a comprehensive itinerary detail query so that users can view their full schedule.","- getItinerary query accepts itinerary ID
+- Returns full itinerary with all items
+- Items ordered by date/time/position
+- Event relationships resolved for linked items
+- Authorization: user can only view own itineraries
+- Query optimized (no N+1 queries)","To Do","High","itinerary planning backend mvp"
+"177","176","Sub-task","US-10-BE.1: Implement/enhance getItinerary query by ID","Implement/enhance getItinerary query by ID","","To Do","High","itinerary planning backend mvp"
+"178","176","Sub-task","US-10-BE.2: Order items by date, start_time, position","Order items by date, start_time, position","","To Do","High","itinerary planning backend mvp"
+"179","176","Sub-task","US-10-BE.3: Prefetch Event relationships (select_related)","Prefetch Event relationships (select_related)","","To Do","High","itinerary planning backend mvp"
+"180","176","Sub-task","US-10-BE.4: Add authorization check (user owns itinerary)","Add authorization check (user owns itinerary)","","To Do","High","itinerary planning backend mvp"
+"181","176","Sub-task","US-10-BE.5: Handle non-existent itinerary ID","Handle non-existent itinerary ID","","To Do","High","itinerary planning backend mvp"
+"182","176","Sub-task","US-10-BE.6: Add computed fields (duration, is_event_available)","Add computed fields (duration, is_event_available)","","To Do","High","itinerary planning backend mvp"
+"183","176","Sub-task","US-10-BE.7: Write pytest tests for getItinerary query","Write pytest tests for getItinerary query","","To Do","High","itinerary planning backend mvp"
+"184","","Story","[FE] Add Expense Entry","As a user, I want to log spending so I can track my adventure budget.
+
+This ticket covers the frontend implementation of expense entry, allowing users to log spending associated with their trips or itineraries.","- User can access add expense form
+- Form captures: amount (required), description, category, date
+- Form validates required fields and amount format
+- Expense is stored via API
+- Success feedback after adding
+- Loading state during submission","To Do","High","budget expenses mvp"
+"185","184","Sub-task","US-11.1: Define Expense type/interface in graphql/types.ts","Define Expense type/interface in graphql/types.ts","","To Do","High","budget expenses mvp"
+"186","184","Sub-task","US-11.2: Create ADD_EXPENSE mutation","Create ADD_EXPENSE mutation","","To Do","High","budget expenses mvp"
+"187","184","Sub-task","US-11.3: Generate types with graphql-codegen","Generate types with graphql-codegen","","To Do","High","budget expenses mvp"
+"188","184","Sub-task","US-11.4: Create useAddExpense hook","Create useAddExpense hook","","To Do","High","budget expenses mvp"
+"189","184","Sub-task","US-11.5: Create AddExpense form/modal component","Create AddExpense form/modal component","","To Do","High","budget expenses mvp"
+"190","184","Sub-task","US-11.6: Implement amount input with currency formatting","Implement amount input with currency formatting","","To Do","High","budget expenses mvp"
+"191","184","Sub-task","US-11.7: Create category picker (predefined categories)","Create category picker (predefined categories)","","To Do","High","budget expenses mvp"
+"192","184","Sub-task","US-11.8: Add date picker for expense date","Add date picker for expense date","","To Do","High","budget expenses mvp"
+"193","184","Sub-task","US-11.9: Add optional itinerary link selector","Add optional itinerary link selector","","To Do","High","budget expenses mvp"
+"194","184","Sub-task","US-11.10: Implement form validation","Implement form validation","","To Do","High","budget expenses mvp"
+"195","184","Sub-task","US-11.11: Write unit tests","Write unit tests","","To Do","High","budget expenses mvp"
+"196","","Story","[BE] Add Expense Entry API","As a backend service, I need to provide an API endpoint for creating expense entries so that users can track their adventure spending.","- Expense model created with required fields
+- addExpense mutation creates expense for user
+- Amount validated (positive, proper format)
+- Category validated against allowed values
+- Optional itinerary link validated
+- Requires authentication","To Do","High","budget expenses backend mvp"
+"197","196","Sub-task","US-11-BE.1: Create Expense model in apps/core/ or apps/budgets/","Create Expense model in apps/core/ or apps/budgets/","","To Do","High","budget expenses backend mvp"
+"198","196","Sub-task","US-11-BE.2: Define ExpenseCategory choices/enum","Define ExpenseCategory choices/enum","","To Do","High","budget expenses backend mvp"
+"199","196","Sub-task","US-11-BE.3: Create and run migrations","Create and run migrations","","To Do","High","budget expenses backend mvp"
+"200","196","Sub-task","US-11-BE.4: Register Expense in Django admin","Register Expense in Django admin","","To Do","High","budget expenses backend mvp"
+"201","196","Sub-task","US-11-BE.5: Create ExpenseType GraphQL type","Create ExpenseType GraphQL type","","To Do","High","budget expenses backend mvp"
+"202","196","Sub-task","US-11-BE.6: Create addExpense mutation","Create addExpense mutation","","To Do","High","budget expenses backend mvp"
+"203","196","Sub-task","US-11-BE.7: Add input validation (amount, category)","Add input validation (amount, category)","","To Do","High","budget expenses backend mvp"
+"204","196","Sub-task","US-11-BE.8: Validate itinerary ownership if linked","Validate itinerary ownership if linked","","To Do","High","budget expenses backend mvp"
+"205","196","Sub-task","US-11-BE.9: Write pytest unit tests","Write pytest unit tests","","To Do","High","budget expenses backend mvp"
+"206","","Story","[FE] Categorize Expenses","As a user, I want to categorize expenses so I can understand spending patterns.
+
+This ticket covers the frontend implementation of expense categorization, building on US-11's category picker.","- Category is selectable when adding/editing expense
+- Category is displayed in expense list view
+- Each expense shows its category clearly
+- Category has visual indicator (icon or color)
+- Categories are consistent across the app","To Do","Medium","budget expenses mvp"
+"207","206","Sub-task","US-12.1: Define expense category constants with icons/colors","Define expense category constants with icons/colors","","To Do","Medium","budget expenses mvp"
+"208","206","Sub-task","US-12.2: Create CategoryBadge/CategoryChip component","Create CategoryBadge/CategoryChip component","","To Do","Medium","budget expenses mvp"
+"209","206","Sub-task","US-12.3: Integrate category picker in AddExpense form (if not done in US-11)","Integrate category picker in AddExpense form (if not done in US-11)","","To Do","Medium","budget expenses mvp"
+"210","206","Sub-task","US-12.4: Display category in ExpenseCard/ExpenseListItem","Display category in ExpenseCard/ExpenseListItem","","To Do","Medium","budget expenses mvp"
+"211","206","Sub-task","US-12.5: Add category icons/colors mapping","Add category icons/colors mapping","","To Do","Medium","budget expenses mvp"
+"212","206","Sub-task","US-12.6: Implement category filter in expense list (optional)","Implement category filter in expense list (optional)","","To Do","Medium","budget expenses mvp"
+"213","206","Sub-task","US-12.7: Add category to expense detail view","Add category to expense detail view","","To Do","Medium","budget expenses mvp"
+"214","206","Sub-task","US-12.8: Write unit tests for category display","Write unit tests for category display","","To Do","Medium","budget expenses mvp"
+"215","","Story","[BE] Categorize Expenses API","As a backend service, I need to support expense categorization so that users can organize and analyze their spending.","- ExpenseCategory enum defined with all values
+- Category field on Expense model uses enum
+- getExpenses query can filter by category
+- Category included in all expense responses
+- Invalid category values rejected","To Do","Medium","budget expenses backend mvp"
+"216","215","Sub-task","US-12-BE.1: Define ExpenseCategory enum (if not done in US-11-BE)","Define ExpenseCategory enum (if not done in US-11-BE)","","To Do","Medium","budget expenses backend mvp"
+"217","215","Sub-task","US-12-BE.2: Ensure category field uses enum choices","Ensure category field uses enum choices","","To Do","Medium","budget expenses backend mvp"
+"218","215","Sub-task","US-12-BE.3: Add category filter to getExpenses query","Add category filter to getExpenses query","","To Do","Medium","budget expenses backend mvp"
+"219","215","Sub-task","US-12-BE.4: Validate category in addExpense/updateExpense","Validate category in addExpense/updateExpense","","To Do","Medium","budget expenses backend mvp"
+"220","215","Sub-task","US-12-BE.5: Include category in ExpenseType","Include category in ExpenseType","","To Do","Medium","budget expenses backend mvp"
+"221","215","Sub-task","US-12-BE.6: Add getExpenseCategories query (returns all options)","Add getExpenseCategories query (returns all options)","","To Do","Medium","budget expenses backend mvp"
+"222","215","Sub-task","US-12-BE.7: Write pytest tests for category functionality","Write pytest tests for category functionality","","To Do","Medium","budget expenses backend mvp"
+"223","","Task","[FE] Remove User Bucket/Event Creation Functionality","Technical debt ticket to remove the existing bucket and item creation functionality. Users will no longer be able to create buckets or events - these will be admin-managed with predefined categories.","- AddBucket component removed
+- AddBucketItem component removed
+- UpdateBucket component removed
+- Bucket creation modals removed from UI
+- GraphQL creation mutations removed or deprecated
+- No user-facing bucket/event creation entry points remain
+- App builds and runs without errors after removal","To Do","High","tech-debt cleanup mvp"
+"224","223","Sub-task","TECH-01.1: Remove AddBucket.tsx and related imports","Remove AddBucket.tsx and related imports","","To Do","High","tech-debt cleanup mvp"
+"225","223","Sub-task","TECH-01.2: Remove AddBucketItem.tsx and related imports","Remove AddBucketItem.tsx and related imports","","To Do","High","tech-debt cleanup mvp"
+"226","223","Sub-task","TECH-01.3: Remove UpdateBucket.tsx and related imports","Remove UpdateBucket.tsx and related imports","","To Do","High","tech-debt cleanup mvp"
+"227","223","Sub-task","TECH-01.4: Remove bucket creation modals from Buckets.tsx","Remove bucket creation modals from Buckets.tsx","","To Do","High","tech-debt cleanup mvp"
+"228","223","Sub-task","TECH-01.5: Clean up unused GraphQL mutations (ADD_BUCKET_CATEGORY, ADD_BUCKET_ITEM)","Clean up unused GraphQL mutations (ADD_BUCKET_CATEGORY, ADD_BUCKET_ITEM)","","To Do","High","tech-debt cleanup mvp"
+"229","223","Sub-task","TECH-01.6: Remove unused types/interfaces related to bucket creation","Remove unused types/interfaces related to bucket creation","","To Do","High","tech-debt cleanup mvp"
+"230","223","Sub-task","TECH-01.7: Update navigation to remove creation routes","Update navigation to remove creation routes","","To Do","High","tech-debt cleanup mvp"
+"231","223","Sub-task","TECH-01.8: Run build and verify no broken imports","Run build and verify no broken imports","","To Do","High","tech-debt cleanup mvp"
+"232","223","Sub-task","TECH-01.9: Update/remove related unit tests","Update/remove related unit tests","","To Do","High","tech-debt cleanup mvp"
+"233","","Story","[FE] View Budget Summary","As a user, I want to see total spend so I can monitor my budget.
+
+This ticket covers the frontend implementation of a budget summary view, displaying total spending and key metrics.","- Total spend amount calculated and displayed
+- Summary updates when expenses are added/edited/deleted
+- Summary section is visible on expenses screen
+- Loading state while calculating
+- Handles empty state (no expenses)","To Do","High","budget expenses analytics mvp"
+"234","233","Sub-task","US-13.1: Create GET_EXPENSE_SUMMARY query (or compute client-side)","Create GET_EXPENSE_SUMMARY query (or compute client-side)","","To Do","High","budget expenses analytics mvp"
+"235","233","Sub-task","US-13.2: Create useExpenseSummary hook","Create useExpenseSummary hook","","To Do","High","budget expenses analytics mvp"
+"236","233","Sub-task","US-13.3: Create BudgetSummary component (components/Budget/BudgetSummary.tsx)","Create BudgetSummary component (components/Budget/BudgetSummary.tsx)","","To Do","High","budget expenses analytics mvp"
+"237","233","Sub-task","US-13.4: Display total spend amount with currency formatting","Display total spend amount with currency formatting","","To Do","High","budget expenses analytics mvp"
+"238","233","Sub-task","US-13.5: Display expense count","Display expense count","","To Do","High","budget expenses analytics mvp"
+"239","233","Sub-task","US-13.6: Add category breakdown display (optional)","Add category breakdown display (optional)","","To Do","High","budget expenses analytics mvp"
+"240","233","Sub-task","US-13.7: Integrate BudgetSummary into Expenses screen","Integrate BudgetSummary into Expenses screen","","To Do","High","budget expenses analytics mvp"
+"241","233","Sub-task","US-13.8: Ensure Apollo cache updates trigger re-render","Ensure Apollo cache updates trigger re-render","","To Do","High","budget expenses analytics mvp"
+"242","233","Sub-task","US-13.9: Add loading and empty states","Add loading and empty states","","To Do","High","budget expenses analytics mvp"
+"243","233","Sub-task","US-13.10: Write unit tests for BudgetSummary","Write unit tests for BudgetSummary","","To Do","High","budget expenses analytics mvp"
+"244","","Story","[BE] Budget Summary API","As a backend service, I need to provide an API endpoint for expense summary/aggregation so that users can view their total spending.","- getExpenseSummary query returns total spend
+- Summary includes expense count
+- Summary includes breakdown by category
+- Summary updates reflect latest expense data
+- Optional date range filter supported
+- Requires authentication","To Do","High","budget expenses analytics backend mvp"
+"245","244","Sub-task","US-13-BE.1: Create getExpenseSummary query in GraphQL schema","Create getExpenseSummary query in GraphQL schema","","To Do","High","budget expenses analytics backend mvp"
+"246","244","Sub-task","US-13-BE.2: Create ExpenseSummaryType GraphQL type","Create ExpenseSummaryType GraphQL type","","To Do","High","budget expenses analytics backend mvp"
+"247","244","Sub-task","US-13-BE.3: Implement database aggregation (Sum, Count)","Implement database aggregation (Sum, Count)","","To Do","High","budget expenses analytics backend mvp"
+"248","244","Sub-task","US-13-BE.4: Add category breakdown aggregation","Add category breakdown aggregation","","To Do","High","budget expenses analytics backend mvp"
+"249","244","Sub-task","US-13-BE.5: Add optional date range filter (start_date, end_date)","Add optional date range filter (start_date, end_date)","","To Do","High","budget expenses analytics backend mvp"
+"250","244","Sub-task","US-13-BE.6: Add optional itinerary filter","Add optional itinerary filter","","To Do","High","budget expenses analytics backend mvp"
+"251","244","Sub-task","US-13-BE.7: Optimize query for performance","Optimize query for performance","","To Do","High","budget expenses analytics backend mvp"
+"252","244","Sub-task","US-13-BE.8: Write pytest unit tests","Write pytest unit tests","","To Do","High","budget expenses analytics backend mvp"
+"253","","Story","[FE] App Navigation","As a user, I want to navigate between main sections so I can use the app effectively.
+
+This ticket covers the frontend implementation of the main app navigation, providing access to all core features via a bottom tab bar.","- Navigation bar visible on main screens
+- User can navigate between: Events, Saved, Itinerary, Budget
+- Active tab has visible indicator (color/icon change)
+- Navigation persists across app usage
+- Smooth transitions between sections","To Do","High","navigation ux mvp"
+"254","253","Sub-task","US-14.1: Set up bottom tab navigator (React Navigation)","Set up bottom tab navigator (React Navigation)","","To Do","High","navigation ux mvp"
+"255","253","Sub-task","US-14.2: Create tab bar icons for each section","Create tab bar icons for each section","","To Do","High","navigation ux mvp"
+"256","253","Sub-task","US-14.3: Configure Events tab to EventList screen","Configure Events tab to EventList screen","","To Do","High","navigation ux mvp"
+"257","253","Sub-task","US-14.4: Configure Saved tab to SavedEvents screen","Configure Saved tab to SavedEvents screen","","To Do","High","navigation ux mvp"
+"258","253","Sub-task","US-14.5: Configure Itinerary tab to ItineraryList screen","Configure Itinerary tab to ItineraryList screen","","To Do","High","navigation ux mvp"
+"259","253","Sub-task","US-14.6: Configure Budget tab to Expenses screen","Configure Budget tab to Expenses screen","","To Do","High","navigation ux mvp"
+"260","253","Sub-task","US-14.7: Implement active state styling (color/icon variant)","Implement active state styling (color/icon variant)","","To Do","High","navigation ux mvp"
+"261","253","Sub-task","US-14.8: Add tab bar labels","Add tab bar labels","","To Do","High","navigation ux mvp"
+"262","253","Sub-task","US-14.9: Handle nested navigation within each tab","Handle nested navigation within each tab","","To Do","High","navigation ux mvp"
+"263","253","Sub-task","US-14.10: Write navigation tests","Write navigation tests","","To Do","High","navigation ux mvp"
+"264","","Story","[FE] Loading & Error Handling","As a user, I want feedback when content loads or fails so the app feels reliable.
+
+This ticket covers the implementation of consistent loading indicators, error messaging, and empty state patterns across the app.","- Loading indicators shown during data fetch
+- Error messages displayed when requests fail
+- Empty state messaging when no data exists
+- Retry option available on errors
+- Consistent styling across app","To Do","High","ux feedback mvp"
+"265","264","Sub-task","US-15.1: Create LoadingSpinner component (components/Feedback/LoadingSpinner.tsx)","Create LoadingSpinner component (components/Feedback/LoadingSpinner.tsx)","","To Do","High","ux feedback mvp"
+"266","264","Sub-task","US-15.2: Create LoadingSkeleton component for lists/cards","Create LoadingSkeleton component for lists/cards","","To Do","High","ux feedback mvp"
+"267","264","Sub-task","US-15.3: Create ErrorMessage component with retry button","Create ErrorMessage component with retry button","","To Do","High","ux feedback mvp"
+"268","264","Sub-task","US-15.4: Create EmptyState component with icon/message/CTA","Create EmptyState component with icon/message/CTA","","To Do","High","ux feedback mvp"
+"269","264","Sub-task","US-15.5: Implement React Error Boundary for crash handling","Implement React Error Boundary for crash handling","","To Do","High","ux feedback mvp"
+"270","264","Sub-task","US-15.6: Integrate loading states into existing screens","Integrate loading states into existing screens","","To Do","High","ux feedback mvp"
+"271","264","Sub-task","US-15.7: Integrate error handling into existing screens","Integrate error handling into existing screens","","To Do","High","ux feedback mvp"
+"272","264","Sub-task","US-15.8: Integrate empty states into existing screens","Integrate empty states into existing screens","","To Do","High","ux feedback mvp"
+"273","264","Sub-task","US-15.9: Add error logging/reporting (optional)","Add error logging/reporting (optional)","","To Do","High","ux feedback mvp"
+"274","264","Sub-task","US-15.10: Write unit tests for feedback components","Write unit tests for feedback components","","To Do","High","ux feedback mvp"
+"275","","Story","[BE] Admin Create Event","As an admin, I want to create events so that users can discover activities through the app.
+
+This ticket covers the backend implementation of admin event creation via Django Admin and optional GraphQL mutation.","- Admin can access event creation form (Django Admin)
+- Required fields: title, date, location, category, description
+- Validation applied (required fields, date logic)
+- Event saved to database
+- Event appears in user listings (getEvents query)
+- Only staff/admin can create events","To Do","High","admin events backend mvp"
+"276","275","Sub-task","US-16.1: Enhance Event model admin registration","Enhance Event model admin registration","","To Do","High","admin events backend mvp"
+"277","275","Sub-task","US-16.2: Configure admin form with required field validation","Configure admin form with required field validation","","To Do","High","admin events backend mvp"
+"278","275","Sub-task","US-16.3: Add admin list display (title, date, category, is_active)","Add admin list display (title, date, category, is_active)","","To Do","High","admin events backend mvp"
+"279","275","Sub-task","US-16.4: Add admin filters (category, is_active, date)","Add admin filters (category, is_active, date)","","To Do","High","admin events backend mvp"
+"280","275","Sub-task","US-16.5: Add admin search (title, description, location)","Add admin search (title, description, location)","","To Do","High","admin events backend mvp"
+"281","275","Sub-task","US-16.6: Implement image upload in admin (optional)","Implement image upload in admin (optional)","","To Do","High","admin events backend mvp"
+"282","275","Sub-task","US-16.7: Add createEvent mutation (admin-only, optional)","Add createEvent mutation (admin-only, optional)","","To Do","High","admin events backend mvp"
+"283","275","Sub-task","US-16.8: Verify events appear in getEvents query","Verify events appear in getEvents query","","To Do","High","admin events backend mvp"
+"284","275","Sub-task","US-16.9: Write pytest tests for admin event creation","Write pytest tests for admin event creation","","To Do","High","admin events backend mvp"
+"285","","Story","[BE] Admin Edit Event","As an admin, I want to update event details so information stays accurate.
+
+This ticket covers the backend implementation of admin event editing via Django Admin.","- Admin can select event from list
+- All editable fields displayed in form
+- Changes saved successfully to database
+- Updated data reflected in getEvents query
+- Validation applied on save
+- Change history preserved","To Do","High","admin events backend mvp"
+"286","285","Sub-task","US-17.1: Verify admin change view configured for Event","Verify admin change view configured for Event","","To Do","High","admin events backend mvp"
+"287","285","Sub-task","US-17.2: Ensure all fields editable in admin form","Ensure all fields editable in admin form","","To Do","High","admin events backend mvp"
+"288","285","Sub-task","US-17.3: Add fieldsets for organized form layout (optional)","Add fieldsets for organized form layout (optional)","","To Do","High","admin events backend mvp"
+"289","285","Sub-task","US-17.4: Configure readonly fields (id, created_at)","Configure readonly fields (id, created_at)","","To Do","High","admin events backend mvp"
+"290","285","Sub-task","US-17.5: Add updateEvent mutation (admin-only, optional)","Add updateEvent mutation (admin-only, optional)","","To Do","High","admin events backend mvp"
+"291","285","Sub-task","US-17.6: Verify changes appear in getEvents query","Verify changes appear in getEvents query","","To Do","High","admin events backend mvp"
+"292","285","Sub-task","US-17.7: Add admin action for bulk activate/deactivate","Add admin action for bulk activate/deactivate","","To Do","High","admin events backend mvp"
+"293","285","Sub-task","US-17.8: Write pytest tests for event update","Write pytest tests for event update","","To Do","High","admin events backend mvp"
+"294","","Story","[BE] Admin Delete Event","As an admin, I want to remove events so outdated content isn't shown.
+
+This ticket covers the backend implementation of admin event deletion via Django Admin, with soft-delete option.","- Admin can delete event from admin interface
+- Confirmation step required before deletion
+- Event removed from getEvents query (user listings)
+- Related SavedEvents/ItineraryItems handled gracefully
+- Error handling for deletion failures
+- Option for soft delete (deactivate) vs hard delete","To Do","High","admin events backend mvp"
+"295","294","Sub-task","US-18.1: Configure Django Admin delete action with confirmation","Configure Django Admin delete action with confirmation","","To Do","High","admin events backend mvp"
+"296","294","Sub-task","US-18.2: Implement soft delete action (set is_active=False)","Implement soft delete action (set is_active=False)","","To Do","High","admin events backend mvp"
+"297","294","Sub-task","US-18.3: Add bulk delete/deactivate action","Add bulk delete/deactivate action","","To Do","High","admin events backend mvp"
+"298","294","Sub-task","US-18.4: Handle cascade for SavedEvent references","Handle cascade for SavedEvent references","","To Do","High","admin events backend mvp"
+"299","294","Sub-task","US-18.5: Handle cascade for ItineraryItem references","Handle cascade for ItineraryItem references","","To Do","High","admin events backend mvp"
+"300","294","Sub-task","US-18.6: Add deleteEvent mutation (admin-only, optional)","Add deleteEvent mutation (admin-only, optional)","","To Do","High","admin events backend mvp"
+"301","294","Sub-task","US-18.7: Ensure deleted events excluded from getEvents","Ensure deleted events excluded from getEvents","","To Do","High","admin events backend mvp"
+"302","294","Sub-task","US-18.8: Add admin filter for deleted/inactive events","Add admin filter for deleted/inactive events","","To Do","High","admin events backend mvp"
+"303","294","Sub-task","US-18.9: Implement restore action for soft-deleted events","Implement restore action for soft-deleted events","","To Do","High","admin events backend mvp"
+"304","294","Sub-task","US-18.10: Write pytest tests for event deletion","Write pytest tests for event deletion","","To Do","High","admin events backend mvp"
+"305","","Story","[FE] Event Recommendations","As a user, I want to receive event recommendations based on my saved events or categories so I can discover relevant activities.
+
+This ticket covers the frontend implementation of personalized event recommendations.","- Recommendations section visible on Events screen
+- Displays personalized event suggestions
+- Shows recommendation reason (e.g., 'Because you saved...')
+- User can tap to view event details
+- User can save recommended events
+- Empty state for new users (shows popular instead)
+- Loading state during fetch","To Do","High","recommendations events personalization mvp"
+"306","305","Sub-task","US-19.1: Create GET_RECOMMENDATIONS query in graphql/queries.ts","Create GET_RECOMMENDATIONS query in graphql/queries.ts","","To Do","High","recommendations events personalization mvp"
+"307","305","Sub-task","US-19.2: Define RecommendationType in graphql/types.ts","Define RecommendationType in graphql/types.ts","","To Do","High","recommendations events personalization mvp"
+"308","305","Sub-task","US-19.3: Generate types with graphql-codegen","Generate types with graphql-codegen","","To Do","High","recommendations events personalization mvp"
+"309","305","Sub-task","US-19.4: Create useRecommendations hook","Create useRecommendations hook","","To Do","High","recommendations events personalization mvp"
+"310","305","Sub-task","US-19.5: Create RecommendationsCarousel component","Create RecommendationsCarousel component","","To Do","High","recommendations events personalization mvp"
+"311","305","Sub-task","US-19.6: Create RecommendationCard component (with reason label)","Create RecommendationCard component (with reason label)","","To Do","High","recommendations events personalization mvp"
+"312","305","Sub-task","US-19.7: Integrate recommendations into Events/Home screen","Integrate recommendations into Events/Home screen","","To Do","High","recommendations events personalization mvp"
+"313","305","Sub-task","US-19.8: Display recommendation reason/context","Display recommendation reason/context","","To Do","High","recommendations events personalization mvp"
+"314","305","Sub-task","US-19.9: Handle empty state (show popular events)","Handle empty state (show popular events)","","To Do","High","recommendations events personalization mvp"
+"315","305","Sub-task","US-19.10: Handle loading state (skeleton cards)","Handle loading state (skeleton cards)","","To Do","High","recommendations events personalization mvp"
+"316","305","Sub-task","US-19.11: Add 'See All' navigation (optional)","Add 'See All' navigation (optional)","","To Do","High","recommendations events personalization mvp"
+"317","305","Sub-task","US-19.12: Write unit tests for recommendation components","Write unit tests for recommendation components","","To Do","High","recommendations events personalization mvp"
+"318","","Story","[BE] Event Recommendations API","As a backend service, I need to provide personalized event recommendations so users can discover relevant activities.
+
+This ticket covers the backend implementation of a recommendation engine using simple ML techniques suitable for MVP.","- getRecommendations query returns personalized events
+- Recommendations based on saved events (content-based)
+- Recommendations based on similar users (collaborative)
+- Popular events included for diversity
+- Already-saved events excluded
+- Recommendation reason/source included in response
+- Cold-start handling for new users
+- Requires authentication","To Do","High","recommendations events personalization ml backend mvp"
+"319","318","Sub-task","US-19-BE.1: Create getRecommendations query in GraphQL schema","Create getRecommendations query in GraphQL schema","","To Do","High","recommendations events personalization ml backend mvp"
+"320","318","Sub-task","US-19-BE.2: Create RecommendationType with event + reason fields","Create RecommendationType with event + reason fields","","To Do","High","recommendations events personalization ml backend mvp"
+"321","318","Sub-task","US-19-BE.3: Implement content-based filtering (same category as saves)","Implement content-based filtering (same category as saves)","","To Do","High","recommendations events personalization ml backend mvp"
+"322","318","Sub-task","US-19-BE.4: Implement collaborative filtering (users with similar saves)","Implement collaborative filtering (users with similar saves)","","To Do","High","recommendations events personalization ml backend mvp"
+"323","318","Sub-task","US-19-BE.5: Implement popularity scoring (save count)","Implement popularity scoring (save count)","","To Do","High","recommendations events personalization ml backend mvp"
+"324","318","Sub-task","US-19-BE.6: Combine scores with configurable weights","Combine scores with configurable weights","","To Do","High","recommendations events personalization ml backend mvp"
+"325","318","Sub-task","US-19-BE.7: Exclude already-saved events from results","Exclude already-saved events from results","","To Do","High","recommendations events personalization ml backend mvp"
+"326","318","Sub-task","US-19-BE.8: Add recommendation reason to each result","Add recommendation reason to each result","","To Do","High","recommendations events personalization ml backend mvp"
+"327","318","Sub-task","US-19-BE.9: Implement cold-start fallback (popular + new events)","Implement cold-start fallback (popular + new events)","","To Do","High","recommendations events personalization ml backend mvp"
+"328","318","Sub-task","US-19-BE.10: Add caching layer for performance (Redis/in-memory)","Add caching layer for performance (Redis/in-memory)","","To Do","High","recommendations events personalization ml backend mvp"
+"329","318","Sub-task","US-19-BE.11: Add limit parameter for pagination","Add limit parameter for pagination","","To Do","High","recommendations events personalization ml backend mvp"
+"330","318","Sub-task","US-19-BE.12: Write pytest tests for recommendation logic","Write pytest tests for recommendation logic","","To Do","High","recommendations events personalization ml backend mvp"
+"331","","Task","[INFRA] Continuous Integration Pipeline","As a developer, I want automated builds and checks on every commit so that code quality issues are detected early.
+
+This ticket covers setting up CI/CD pipelines for both the React Native frontend and Django backend using GitHub Actions.","- Pipeline triggers on pull request to main
+- Pipeline triggers on push to main branch
+- Dependencies install successfully (npm/pip)
+- Lint checks run and report errors
+- Type checks run (TypeScript/Python)
+- Unit tests execute and report results
+- Build step completes successfully
+- Pipeline fails fast on any error
+- Status visible on pull request
+- Branch protection requires passing CI","To Do","High","ci-cd infrastructure devops mvp"
+"332","331","Sub-task","US-20.1: Create .github/workflows/ directory structure","Create .github/workflows/ directory structure","","To Do","High","ci-cd infrastructure devops mvp"
+"333","331","Sub-task","US-20.2: Create frontend CI workflow (frontend-ci.yml)","Create frontend CI workflow (frontend-ci.yml)","","To Do","High","ci-cd infrastructure devops mvp"
+"334","331","Sub-task","US-20.3: Create backend CI workflow (backend-ci.yml)","Create backend CI workflow (backend-ci.yml)","","To Do","High","ci-cd infrastructure devops mvp"
+"335","331","Sub-task","US-20.4: Configure PR and push triggers","Configure PR and push triggers","","To Do","High","ci-cd infrastructure devops mvp"
+"336","331","Sub-task","US-20.5: Add dependency caching (node_modules, pip)","Add dependency caching (node_modules, pip)","","To Do","High","ci-cd infrastructure devops mvp"
+"337","331","Sub-task","US-20.6: Add ESLint job for frontend","Add ESLint job for frontend","","To Do","High","ci-cd infrastructure devops mvp"
+"338","331","Sub-task","US-20.7: Add TypeScript type-check job","Add TypeScript type-check job","","To Do","High","ci-cd infrastructure devops mvp"
+"339","331","Sub-task","US-20.8: Add Jest test job for frontend","Add Jest test job for frontend","","To Do","High","ci-cd infrastructure devops mvp"
+"340","331","Sub-task","US-20.9: Add flake8/ruff lint job for backend","Add flake8/ruff lint job for backend","","To Do","High","ci-cd infrastructure devops mvp"
+"341","331","Sub-task","US-20.10: Add pytest job for backend","Add pytest job for backend","","To Do","High","ci-cd infrastructure devops mvp"
+"342","331","Sub-task","US-20.11: Add Expo build check","Add Expo build check","","To Do","High","ci-cd infrastructure devops mvp"
+"343","331","Sub-task","US-20.12: Configure branch protection rules","Configure branch protection rules","","To Do","High","ci-cd infrastructure devops mvp"
+"344","331","Sub-task","US-20.13: Add status badges to README","Add status badges to README","","To Do","High","ci-cd infrastructure devops mvp"
+"345","331","Sub-task","US-20.14: Document CI pipeline in DEVELOPMENT_BUILD_GUIDE.md","Document CI pipeline in DEVELOPMENT_BUILD_GUIDE.md","","To Do","High","ci-cd infrastructure devops mvp"
+"346","","Task","[INFRA] Automated Linting & Formatting","As a developer, I want linting and formatting checks in CI so code remains consistent.
+
+This ticket covers configuring linting and formatting tools for both frontend and backend.","- ESLint runs in CI pipeline
+- Prettier format check runs in CI
+- Python linter (Ruff/flake8) runs in CI
+- Python formatter check (Black/Ruff) runs in CI
+- Lint/format failures block PR merge
+- Clear error messages identify violations
+- Local tooling matches CI configuration","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"347","346","Sub-task","US-21.1: Configure ESLint rules (.eslintrc.js)","Configure ESLint rules (.eslintrc.js)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"348","346","Sub-task","US-21.2: Configure Prettier (.prettierrc)","Configure Prettier (.prettierrc)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"349","346","Sub-task","US-21.3: Add ESLint + Prettier compatibility (eslint-config-prettier)","Add ESLint + Prettier compatibility (eslint-config-prettier)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"350","346","Sub-task","US-21.4: Add lint script to package.json (lint, lint:fix)","Add lint script to package.json (lint, lint:fix)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"351","346","Sub-task","US-21.5: Add format script to package.json (format, format:check)","Add format script to package.json (format, format:check)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"352","346","Sub-task","US-21.6: Configure Ruff for Python (ruff.toml or pyproject.toml)","Configure Ruff for Python (ruff.toml or pyproject.toml)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"353","346","Sub-task","US-21.7: Add Python format check (ruff format --check)","Add Python format check (ruff format --check)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"354","346","Sub-task","US-21.8: Update CI workflow with lint/format jobs","Update CI workflow with lint/format jobs","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"355","346","Sub-task","US-21.9: Configure pre-commit hooks (optional)","Configure pre-commit hooks (optional)","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"356","346","Sub-task","US-21.10: Document linting standards in CONTRIBUTING.md","Document linting standards in CONTRIBUTING.md","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"357","346","Sub-task","US-21.11: Fix existing lint/format violations","Fix existing lint/format violations","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"358","346","Sub-task","US-21.12: Add VS Code settings for auto-format on save","Add VS Code settings for auto-format on save","","To Do","High","ci-cd infrastructure devops code-quality mvp"
+"359","","Task","[INFRA] Run Unit Tests in Pipeline","As a developer, I want automated tests executed in CI so regressions are caught early.
+
+This ticket covers configuring unit test execution in the CI pipeline for both frontend (Jest) and backend (pytest).","- Jest tests execute on every PR
+- pytest tests execute on every PR
+- Test failures stop the pipeline
+- Test summary visible in PR checks
+- Individual test results accessible
+- Coverage report generated (optional)
+- Flaky test handling (retry or flag)","To Do","High","ci-cd testing infrastructure devops mvp"
+"360","359","Sub-task","US-22.1: Configure Jest for CI (jest.config.js updates)","Configure Jest for CI (jest.config.js updates)","","To Do","High","ci-cd testing infrastructure devops mvp"
+"361","359","Sub-task","US-22.2: Add Jest test script to package.json (test:ci)","Add Jest test script to package.json (test:ci)","","To Do","High","ci-cd testing infrastructure devops mvp"
+"362","359","Sub-task","US-22.3: Configure pytest for CI (pytest.ini updates)","Configure pytest for CI (pytest.ini updates)","","To Do","High","ci-cd testing infrastructure devops mvp"
+"363","359","Sub-task","US-22.4: Add test job to frontend CI workflow","Add test job to frontend CI workflow","","To Do","High","ci-cd testing infrastructure devops mvp"
+"364","359","Sub-task","US-22.5: Add test job to backend CI workflow","Add test job to backend CI workflow","","To Do","High","ci-cd testing infrastructure devops mvp"
+"365","359","Sub-task","US-22.6: Configure test result reporting (JUnit XML)","Configure test result reporting (JUnit XML)","","To Do","High","ci-cd testing infrastructure devops mvp"
+"366","359","Sub-task","US-22.7: Add GitHub Actions test summary","Add GitHub Actions test summary","","To Do","High","ci-cd testing infrastructure devops mvp"
+"367","359","Sub-task","US-22.8: Configure coverage collection (optional)","Configure coverage collection (optional)","","To Do","High","ci-cd testing infrastructure devops mvp"
+"368","359","Sub-task","US-22.9: Add coverage thresholds (optional)","Add coverage thresholds (optional)","","To Do","High","ci-cd testing infrastructure devops mvp"
+"369","359","Sub-task","US-22.10: Handle test timeouts appropriately","Handle test timeouts appropriately","","To Do","High","ci-cd testing infrastructure devops mvp"
+"370","359","Sub-task","US-22.11: Document test running in CONTRIBUTING.md","Document test running in CONTRIBUTING.md","","To Do","High","ci-cd testing infrastructure devops mvp"
+"371","359","Sub-task","US-22.12: Add test status badge to README","Add test status badge to README","","To Do","High","ci-cd testing infrastructure devops mvp"
+"372","","Task","[INFRA] Automated Deployment","As a developer, I want successful builds to deploy automatically so updates reach the environment quickly.
+
+This ticket covers setting up automated deployment pipelines for both the React Native frontend (via Expo/EAS) and Django backend (via cloud hosting).","- Deployment triggered after successful CI (lint, test, build)
+- Frontend deployed via EAS Update (OTA) on main branch
+- Backend deployed to cloud hosting on main branch
+- App available and accessible in hosted environment
+- Deployment status logged in GitHub Actions
+- Rollback mechanism available
+- Environment variables securely managed
+- Database migrations run automatically (backend)","To Do","High","ci-cd deployment infrastructure devops mvp"
+"373","372","Sub-task","US-23.1: Create frontend deployment workflow (deploy-frontend.yml)","Create frontend deployment workflow (deploy-frontend.yml)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"374","372","Sub-task","US-23.2: Create backend deployment workflow (deploy-backend.yml)","Create backend deployment workflow (deploy-backend.yml)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"375","372","Sub-task","US-23.3: Configure EAS project for deployment (eas.json)","Configure EAS project for deployment (eas.json)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"376","372","Sub-task","US-23.4: Set up EAS Update for OTA deployments","Set up EAS Update for OTA deployments","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"377","372","Sub-task","US-23.5: Configure cloud provider for backend (Railway/Render/Fly.io)","Configure cloud provider for backend (Railway/Render/Fly.io)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"378","372","Sub-task","US-23.6: Create Dockerfile for backend (if not exists)","Create Dockerfile for backend (if not exists)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"379","372","Sub-task","US-23.7: Configure environment variables in GitHub Secrets","Configure environment variables in GitHub Secrets","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"380","372","Sub-task","US-23.8: Add deployment job dependencies (requires: [lint, test, build])","Add deployment job dependencies (requires: [lint, test, build])","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"381","372","Sub-task","US-23.9: Configure staging environment deployment","Configure staging environment deployment","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"382","372","Sub-task","US-23.10: Configure production deployment (manual trigger or tags)","Configure production deployment (manual trigger or tags)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"383","372","Sub-task","US-23.11: Add database migration step to backend deployment","Add database migration step to backend deployment","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"384","372","Sub-task","US-23.12: Configure deployment notifications (optional)","Configure deployment notifications (optional)","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"385","372","Sub-task","US-23.13: Document rollback procedures","Document rollback procedures","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"386","372","Sub-task","US-23.14: Add deployment status badges to README","Add deployment status badges to README","","To Do","High","ci-cd deployment infrastructure devops mvp"
+"387","","Task","[INFRA] Environment Configuration","As a developer, I want environment-specific configs so deployments behave correctly across stages.
+
+This ticket covers setting up proper environment variable management for both frontend and backend.","- Environment variables separated by stage (dev/staging/prod)
+- Secrets stored securely (not in repository)
+- .env files gitignored with .env.example provided
+- GitHub Secrets configured for CI/CD
+- Cloud provider secrets configured for runtime
+- Documentation provided for all environment variables
+- Local development setup documented
+- Environment switching is straightforward","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"388","387","Sub-task","US-24.1: Create .env.example for frontend (pursuit/)","Create .env.example for frontend (pursuit/)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"389","387","Sub-task","US-24.2: Create .env.example for backend (pursuit-backend/)","Create .env.example for backend (pursuit-backend/)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"390","387","Sub-task","US-24.3: Update .gitignore to exclude .env files","Update .gitignore to exclude .env files","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"391","387","Sub-task","US-24.4: Configure Expo environment variables (app.config.js)","Configure Expo environment variables (app.config.js)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"392","387","Sub-task","US-24.5: Set up EAS environment profiles (eas.json)","Set up EAS environment profiles (eas.json)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"393","387","Sub-task","US-24.6: Configure Django settings for environment-based config","Configure Django settings for environment-based config","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"394","387","Sub-task","US-24.7: Create settings modules (base.py, development.py, staging.py, production.py)","Create settings modules (base.py, development.py, staging.py, production.py)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"395","387","Sub-task","US-24.8: Set up GitHub Secrets for CI/CD workflows","Set up GitHub Secrets for CI/CD workflows","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"396","387","Sub-task","US-24.9: Configure cloud provider environment variables","Configure cloud provider environment variables","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"397","387","Sub-task","US-24.10: Document all environment variables in README/docs","Document all environment variables in README/docs","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"398","387","Sub-task","US-24.11: Create local development setup guide","Create local development setup guide","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"399","387","Sub-task","US-24.12: Add environment validation on app startup","Add environment validation on app startup","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"400","387","Sub-task","US-24.13: Configure feature flags structure (optional)","Configure feature flags structure (optional)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"401","387","Sub-task","US-24.14: Set up secret rotation reminders (optional)","Set up secret rotation reminders (optional)","","To Do","High","ci-cd configuration infrastructure devops security mvp"
+"402","","Story","[INFRA] Basic Monitoring & Health Check","As a developer, I want to verify deployed service availability so I can detect failures.
+
+This ticket covers implementing health check endpoints and Sentry integration for error logging.","- Health endpoint returns 200 OK when service is healthy
+- Health endpoint returns error status when unhealthy
+- Database connectivity verified in health check
+- Sentry captures unhandled exceptions (frontend)
+- Sentry captures unhandled exceptions (backend)
+- Errors include context (environment, version, user)
+- Manual verification procedure documented
+- Health check URL documented for uptime monitoring","To Do","High","monitoring infrastructure devops observability mvp"
+"403","402","Sub-task","US-25.1: Create backend health endpoint (/health or /api/health)","Create backend health endpoint (/health or /api/health)","","To Do","High","monitoring infrastructure devops observability mvp"
+"404","402","Sub-task","US-25.2: Add database connectivity check to health endpoint","Add database connectivity check to health endpoint","","To Do","High","monitoring infrastructure devops observability mvp"
+"405","402","Sub-task","US-25.3: Install and configure Sentry for Django (sentry-sdk)","Install and configure Sentry for Django (sentry-sdk)","","To Do","High","monitoring infrastructure devops observability mvp"
+"406","402","Sub-task","US-25.4: Install and configure Sentry for React Native (@sentry/react-native)","Install and configure Sentry for React Native (@sentry/react-native)","","To Do","High","monitoring infrastructure devops observability mvp"
+"407","402","Sub-task","US-25.5: Configure Sentry DSN per environment (dev/staging/prod)","Configure Sentry DSN per environment (dev/staging/prod)","","To Do","High","monitoring infrastructure devops observability mvp"
+"408","402","Sub-task","US-25.6: Add Sentry release tracking (version/commit)","Add Sentry release tracking (version/commit)","","To Do","High","monitoring infrastructure devops observability mvp"
+"409","402","Sub-task","US-25.7: Upload source maps to Sentry (for readable stack traces)","Upload source maps to Sentry (for readable stack traces)","","To Do","High","monitoring infrastructure devops observability mvp"
+"410","402","Sub-task","US-25.8: Test error capture (intentional test error)","Test error capture (intentional test error)","","To Do","High","monitoring infrastructure devops observability mvp"
+"411","402","Sub-task","US-25.9: Add error boundary with Sentry reporting (frontend)","Add error boundary with Sentry reporting (frontend)","","To Do","High","monitoring infrastructure devops observability mvp"
+"412","402","Sub-task","US-25.10: Document health check endpoints","Document health check endpoints","","To Do","High","monitoring infrastructure devops observability mvp"
+"413","402","Sub-task","US-25.11: Document manual verification procedures","Document manual verification procedures","","To Do","High","monitoring infrastructure devops observability mvp"
+"414","402","Sub-task","US-25.12: Configure Sentry alerts (optional)","Configure Sentry alerts (optional)","","To Do","High","monitoring infrastructure devops observability mvp"
+"415","402","Sub-task","US-25.13: Add health check to deployment verification","Add health check to deployment verification","","To Do","High","monitoring infrastructure devops observability mvp"
+"416","402","Sub-task","US-25.14: Set up basic uptime monitoring (optional)","Set up basic uptime monitoring (optional)","","To Do","High","monitoring infrastructure devops observability mvp"
+"417","","Story","[FE] User Profile & Settings","As a user, I want to view and edit my profile so I can manage my account.
+
+This ticket covers the frontend implementation of a user profile and settings screen.","- Profile screen accessible from app
+- Display name editable
+- Email displayed (read-only from OAuth)
+- Profile picture displayed (from OAuth)
+- Notification preferences toggleable
+- Logout functionality works
+- Delete account option available
+- App version displayed","To Do","High","profile settings account mvp"
+"418","417","Sub-task","US-26.1: Create/enhance Profile screen (screens/Profiles.tsx)","Create/enhance Profile screen (screens/Profiles.tsx)","","To Do","High","profile settings account mvp"
+"419","417","Sub-task","US-26.2: Display user info section (name, email, avatar)","Display user info section (name, email, avatar)","","To Do","High","profile settings account mvp"
+"420","417","Sub-task","US-26.3: Add edit display name functionality","Add edit display name functionality","","To Do","High","profile settings account mvp"
+"421","417","Sub-task","US-26.4: Display notification preferences with toggles","Display notification preferences with toggles","","To Do","High","profile settings account mvp"
+"422","417","Sub-task","US-26.5: Implement logout button with confirmation","Implement logout button with confirmation","","To Do","High","profile settings account mvp"
+"423","417","Sub-task","US-26.6: Implement delete account with confirmation","Implement delete account with confirmation","","To Do","High","profile settings account mvp"
+"424","417","Sub-task","US-26.7: Add deleteAccount mutation (or use existing)","Add deleteAccount mutation (or use existing)","","To Do","High","profile settings account mvp"
+"425","417","Sub-task","US-26.8: Display app version and build number","Display app version and build number","","To Do","High","profile settings account mvp"
+"426","417","Sub-task","US-26.9: Add support/feedback link","Add support/feedback link","","To Do","High","profile settings account mvp"
+"427","417","Sub-task","US-26.10: Handle loading and error states","Handle loading and error states","","To Do","High","profile settings account mvp"
+"428","417","Sub-task","US-26.11: Write unit tests for Profile screen","Write unit tests for Profile screen","","To Do","High","profile settings account mvp"
+"429","","Story","[BE] User Profile & Account Management API","As a backend service, I need to provide API endpoints for profile management and account deletion so users can manage their accounts.","- updateProfile mutation works for all editable fields
+- deleteAccount mutation removes/anonymizes user data
+- Cascading deletes handle related data
+- Soft delete preserves audit trail (optional)
+- Requires authentication for all mutations","To Do","High","profile settings account backend mvp"
+"430","429","Sub-task","US-26-BE.1: Verify updateProfile handles display name, notifications","Verify updateProfile handles display name, notifications","","To Do","High","profile settings account backend mvp"
+"431","429","Sub-task","US-26-BE.2: Create deleteAccount mutation","Create deleteAccount mutation","","To Do","High","profile settings account backend mvp"
+"432","429","Sub-task","US-26-BE.3: Implement soft delete (is_deleted flag) or hard delete","Implement soft delete (is_deleted flag) or hard delete","","To Do","High","profile settings account backend mvp"
+"433","429","Sub-task","US-26-BE.4: Handle cascade for SavedEvents","Handle cascade for SavedEvents","","To Do","High","profile settings account backend mvp"
+"434","429","Sub-task","US-26-BE.5: Handle cascade for Expenses","Handle cascade for Expenses","","To Do","High","profile settings account backend mvp"
+"435","429","Sub-task","US-26-BE.6: Handle cascade for Itineraries","Handle cascade for Itineraries","","To Do","High","profile settings account backend mvp"
+"436","429","Sub-task","US-26-BE.7: Anonymize user data if soft delete","Anonymize user data if soft delete","","To Do","High","profile settings account backend mvp"
+"437","429","Sub-task","US-26-BE.8: Revoke OAuth tokens on delete","Revoke OAuth tokens on delete","","To Do","High","profile settings account backend mvp"
+"438","429","Sub-task","US-26-BE.9: Write pytest tests for account deletion","Write pytest tests for account deletion","","To Do","High","profile settings account backend mvp"
+"439","","Story","[FE] Offline Support & Caching","As a user, I want to access saved events and itinerary offline so I can use the app without internet.
+
+This ticket covers implementing offline support using Apollo Client cache persistence.","- Saved events viewable offline
+- Itinerary viewable offline
+- Budget summary viewable offline
+- Offline indicator displayed when no connection
+- App doesn't crash when offline
+- Sync occurs when connection restored
+- Mutations queued or blocked with message","To Do","Medium","offline caching ux mvp"
+"440","439","Sub-task","US-27.1: Install apollo3-cache-persist","Install apollo3-cache-persist","","To Do","Medium","offline caching ux mvp"
+"441","439","Sub-task","US-27.2: Configure cache persistence with AsyncStorage","Configure cache persistence with AsyncStorage","","To Do","Medium","offline caching ux mvp"
+"442","439","Sub-task","US-27.3: Restore cache on app launch","Restore cache on app launch","","To Do","Medium","offline caching ux mvp"
+"443","439","Sub-task","US-27.4: Create useNetworkStatus hook (NetInfo)","Create useNetworkStatus hook (NetInfo)","","To Do","Medium","offline caching ux mvp"
+"444","439","Sub-task","US-27.5: Create OfflineIndicator component","Create OfflineIndicator component","","To Do","Medium","offline caching ux mvp"
+"445","439","Sub-task","US-27.6: Add offline indicator to app header/layout","Add offline indicator to app header/layout","","To Do","Medium","offline caching ux mvp"
+"446","439","Sub-task","US-27.7: Handle mutation attempts when offline","Handle mutation attempts when offline","","To Do","Medium","offline caching ux mvp"
+"447","439","Sub-task","US-27.8: Show user-friendly offline messages","Show user-friendly offline messages","","To Do","Medium","offline caching ux mvp"
+"448","439","Sub-task","US-27.9: Implement cache-first fetch policy for key queries","Implement cache-first fetch policy for key queries","","To Do","Medium","offline caching ux mvp"
+"449","439","Sub-task","US-27.10: Test offline scenarios","Test offline scenarios","","To Do","Medium","offline caching ux mvp"
+"450","439","Sub-task","US-27.11: Document offline capabilities","Document offline capabilities","","To Do","Medium","offline caching ux mvp"
+"451","","Story","[FE] Push Notifications","As a user, I want to receive reminders for upcoming itinerary items so I don't miss activities.
+
+This ticket covers implementing push notifications using Expo Notifications.","- Notification permission requested on first use
+- Permission status saved
+- Itinerary reminders sent at scheduled time
+- Notification tapped opens relevant screen
+- Notifications respect user preferences
+- Notification settings toggleable in profile","To Do","Low","notifications reminders mvp"
+"452","451","Sub-task","US-28.1: Install and configure expo-notifications","Install and configure expo-notifications","","To Do","Low","notifications reminders mvp"
+"453","451","Sub-task","US-28.2: Create notification permission request flow","Create notification permission request flow","","To Do","Low","notifications reminders mvp"
+"454","451","Sub-task","US-28.3: Create useNotifications hook","Create useNotifications hook","","To Do","Low","notifications reminders mvp"
+"455","451","Sub-task","US-28.4: Schedule local notification for itinerary items","Schedule local notification for itinerary items","","To Do","Low","notifications reminders mvp"
+"456","451","Sub-task","US-28.5: Handle notification tap (deep linking)","Handle notification tap (deep linking)","","To Do","Low","notifications reminders mvp"
+"457","451","Sub-task","US-28.6: Respect allow_push_notifications preference","Respect allow_push_notifications preference","","To Do","Low","notifications reminders mvp"
+"458","451","Sub-task","US-28.7: Add notification scheduling when itinerary item created","Add notification scheduling when itinerary item created","","To Do","Low","notifications reminders mvp"
+"459","451","Sub-task","US-28.8: Cancel notifications when item deleted/edited","Cancel notifications when item deleted/edited","","To Do","Low","notifications reminders mvp"
+"460","451","Sub-task","US-28.9: Create notification settings UI in Profile","Create notification settings UI in Profile","","To Do","Low","notifications reminders mvp"
+"461","451","Sub-task","US-28.10: Test notifications on device (not simulator)","Test notifications on device (not simulator)","","To Do","Low","notifications reminders mvp"
+"462","451","Sub-task","US-28.11: Document notification setup","Document notification setup","","To Do","Low","notifications reminders mvp"
+"463","","Story","[FE] Search & Filter Events","As a user, I want to search and filter events so I can find specific activities.
+
+This ticket covers implementing search and filtering functionality for the events list.","- Search bar visible on Events screen
+- Keyword search filters events by title/description
+- Category filter shows only selected categories
+- Date range filter shows events in range
+- Location radius filter shows events within distance
+- Clear filters option resets all filters
+- Filter count badge shows active filters
+- Results update as filters change","To Do","High","search filter events mvp"
+"464","463","Sub-task","US-29.1: Add search bar to Events screen","Add search bar to Events screen","","To Do","High","search filter events mvp"
+"465","463","Sub-task","US-29.2: Create FilterModal/FilterSheet component","Create FilterModal/FilterSheet component","","To Do","High","search filter events mvp"
+"466","463","Sub-task","US-29.3: Implement keyword search with debounce","Implement keyword search with debounce","","To Do","High","search filter events mvp"
+"467","463","Sub-task","US-29.4: Implement category filter (multi-select chips)","Implement category filter (multi-select chips)","","To Do","High","search filter events mvp"
+"468","463","Sub-task","US-29.5: Implement date range filter (presets + custom)","Implement date range filter (presets + custom)","","To Do","High","search filter events mvp"
+"469","463","Sub-task","US-29.6: Implement location radius filter (slider or picker)","Implement location radius filter (slider or picker)","","To Do","High","search filter events mvp"
+"470","463","Sub-task","US-29.7: Implement price filter (free/paid/all)","Implement price filter (free/paid/all)","","To Do","High","search filter events mvp"
+"471","463","Sub-task","US-29.8: Add filter icon with active count badge","Add filter icon with active count badge","","To Do","High","search filter events mvp"
+"472","463","Sub-task","US-29.9: Add 'Clear All Filters' button","Add 'Clear All Filters' button","","To Do","High","search filter events mvp"
+"473","463","Sub-task","US-29.10: Update getEvents query with filter parameters","Update getEvents query with filter parameters","","To Do","High","search filter events mvp"
+"474","463","Sub-task","US-29.11: Show 'No results' empty state","Show 'No results' empty state","","To Do","High","search filter events mvp"
+"475","463","Sub-task","US-29.12: Persist filter preferences (optional)","Persist filter preferences (optional)","","To Do","High","search filter events mvp"
+"476","463","Sub-task","US-29.13: Write unit tests for filter logic","Write unit tests for filter logic","","To Do","High","search filter events mvp"
+"477","","Story","[BE] Search & Filter Events API","As a backend service, I need to provide search and filter capabilities for events so users can find relevant activities.","- getEvents accepts search parameter
+- getEvents accepts category filter (list)
+- getEvents accepts date range filter
+- getEvents accepts location + radius filter
+- getEvents accepts isFree filter
+- Filters combine correctly (AND logic)
+- Empty filters return all events
+- Only active events returned","To Do","High","search filter events backend mvp"
+"478","477","Sub-task","US-29-BE.1: Add search parameter to getEvents query","Add search parameter to getEvents query","","To Do","High","search filter events backend mvp"
+"479","477","Sub-task","US-29-BE.2: Implement keyword search (title, description icontains)","Implement keyword search (title, description icontains)","","To Do","High","search filter events backend mvp"
+"480","477","Sub-task","US-29-BE.3: Add categories filter parameter (list of IDs)","Add categories filter parameter (list of IDs)","","To Do","High","search filter events backend mvp"
+"481","477","Sub-task","US-29-BE.4: Implement category filtering","Implement category filtering","","To Do","High","search filter events backend mvp"
+"482","477","Sub-task","US-29-BE.5: Add startDate/endDate filter parameters","Add startDate/endDate filter parameters","","To Do","High","search filter events backend mvp"
+"483","477","Sub-task","US-29-BE.6: Implement date range filtering","Implement date range filtering","","To Do","High","search filter events backend mvp"
+"484","477","Sub-task","US-29-BE.7: Add latitude/longitude/radiusKm parameters","Add latitude/longitude/radiusKm parameters","","To Do","High","search filter events backend mvp"
+"485","477","Sub-task","US-29-BE.8: Implement location radius filtering (Haversine or PostGIS)","Implement location radius filtering (Haversine or PostGIS)","","To Do","High","search filter events backend mvp"
+"486","477","Sub-task","US-29-BE.9: Add isFree filter parameter","Add isFree filter parameter","","To Do","High","search filter events backend mvp"
+"487","477","Sub-task","US-29-BE.10: Implement price filtering","Implement price filtering","","To Do","High","search filter events backend mvp"
+"488","477","Sub-task","US-29-BE.11: Ensure filters combine with AND logic","Ensure filters combine with AND logic","","To Do","High","search filter events backend mvp"
+"489","477","Sub-task","US-29-BE.12: Write pytest tests for all filters","Write pytest tests for all filters","","To Do","High","search filter events backend mvp"
+"490","","Story","[FE] Onboarding Flow","As a new user, I want to select my interests during onboarding so recommendations are personalized from the start.
+
+This ticket covers the frontend implementation of a first-time user onboarding flow.","- Onboarding shown on first login
+- Onboarding not shown on subsequent logins
+- User can select multiple interests
+- User can skip onboarding
+- Location permission requested during onboarding
+- Interests saved to profile
+- Completion redirects to main app
+- Skip redirects to main app with defaults","To Do","Medium","onboarding personalization ux mvp"
+"491","490","Sub-task","US-30.1: Create OnboardingNavigator/flow","Create OnboardingNavigator/flow","","To Do","Medium","onboarding personalization ux mvp"
+"492","490","Sub-task","US-30.2: Create WelcomeScreen component","Create WelcomeScreen component","","To Do","Medium","onboarding personalization ux mvp"
+"493","490","Sub-task","US-30.3: Create InterestSelectionScreen component","Create InterestSelectionScreen component","","To Do","Medium","onboarding personalization ux mvp"
+"494","490","Sub-task","US-30.4: Create LocationPermissionScreen component","Create LocationPermissionScreen component","","To Do","Medium","onboarding personalization ux mvp"
+"495","490","Sub-task","US-30.5: Create NotificationPermissionScreen (optional)","Create NotificationPermissionScreen (optional)","","To Do","Medium","onboarding personalization ux mvp"
+"496","490","Sub-task","US-30.6: Create CompletionScreen component","Create CompletionScreen component","","To Do","Medium","onboarding personalization ux mvp"
+"497","490","Sub-task","US-30.7: Fetch available interests from backend","Fetch available interests from backend","","To Do","Medium","onboarding personalization ux mvp"
+"498","490","Sub-task","US-30.8: Implement interest chip multi-select UI","Implement interest chip multi-select UI","","To Do","Medium","onboarding personalization ux mvp"
+"499","490","Sub-task","US-30.9: Call CompleteOnboarding mutation on finish","Call CompleteOnboarding mutation on finish","","To Do","Medium","onboarding personalization ux mvp"
+"500","490","Sub-task","US-30.10: Call SkipOnboarding mutation if skipped","Call SkipOnboarding mutation if skipped","","To Do","Medium","onboarding personalization ux mvp"
+"501","490","Sub-task","US-30.11: Check is_onboarding_completed on app load","Check is_onboarding_completed on app load","","To Do","Medium","onboarding personalization ux mvp"
+"502","490","Sub-task","US-30.12: Navigate to onboarding or main app based on status","Navigate to onboarding or main app based on status","","To Do","Medium","onboarding personalization ux mvp"
+"503","490","Sub-task","US-30.13: Write unit tests for onboarding flow","Write unit tests for onboarding flow","","To Do","Medium","onboarding personalization ux mvp"

@@ -92,12 +92,13 @@ export const GET_HOME = gql`
 `;
 
 export const ADD_BUCKET_CATEGORY = gql`
-  mutation AddBucketCategory($name: String!, $emoji: String!) {
+  mutation AddBucketCategory($name: String!, $emoji: String) {
     addBucketCategory(name: $name, emoji: $emoji) {
       category {
         id
         name
-        emoji
+        icon
+        color
       }
     }
   }
@@ -129,7 +130,8 @@ export const ADD_BUCKET_ITEM = gql`
         category {
           id
           name
-          emoji
+          icon
+          color
         }
       }
     }

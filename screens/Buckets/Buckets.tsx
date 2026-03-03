@@ -204,7 +204,7 @@ export const Buckets = () => {
                 <BucketCard
                   id={category.id}
                   name={category.name}
-                  emoji={category.emoji}
+                  icon={category.icon}
                   gradientColors={getGradientByIndex(index)}
                 />
               </TouchableOpacity>

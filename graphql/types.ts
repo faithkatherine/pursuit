@@ -37,7 +37,8 @@ export interface Recommendation {
 export interface Category {
   id: string;
   name: string;
-  emoji: string;
+  icon: string;
+  color: string;
 }
 
 // Unified BucketItem interface

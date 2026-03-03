@@ -27,7 +27,8 @@ export const BUCKET_CATEGORY_FRAGMENT = gql`
   fragment CategoryInfo on CategoryType {
     id
     name
-    emoji
+    icon
+    color
   }
 `;
 

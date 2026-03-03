@@ -40,7 +40,7 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
     <LinearGradient
       colors={[colors.deluge, colors.roseFog]}
       locations={[0, 1]}
-      style={[styles.container, { width: width - 27 * 2 }]}
+      style={[styles.container, { width: width - 20 * 2 }]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
@@ -62,11 +62,6 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
       </View>
 
       <View style={styles.bucketListSection}>
-        <Button
-          text="+ Add New Item"
-          variant="primary"
-          onPress={() => setShowAddItemModal(true)}
-        />
         <View>
           <Text style={styles.achievement}>
             🏆 {insightsData.recentAchievement}

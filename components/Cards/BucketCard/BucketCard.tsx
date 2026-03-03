@@ -17,14 +17,14 @@ import { Button } from "../../Buttons";
 interface BucketCardProps {
   id: string;
   name: string;
-  emoji: string;
+  icon: string;
   gradientColors: [string, string];
 }
 
 export const BucketCard: React.FC<BucketCardProps> = ({
   id,
   name,
-  emoji,
+  icon,
   gradientColors,
 }) => {
   return (
@@ -38,7 +38,7 @@ export const BucketCard: React.FC<BucketCardProps> = ({
     >
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryName}>{name}</Text>
-        <Text style={styles.categoryEmoji}>{emoji}</Text>
+        <Text style={styles.categoryEmoji}>{icon}</Text>
       </View>
     </LinearGradient>
   );
