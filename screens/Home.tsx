@@ -6,12 +6,12 @@ import { BucketCard } from "components/Cards/BucketCard";
 import { RecommendationCard } from "components/Cards/EventsCard";
 import { Carousel } from "components/Carousel";
 
-import { typography } from "themes/tokens/typography";
+import { typography, fontWeights } from "themes/tokens/typography";
 import { theme, colors } from "themes/tokens/colors";
 import { getGradientByIndex } from "themes/tokens/gradients";
 
 import { useHomeData } from "graphql/hooks";
-import { Category, Recommendation } from "graphql/types";
+import { CategoryType } from "graphql/generated/graphql";
 
 const Home = () => {
   const { data, loading, error } = useHomeData();
@@ -31,36 +31,38 @@ const Home = () => {
 
   const { greeting, insights, bucketCategories, recommendations } = homeData;
 
-  const categoryCards = bucketCategories.map(
-    (category: Category, index: number) => (
-      <BucketCard
-        key={category.id}
-        id={category.id}
-        name={category.name}
-        icon={category.icon}
-        gradientColors={getGradientByIndex(index)}
-      />
-    ),
-  );
+  // const categoryCards = bucketCategories.map(
+  //   (category: CategoryType, index: number) => (
+  //     <BucketCard
+  //       key={category.id}
+  //       id={category.id}
+  //       name={category.name}
+  //       icon={category.icon}
+  //       gradientColors={getGradientByIndex(index)}
+  //     />
+  //   ),
+  // );
 
   return (
-    <Layout backgroundColor={colors.white}>
+    <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
       <ScrollView>
-        <View style={styles.horizontalPadding}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.greeting}>{greeting}</Text>
-          </View>
-          <InsightsCard insightsData={insights} />
-        </View>
+        {insights ? (
+          <InsightsCard
+            shouldShowTopInset
+            insightsData={insights}
+            greeting={greeting || "Welcome back!"}
+            //userLocation={homeData.}
+          />
+        ) : null}
 
-        <Carousel
+        {/* <Carousel
           items={categoryCards}
           header={<SectionHeader title="Categories" />}
-        />
+        /> */}
 
         <View style={styles.horizontalPadding}>
           <SectionHeader title="Events Near You" />
-          <View style={styles.eventsSection}>
+          {/* <View style={styles.eventsSection}>
             {recommendations?.map(
               (recommendation: Recommendation, index: number) => (
                 <RecommendationCard
@@ -70,7 +72,7 @@ const Home = () => {
                 />
               ),
             )}
-          </View>
+          </View> */}
         </View>
       </ScrollView>
     </Layout>
@@ -81,20 +83,7 @@ const styles = StyleSheet.create({
   horizontalPadding: {
     paddingHorizontal: 20,
   },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  greeting: {
-    color: theme.text.primary,
-    fontFamily: typography.h4.fontFamily,
-    fontSize: typography.h4.fontSize,
-    fontWeight: typography.h4.fontWeight,
-    lineHeight: typography.h4.fontSize * typography.h1.lineHeight,
-    flex: 1,
-  },
+
   eventsSection: {
     gap: 24,
   },

@@ -4,11 +4,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface LayoutProps {
   backgroundColor?: string;
   backgroundComponent?: React.ReactNode;
+  shouldShowTopInset?: Boolean;
   children: React.ReactNode;
 }
 export const Layout: React.FC<LayoutProps> = ({
   children,
   backgroundColor,
+  shouldShowTopInset = true,
   backgroundComponent,
 }) => {
   const insets = useSafeAreaInsets();
@@ -24,7 +26,13 @@ export const Layout: React.FC<LayoutProps> = ({
 
   return (
     <View
-      style={[styles.container, { backgroundColor, paddingTop: insets.top }]}
+      style={[
+        styles.container,
+        {
+          backgroundColor,
+          ...(shouldShowTopInset ? { paddingTop: insets.top } : {}),
+        },
+      ]}
     >
       {children}
     </View>

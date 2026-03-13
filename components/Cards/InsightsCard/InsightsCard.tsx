@@ -1,10 +1,18 @@
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  Image,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "themes/tokens/colors";
+import { colors, theme } from "themes/tokens/colors";
 import SunnyIcon from "assets/icons/sunny.svg";
-import { typography, fontSizes } from "themes/tokens/typography";
+import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
 import { ProgressBar } from "components/ProgressBar";
-import { InsightsData } from "graphql/types";
+import { InsightsDataType, HomeDataType } from "graphql/generated/graphql";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { images } from "assets/images";
 
 interface NextItemProps {
   nextDestination: string;
@@ -26,35 +34,72 @@ export const NextItem: React.FC<NextItemProps> = ({
 };
 
 interface InsightsCardProps {
-  insightsData: InsightsData;
+  shouldShowTopInset: boolean;
+  greeting: string;
+  userLocation?: string;
+  insightsData: InsightsDataType;
+  profileImageUri?: string;
 }
 
-export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
+export const InsightsCard: React.FC<InsightsCardProps> = ({
+  insightsData,
+  greeting,
+  userLocation,
+  shouldShowTopInset = true,
+  profileImageUri,
+}) => {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   return (
     <LinearGradient
       colors={[colors.deluge, colors.roseFog]}
       locations={[0, 1]}
-      style={[styles.container, { width: width - 20 * 2 }]}
+      style={[
+        styles.container,
+        {
+          width: width,
+          paddingTop: shouldShowTopInset ? insets.top : 0,
+          paddingHorizontal: 20,
+        },
+      ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <View style={styles.header}>
+      <View>
+        <View style={styles.header}>
+          <Image
+            source={
+              profileImageUri
+                ? { uri: profileImageUri }
+                : {
+                    uri: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                  }
+            }
+            style={styles.profileImage}
+            resizeMode="cover"
+          />
+          <View style={styles.greetingContainer}>
+            <Text style={styles.greeting}>{greeting}</Text>
+            <Text style={styles.subheading}>
+              Ready to Explore {userLocation || "your location"}?
+            </Text>
+          </View>
+        </View>
         <View style={styles.weatherSection}>
           <SunnyIcon width={40} height={40} color={colors.white} />
-          <Text style={styles.weatherNow}>
+          {/* <Text style={styles.weatherNow}>
             {insightsData.weather.city}
             {"\n"}
             {insightsData.weather.condition} {insightsData.weather.temperature}
             °C
-          </Text>
+          </Text> */}
         </View>
         <View style={styles.headerDivider} />
-        <NextItem
+        {/* <NextItem
           nextDestination={insightsData.nextDestination.location}
           daysUntilTrip={insightsData.nextDestination.daysAway}
-        />
+        /> */}
       </View>
 
       <View style={styles.bucketListSection}>
@@ -71,22 +116,40 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
           borderRadius={8}
         />
       </View>
-
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 320,
-    borderRadius: 24,
-    padding: 24,
+    height: 250,
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 16,
+    gap: 8,
     alignItems: "center",
+    marginBottom: 20,
+  },
+  profileImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+  },
+  greetingContainer: {
+    flex: 1,
+    gap: 4,
+  },
+  greeting: {
+    fontFamily: typography.h4.fontFamily,
+    fontSize: typography.h4.fontSize,
+    fontWeight: fontWeights.bold,
+    color: theme.text.black,
+  },
+  subheading: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: typography.body.fontSize,
+    color: theme.text.black,
+    opacity: 0.9,
   },
   weatherSection: {
     flexDirection: "row",

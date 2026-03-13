@@ -9,17 +9,13 @@ import {
 } from "./queries";
 import { getCachePolicy } from "./cache";
 import {
-  Category,
-  BucketItem,
-  Recommendation,
-  HomeData,
   GetBucketCategoriesQuery,
   GetBucketItemsQuery,
   GetRecommendationsQuery,
   GetHomeQuery,
   GetEventsQuery,
   GetSavedEventsQuery,
-} from "./types";
+} from "graphql/generated/graphql";
 
 // Shared hooks for consistent data fetching patterns
 export const useBucketCategories = () => {
@@ -104,40 +100,40 @@ export const useSavedEvents = (offset = 0, limit = 20) => {
 };
 
 // Shared data transformation utilities
-export const transformBucketItemsWithCategories = (
-  bucketItems: BucketItem[],
-  categories: Category[]
-): BucketItem[] => {
-  return bucketItems.map((item) => ({
-    ...item,
-    category: categories.find((cat) => cat.id === item.categoryId),
-  }));
-};
+// export const transformBucketItemsWithCategories = (
+//   bucketItems: BucketItem[],
+//   categories: Category[]
+// ): BucketItem[] => {
+//   return bucketItems.map((item) => ({
+//     ...item,
+//     category: categories.find((cat) => cat.id === item.categoryId),
+//   }));
+// };
 
 // Shared search filter utility
-export const filterItemsBySearch = (
-  items: BucketItem[],
-  searchQuery: string
-): BucketItem[] => {
-  if (!searchQuery) return items;
+// export const filterItemsBySearch = (
+//   items: BucketItem[],
+//   searchQuery: string
+// ): BucketItem[] => {
+//   if (!searchQuery) return items;
 
-  const query = searchQuery.toLowerCase();
-  return items.filter(
-    (item) =>
-      item.title?.toLowerCase().includes(query) ||
-      item.description?.toLowerCase().includes(query)
-  );
-};
+//   const query = searchQuery.toLowerCase();
+//   return items.filter(
+//     (item) =>
+//       item.title?.toLowerCase().includes(query) ||
+//       item.description?.toLowerCase().includes(query)
+//   );
+// };
 
 // Shared sorting and categorization utilities
-export const categorizeItems = (items: BucketItem[]) => {
-  const upcomingItems = items.filter((item) => !item.completed);
-  const completedItems = items.filter((item) => item.completed);
+// export const categorizeItems = (items: BucketItem[]) => {
+//   const upcomingItems = items.filter((item) => !item.completed);
+//   const completedItems = items.filter((item) => item.completed);
 
-  return {
-    sortedUpcoming: upcomingItems.sort(
-      (a, b) => (b.amount || 0) - (a.amount || 0)
-    ),
-    recentlyCompleted: completedItems.slice(0, 3),
-  };
-};
+//   return {
+//     sortedUpcoming: upcomingItems.sort(
+//       (a, b) => (b.amount || 0) - (a.amount || 0)
+//     ),
+//     recentlyCompleted: completedItems.slice(0, 3),
+//   };
+// };

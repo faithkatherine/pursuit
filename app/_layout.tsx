@@ -1,5 +1,6 @@
 import { ApolloProvider } from "@apollo/client";
 import { client } from "graphql/client";
+import { StatusBar } from "react-native";
 import { Slot, SplashScreen } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
@@ -64,6 +65,7 @@ function RootLayoutContent() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <ApolloProvider client={client}>
         <AuthProvider>
           <RootLayoutContent />
