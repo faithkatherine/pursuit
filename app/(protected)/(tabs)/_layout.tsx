@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import HomeIcon from "assets/icons/home.svg";
-import BackpackIcon from "assets/icons/backpack.svg";
-import WalletIcon from "assets/icons/wallet.svg";
+import ExploreIcon from "assets/icons/travel_explore.svg";
+import TravelIcon from "assets/icons/itinerary.svg";
 import ProfileIcon from "assets/icons/profile.svg";
 import { StyleSheet, Platform } from "react-native";
 import colors from "themes/tokens/colors";
@@ -37,21 +37,21 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="buckets"
+        name="explore"
         options={{
           tabBarIcon: ({ color }) => (
-            <BackpackIcon fill={color} width={24} height={24} />
+            <ExploreIcon fill={color} width={24} height={24} />
           ),
-          tabBarLabel: "Buckets",
+          tabBarLabel: "Explore",
         }}
       />
       <Tabs.Screen
-        name="budgets"
+        name="travel"
         options={{
           tabBarIcon: ({ color }) => (
-            <WalletIcon fill={color} width={24} height={24} />
+            <TravelIcon fill={color} width={24} height={24} />
           ),
-          tabBarLabel: "Budgets",
+          tabBarLabel: "Travel",
         }}
       />
 
@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
   tabBarStyle: {
     backgroundColor: colors.white,
     borderTopWidth: 0,
-    //height: 80,
     paddingTop: 5,
     elevation: 0,
   },

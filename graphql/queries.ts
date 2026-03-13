@@ -7,6 +7,7 @@ import {
   WEATHER_FRAGMENT,
   RECOMMENDATION_FRAGMENT,
   AUTH_USER_FRAGMENT,
+  EVENT_FRAGMENT,
 } from "./fragments";
 
 export const COMPLETE_ONBOARDING = gql`
@@ -297,6 +298,67 @@ export const GET_USER_PROFILE = gql`
       locationName
     }
   }
+`;
+
+// Events
+export const GET_EVENTS = gql`
+  query GetEvents(
+    $search: String
+    $category: [ID]
+    $offset: Int
+    $limit: Int
+  ) {
+    events(
+      search: $search
+      category: $category
+      offset: $offset
+      limit: $limit
+    ) {
+      ok
+      events {
+        ...EventInfo
+      }
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+export const GET_SAVED_EVENTS = gql`
+  query GetSavedEvents($offset: Int, $limit: Int) {
+    savedEvents(offset: $offset, limit: $limit) {
+      ok
+      events {
+        ...EventInfo
+      }
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+export const SAVE_EVENT = gql`
+  mutation SaveEvent($id: ID!) {
+    saveEvent(id: $id) {
+      ok
+      event {
+        ...EventInfo
+      }
+      errors
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+export const UNSAVE_EVENT = gql`
+  mutation UnsaveEvent($id: ID!) {
+    unsaveEvent(id: $id) {
+      ok
+      event {
+        ...EventInfo
+      }
+      errors
+    }
+  }
+  ${EVENT_FRAGMENT}
 `;
 
 export const SKIP_ONBOARDING = gql`

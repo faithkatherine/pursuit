@@ -64,6 +64,24 @@ export interface HomeData {
   upcoming: BucketItem[];
 }
 
+export interface Event {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  date: string;
+  endDate?: string;
+  locationName?: string;
+  isFree: boolean;
+  isSaved: boolean;
+  category: Category[];
+}
+
+export interface EventsListPayload {
+  ok: boolean;
+  events: Event[];
+}
+
 export interface Emoji {
   symbol: string;
   description: string;
@@ -100,6 +118,14 @@ export interface GetBucketItemsQuery {
 
 export interface GetBucketCategoriesQuery {
   getBucketCategories: Category[];
+}
+
+export interface GetEventsQuery {
+  events: EventsListPayload;
+}
+
+export interface GetSavedEventsQuery {
+  savedEvents: EventsListPayload;
 }
 
 export interface GetEmojiLibraryQuery {

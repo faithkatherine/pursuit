@@ -101,6 +101,24 @@ export const AUTH_USER_FRAGMENT = gql`
   ${USER_BASIC_FRAGMENT}
 `;
 
+export const EVENT_FRAGMENT = gql`
+  fragment EventInfo on EventType {
+    id
+    name
+    description
+    image
+    date
+    endDate
+    locationName
+    isFree
+    isSaved
+    category {
+      ...CategoryInfo
+    }
+  }
+  ${BUCKET_CATEGORY_FRAGMENT}
+`;
+
 export const AUTH_PAYLOAD_FRAGMENT = gql`
   fragment AuthPayloadFields on AuthPayloadType {
     accessToken

@@ -4,6 +4,8 @@ import {
   GET_BUCKET_ITEMS,
   GET_RECOMMENDATIONS,
   GET_HOME,
+  GET_EVENTS,
+  GET_SAVED_EVENTS,
 } from "./queries";
 import { getCachePolicy } from "./cache";
 import {
@@ -15,6 +17,8 @@ import {
   GetBucketItemsQuery,
   GetRecommendationsQuery,
   GetHomeQuery,
+  GetEventsQuery,
+  GetSavedEventsQuery,
 } from "./types";
 
 // Shared hooks for consistent data fetching patterns
@@ -60,6 +64,43 @@ export const useHomeData = () => {
     variables: { offset: 0, limit: 10 },
     ...getCachePolicy("dynamic"), // Home data changes moderately
   });
+};
+
+// Events hooks
+export const useEvents = (filters?: {
+  search?: string;
+  category?: string[];
+  offset?: number;
+  limit?: number;
+}) => {
+  const result = useQuery<GetEventsQuery>(GET_EVENTS, {
+    variables: {
+      search: filters?.search || undefined,
+      category: filters?.category?.length ? filters.category : undefined,
+      offset: filters?.offset || 0,
+      limit: filters?.limit || 20,
+    },
+    ...getCachePolicy("dynamic"),
+    notifyOnNetworkStatusChange: true,
+  });
+
+  return {
+    ...result,
+    events: result.data?.events?.events || [],
+  };
+};
+
+export const useSavedEvents = (offset = 0, limit = 20) => {
+  const result = useQuery<GetSavedEventsQuery>(GET_SAVED_EVENTS, {
+    variables: { offset, limit },
+    ...getCachePolicy("dynamic"),
+    notifyOnNetworkStatusChange: true,
+  });
+
+  return {
+    ...result,
+    savedEvents: result.data?.savedEvents?.events || [],
+  };
 };
 
 // Shared data transformation utilities

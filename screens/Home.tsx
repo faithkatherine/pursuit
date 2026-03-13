@@ -1,29 +1,20 @@
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import { useState } from "react";
-import { useAuth } from "providers/AuthProvider";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 import { Layout, Loading, Error, SectionHeader } from "components/Layout";
 import { InsightsCard } from "components/Cards/InsightsCard";
 import { BucketCard } from "components/Cards/BucketCard";
 import { RecommendationCard } from "components/Cards/EventsCard";
-import { BucketItemCard } from "components/Cards/BucketItemCard";
 import { Carousel } from "components/Carousel";
-import { Button } from "components/Buttons";
-import { BaseModal } from "components/Modals";
 
-import { typography, fontSizes } from "themes/tokens/typography";
+import { typography } from "themes/tokens/typography";
 import { theme, colors } from "themes/tokens/colors";
 import { getGradientByIndex } from "themes/tokens/gradients";
 
 import { useHomeData } from "graphql/hooks";
-import { Category, HomeData, BucketItem, Recommendation } from "graphql/types";
-import { AddBucket } from "./Buckets/AddBucket";
+import { Category, Recommendation } from "graphql/types";
 
 const Home = () => {
-  const { user, signOut } = useAuth();
-  const [showAddBucketModal, setShowAddBucketModal] = useState(false);
-
-  const { data, loading, error, refetch } = useHomeData();
+  const { data, loading, error } = useHomeData();
 
   if (loading) {
     return <Loading />;
@@ -38,41 +29,16 @@ const Home = () => {
     return <Loading />;
   }
 
-  const { greeting, insights, bucketCategories, recommendations, upcoming } =
-    homeData;
+  const { greeting, insights, bucketCategories, recommendations } = homeData;
 
-  const handleSignOut = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Sign Out",
-        onPress: signOut,
-        style: "destructive",
-      },
-    ]);
-  };
-
-  const buckets = bucketCategories.map((category: Category, index: number) => (
-    <BucketCard
-      key={category.id}
-      id={category.id}
-      name={category.name}
-      icon={category.icon}
-      gradientColors={getGradientByIndex(index)}
-    />
-  ));
-
-  const bucketItemsComponents = upcoming.map(
-    (item: BucketItem, index: number) => (
-      <BucketItemCard
-        key={item.id}
-        variant="preview"
-        title={item.title}
-        imageUrl={item.image}
-        category={item.category?.name || "Adventure"}
+  const categoryCards = bucketCategories.map(
+    (category: Category, index: number) => (
+      <BucketCard
+        key={category.id}
+        id={category.id}
+        name={category.name}
+        icon={category.icon}
+        gradientColors={getGradientByIndex(index)}
       />
     ),
   );
@@ -88,19 +54,12 @@ const Home = () => {
         </View>
 
         <Carousel
-          items={buckets}
-          header={
-            <SectionHeader
-              title="Your Buckets"
-              buttonText="+"
-              onButtonPress={() => setShowAddBucketModal(true)}
-              variant="secondary"
-            />
-          }
+          items={categoryCards}
+          header={<SectionHeader title="Categories" />}
         />
 
         <View style={styles.horizontalPadding}>
-          <SectionHeader title="Recommendations" />
+          <SectionHeader title="Events Near You" />
           <View style={styles.eventsSection}>
             {recommendations?.map(
               (recommendation: Recommendation, index: number) => (
@@ -113,19 +72,7 @@ const Home = () => {
             )}
           </View>
         </View>
-        <Carousel
-          items={bucketItemsComponents}
-          header={<SectionHeader title="Upcoming" />}
-          gap={16}
-        />
       </ScrollView>
-      <BaseModal
-        visible={showAddBucketModal}
-        animationType="slide"
-        variant="bottomSheet"
-        onClose={() => setShowAddBucketModal(false)}
-        children={<AddBucket />}
-      />
     </Layout>
   );
 };
@@ -140,12 +87,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  signOutButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-
   greeting: {
     color: theme.text.primary,
     fontFamily: typography.h4.fontFamily,

@@ -23,6 +23,7 @@ type Documents = {
     "\n  fragment InsightsInfo on InsightsDataType {\n    id\n    weather {\n      ...WeatherInfo\n    }\n    nextDestination {\n      ...DestinationInfo\n    }\n    progress {\n      ...ProgressInfo\n    }\n    recentAchievement\n  }\n  \n  \n  \n": typeof types.InsightsInfoFragmentDoc,
     "\n  fragment UserBasic on UserType {\n    id\n    email\n    firstName\n    lastName\n    fullName\n    profilePicture\n  }\n": typeof types.UserBasicFragmentDoc,
     "\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n  \n": typeof types.AuthUserFragmentDoc,
+    "\n  fragment EventInfo on EventType {\n    id\n    name\n    description\n    image\n    date\n    endDate\n    locationName\n    isFree\n    isSaved\n    category {\n      ...CategoryInfo\n    }\n  }\n  \n": typeof types.EventInfoFragmentDoc,
     "\n  fragment AuthPayloadFields on AuthPayloadType {\n    accessToken\n    sessionToken\n    refreshToken\n    expiresIn\n    user {\n      ...AuthUser\n    }\n  }\n  \n": typeof types.AuthPayloadFieldsFragmentDoc,
     "\n  fragment FullProfile on UserProfileType {\n    bio\n    locationName\n    coordinates\n    hasLocation\n    searchRadiusKm\n    timezone\n    birthDate\n    phoneNumber\n    interests {\n      id\n      name\n      icon\n    }\n    isOnboardingCompleted\n    hasSkippedOnboarding\n    isProfilePublic\n    allowEmailNotifications\n    allowPushNotifications\n    calendarIntegrated\n    calendarProvider\n    paymentPlan\n    isPremium\n    subscriptionExpiresAt\n    theme\n    lastActiveAt\n    loginCount\n  }\n": typeof types.FullProfileFragmentDoc,
     "\n  mutation CompleteOnboarding(\n    $allowLocationSharing: Boolean\n    $locationName: String\n    $location: [Float]\n    $allowPushNotifications: Boolean\n    $allowEmailNotifications: Boolean\n    $interests: [String]\n  ) {\n    completeOnboarding(\n      allowLocationSharing: $allowLocationSharing\n      locationName: $locationName\n      location: $location\n      allowPushNotifications: $allowPushNotifications\n      allowEmailNotifications: $allowEmailNotifications\n      interests: $interests\n    ) {\n      ok\n      user {\n        id\n        email\n        firstName\n        lastName\n        fullName\n        isEmailVerified\n        authProvider\n        profile {\n          isOnboardingCompleted\n        }\n      }\n    }\n  }\n": typeof types.CompleteOnboardingDocument,
@@ -40,6 +41,10 @@ type Documents = {
     "\n  mutation RefreshAccessToken($refreshToken: String!) {\n    refreshAccessToken(refreshToken: $refreshToken) {\n      ok\n      accessToken\n      refreshToken\n      expiresIn\n    }\n  }\n": typeof types.RefreshAccessTokenDocument,
     "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        locationName\n      }\n    }\n  }\n": typeof types.GetUserDocument,
     "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      locationName\n    }\n  }\n": typeof types.GetUserProfileDocument,
+    "\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": typeof types.GetEventsDocument,
+    "\n  query GetSavedEvents($offset: Int, $limit: Int) {\n    savedEvents(offset: $offset, limit: $limit) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": typeof types.GetSavedEventsDocument,
+    "\n  mutation SaveEvent($id: ID!) {\n    saveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": typeof types.SaveEventDocument,
+    "\n  mutation UnsaveEvent($id: ID!) {\n    unsaveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": typeof types.UnsaveEventDocument,
     "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n": typeof types.SkipOnboardingDocument,
 };
 const documents: Documents = {
@@ -52,6 +57,7 @@ const documents: Documents = {
     "\n  fragment InsightsInfo on InsightsDataType {\n    id\n    weather {\n      ...WeatherInfo\n    }\n    nextDestination {\n      ...DestinationInfo\n    }\n    progress {\n      ...ProgressInfo\n    }\n    recentAchievement\n  }\n  \n  \n  \n": types.InsightsInfoFragmentDoc,
     "\n  fragment UserBasic on UserType {\n    id\n    email\n    firstName\n    lastName\n    fullName\n    profilePicture\n  }\n": types.UserBasicFragmentDoc,
     "\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n  \n": types.AuthUserFragmentDoc,
+    "\n  fragment EventInfo on EventType {\n    id\n    name\n    description\n    image\n    date\n    endDate\n    locationName\n    isFree\n    isSaved\n    category {\n      ...CategoryInfo\n    }\n  }\n  \n": types.EventInfoFragmentDoc,
     "\n  fragment AuthPayloadFields on AuthPayloadType {\n    accessToken\n    sessionToken\n    refreshToken\n    expiresIn\n    user {\n      ...AuthUser\n    }\n  }\n  \n": types.AuthPayloadFieldsFragmentDoc,
     "\n  fragment FullProfile on UserProfileType {\n    bio\n    locationName\n    coordinates\n    hasLocation\n    searchRadiusKm\n    timezone\n    birthDate\n    phoneNumber\n    interests {\n      id\n      name\n      icon\n    }\n    isOnboardingCompleted\n    hasSkippedOnboarding\n    isProfilePublic\n    allowEmailNotifications\n    allowPushNotifications\n    calendarIntegrated\n    calendarProvider\n    paymentPlan\n    isPremium\n    subscriptionExpiresAt\n    theme\n    lastActiveAt\n    loginCount\n  }\n": types.FullProfileFragmentDoc,
     "\n  mutation CompleteOnboarding(\n    $allowLocationSharing: Boolean\n    $locationName: String\n    $location: [Float]\n    $allowPushNotifications: Boolean\n    $allowEmailNotifications: Boolean\n    $interests: [String]\n  ) {\n    completeOnboarding(\n      allowLocationSharing: $allowLocationSharing\n      locationName: $locationName\n      location: $location\n      allowPushNotifications: $allowPushNotifications\n      allowEmailNotifications: $allowEmailNotifications\n      interests: $interests\n    ) {\n      ok\n      user {\n        id\n        email\n        firstName\n        lastName\n        fullName\n        isEmailVerified\n        authProvider\n        profile {\n          isOnboardingCompleted\n        }\n      }\n    }\n  }\n": types.CompleteOnboardingDocument,
@@ -69,6 +75,10 @@ const documents: Documents = {
     "\n  mutation RefreshAccessToken($refreshToken: String!) {\n    refreshAccessToken(refreshToken: $refreshToken) {\n      ok\n      accessToken\n      refreshToken\n      expiresIn\n    }\n  }\n": types.RefreshAccessTokenDocument,
     "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        locationName\n      }\n    }\n  }\n": types.GetUserDocument,
     "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      locationName\n    }\n  }\n": types.GetUserProfileDocument,
+    "\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": types.GetEventsDocument,
+    "\n  query GetSavedEvents($offset: Int, $limit: Int) {\n    savedEvents(offset: $offset, limit: $limit) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": types.GetSavedEventsDocument,
+    "\n  mutation SaveEvent($id: ID!) {\n    saveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": types.SaveEventDocument,
+    "\n  mutation UnsaveEvent($id: ID!) {\n    unsaveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": types.UnsaveEventDocument,
     "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n": types.SkipOnboardingDocument,
 };
 
@@ -122,6 +132,10 @@ export function graphql(source: "\n  fragment UserBasic on UserType {\n    id\n 
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n  \n"): (typeof documents)["\n  fragment AuthUser on UserType {\n    ...UserBasic\n    isEmailVerified\n    authProvider\n    profile {\n      isOnboardingCompleted\n      hasSkippedOnboarding\n      isPremium\n    }\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment EventInfo on EventType {\n    id\n    name\n    description\n    image\n    date\n    endDate\n    locationName\n    isFree\n    isSaved\n    category {\n      ...CategoryInfo\n    }\n  }\n  \n"): (typeof documents)["\n  fragment EventInfo on EventType {\n    id\n    name\n    description\n    image\n    date\n    endDate\n    locationName\n    isFree\n    isSaved\n    category {\n      ...CategoryInfo\n    }\n  }\n  \n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -190,6 +204,22 @@ export function graphql(source: "\n  query GetUser {\n    user {\n      id\n    
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      locationName\n    }\n  }\n"): (typeof documents)["\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      locationName\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n"): (typeof documents)["\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetSavedEvents($offset: Int, $limit: Int) {\n    savedEvents(offset: $offset, limit: $limit) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n"): (typeof documents)["\n  query GetSavedEvents($offset: Int, $limit: Int) {\n    savedEvents(offset: $offset, limit: $limit) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation SaveEvent($id: ID!) {\n    saveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n"): (typeof documents)["\n  mutation SaveEvent($id: ID!) {\n    saveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UnsaveEvent($id: ID!) {\n    unsaveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n"): (typeof documents)["\n  mutation UnsaveEvent($id: ID!) {\n    unsaveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

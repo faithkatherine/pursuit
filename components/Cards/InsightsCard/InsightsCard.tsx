@@ -4,10 +4,7 @@ import { colors } from "themes/tokens/colors";
 import SunnyIcon from "assets/icons/sunny.svg";
 import { typography, fontSizes } from "themes/tokens/typography";
 import { ProgressBar } from "components/ProgressBar";
-import { Button } from "components/Buttons/Buttons";
 import { InsightsData } from "graphql/types";
-import { AddBucketItem } from "screens/Buckets/AddBucketItem";
-import { useState } from "react";
 
 interface NextItemProps {
   nextDestination: string;
@@ -34,7 +31,6 @@ interface InsightsCardProps {
 
 export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
   const { width } = useWindowDimensions();
-  const [showAddItemModal, setShowAddItemModal] = useState(false);
 
   return (
     <LinearGradient
@@ -76,10 +72,6 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({ insightsData }) => {
         />
       </View>
 
-      <AddBucketItem
-        visible={showAddItemModal}
-        onClose={() => setShowAddItemModal(false)}
-      />
     </LinearGradient>
   );
 };
