@@ -5,6 +5,7 @@ export const WEATHER_FRAGMENT = gql`
     city
     condition
     temperature
+    icon
   }
 `;
 

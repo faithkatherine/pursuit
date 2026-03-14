@@ -1,3 +1,4 @@
+import React from "react";
 import {
   View,
   Text,
@@ -6,47 +7,55 @@ import {
   Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors, theme } from "themes/tokens/colors";
-import SunnyIcon from "assets/icons/sunny.svg";
+import { colors } from "themes/tokens/colors";
 import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
-import { ProgressBar } from "components/ProgressBar";
-import { InsightsDataType, HomeDataType } from "graphql/generated/graphql";
+import { InsightsDataType } from "graphql/generated/graphql";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { images } from "assets/images";
-
-interface NextItemProps {
-  nextDestination: string;
-  daysUntilTrip: number;
-}
-
-export const NextItem: React.FC<NextItemProps> = ({
-  nextDestination,
-  daysUntilTrip,
-}) => {
-  return (
-    <View style={styles.nextBucketListItem}>
-      <Text style={styles.nextbucketListItemText}>{nextDestination}</Text>
-      <Text style={styles.nextbucketListItemDays}>
-        {daysUntilTrip} days away
-      </Text>
-    </View>
-  );
-};
+import { WeatherAnimation } from "./WeatherAnimation";
+import LocationIcon from "assets/icons/location.svg";
+import UserAvatarIcon from "assets/icons/user_avatar.svg";
+import { Button } from "components/Buttons";
+import { CategoryPills } from "components/Cards/BucketCard";
 
 interface InsightsCardProps {
   shouldShowTopInset: boolean;
   greeting: string;
   userLocation?: string;
-  insightsData: InsightsDataType;
   profileImageUri?: string;
+  insightsData?: InsightsDataType | null;
+  categories?: Array<{ id: string; name: string; icon: string; color: string }>;
+  selectedCategoryId?: string | null;
+  onLocationPress?: () => void;
+  onCategorySelect?: (categoryId: string | null) => void;
 }
 
+// --- QuickStats ---
+const QuickStats: React.FC<{
+  progress: InsightsDataType["progress"];
+}> = ({ progress }) => {
+  if (!progress) return null;
+
+  const completed = progress.completed ?? 0;
+  const goal = progress.yearlyGoal ?? 0;
+  const remaining = progress.remaining ?? 0;
+
+  return (
+    <Text style={styles.quickStats}>
+      {completed} completed &middot; {goal} goal &middot; {remaining} remaining
+    </Text>
+  );
+};
+
+// --- InsightsCard ---
 export const InsightsCard: React.FC<InsightsCardProps> = ({
   insightsData,
   greeting,
-  userLocation,
   shouldShowTopInset = true,
   profileImageUri,
+  categories,
+  selectedCategoryId,
+  onLocationPress,
+  onCategorySelect,
 }) => {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -60,146 +69,146 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
         {
           width: width,
           paddingTop: shouldShowTopInset ? insets.top : 0,
-          paddingHorizontal: 20,
         },
       ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <View>
-        <View style={styles.header}>
-          <Image
-            source={
-              profileImageUri
-                ? { uri: profileImageUri }
-                : {
-                    uri: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                  }
-            }
-            style={styles.profileImage}
-            resizeMode="cover"
-          />
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greeting}>{greeting}</Text>
-            <Text style={styles.subheading}>
-              Ready to Explore {userLocation || "your location"}?
+      <View style={styles.userDetails}>
+        <View style={styles.subUserDetails}>
+          <View style={styles.header}>
+            {profileImageUri ? (
+              <Image
+                source={{ uri: profileImageUri }}
+                style={styles.profileImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.profileIconContainer}>
+                <UserAvatarIcon width={28} height={28} color={colors.deluge} />
+              </View>
+            )}
+            <View style={styles.greetingContainer}>
+              <Text style={styles.greeting}>{greeting}</Text>
+              <Text style={styles.subheading}>Ready for your adventure?</Text>
+            </View>
+          </View>
+          {insightsData?.progress && (
+            <QuickStats progress={insightsData.progress} />
+          )}
+        </View>
+
+        {insightsData?.weather ? (
+          <View style={styles.weatherSection}>
+            <WeatherAnimation iconCode={insightsData.weather.icon} size={50} />
+            <Text style={styles.weatherTemp}>
+              {insightsData.weather.temperature
+                ? `${Math.round(insightsData.weather.temperature)}\u00B0F`
+                : ""}
+            </Text>
+            <Text style={styles.weatherCondition}>
+              {insightsData.weather.condition}
             </Text>
           </View>
-        </View>
-        <View style={styles.weatherSection}>
-          <SunnyIcon width={40} height={40} color={colors.white} />
-          {/* <Text style={styles.weatherNow}>
-            {insightsData.weather.city}
-            {"\n"}
-            {insightsData.weather.condition} {insightsData.weather.temperature}
-            °C
-          </Text> */}
-        </View>
-        <View style={styles.headerDivider} />
-        {/* <NextItem
-          nextDestination={insightsData.nextDestination.location}
-          daysUntilTrip={insightsData.nextDestination.daysAway}
-        /> */}
+        ) : (
+          <Button
+            variant="secondary"
+            onPress={onLocationPress}
+            icon={<LocationIcon width={16} height={16} stroke={colors.white} />}
+            style={{
+              circleDimensions: { width: 32, height: 32, borderWidth: 0 },
+              backgroundColor: colors.black,
+            }}
+          />
+        )}
       </View>
 
-      <View style={styles.bucketListSection}>
-        <View>
-          <Text style={styles.achievement}>
-            🏆 {insightsData.recentAchievement}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.statsSection}>
-        <ProgressBar
-          progress={insightsData.progress}
-          height={12}
-          borderRadius={8}
+      {categories && categories.length > 0 && (
+        <CategoryPills
+          categories={categories}
+          selectedCategoryId={selectedCategoryId}
+          onCategorySelect={onCategorySelect}
         />
-      </View>
+      )}
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 250,
+    paddingBottom: 16,
+    overflow: "hidden",
+    flex: 1,
+    gap: 16,
+    paddingHorizontal: 20,
   },
+  userDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
+  subUserDetails: {
+    flex: 1,
+    gap: 16,
+  },
+
   header: {
     flexDirection: "row",
-    gap: 8,
+    gap: 12,
     alignItems: "center",
-    marginBottom: 20,
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  profileIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
   },
   greetingContainer: {
-    flex: 1,
+    flexShrink: 1,
     gap: 4,
   },
   greeting: {
     fontFamily: typography.h4.fontFamily,
     fontSize: typography.h4.fontSize,
     fontWeight: fontWeights.bold,
-    color: theme.text.black,
+    color: colors.black,
   },
   subheading: {
     fontFamily: typography.body.fontFamily,
     fontSize: typography.body.fontSize,
-    color: theme.text.black,
-    opacity: 0.9,
+    color: colors.black,
+    opacity: 0.8,
   },
+
   weatherSection: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 2,
+    marginRight: 2,
   },
-  weatherNow: {
-    fontFamily: typography.h1.fontFamily,
+  weatherTemp: {
+    fontFamily: typography.h4.fontFamily,
     fontSize: fontSizes.sm,
-    fontWeight: typography.h1.fontWeight,
-    color: colors.prim,
+    fontWeight: fontWeights.semibold,
+    color: colors.thunder,
   },
-  headerDivider: {
-    borderRightWidth: 1,
-    borderRightColor: colors.white,
-    height: "100%",
+  weatherCondition: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.xs,
+    color: colors.thunder,
+    opacity: 0.8,
   },
-  nextBucketListItem: {
-    flex: 1,
-    gap: 4,
-  },
-  nextbucketListItemText: {
-    fontFamily: typography.h1.fontFamily,
-    fontSize: fontSizes.base,
-    color: colors.white,
-    fontWeight: "600",
-  },
-  nextbucketListItemDays: {
+
+  quickStats: {
     fontFamily: typography.body.fontFamily,
     fontSize: fontSizes.sm,
     color: colors.white,
-    opacity: 0.9,
-  },
-
-  bucketListSection: {
-    justifyContent: "center",
-    marginVertical: 16,
-    gap: 24,
-    flex: 1,
-  },
-
-  achievement: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
-    color: colors.white,
-    textAlign: "center",
-    opacity: 0.9,
-  },
-
-  statsSection: {
-    gap: 8,
   },
 });

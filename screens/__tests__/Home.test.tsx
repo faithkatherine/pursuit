@@ -33,9 +33,9 @@ jest.mock("components/Cards/EventsCard", () => ({
   ),
 }));
 
-jest.mock("components/Cards/BucketItemCard", () => ({
-  BucketItemCard: ({ title }: any) => (
-    <text testID="bucket-item-card">{title}</text>
+jest.mock("components/Cards/CategoryDetail", () => ({
+  CategoryDetail: ({ title }: any) => (
+    <text testID="category-detail">{title}</text>
   ),
 }));
 

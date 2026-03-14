@@ -1,19 +1,19 @@
+import { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 import { Layout, Loading, Error, SectionHeader } from "components/Layout";
 import { InsightsCard } from "components/Cards/InsightsCard";
-import { BucketCard } from "components/Cards/BucketCard";
-import { RecommendationCard } from "components/Cards/EventsCard";
-import { Carousel } from "components/Carousel";
 
 import { typography, fontWeights } from "themes/tokens/typography";
 import { theme, colors } from "themes/tokens/colors";
 import { getGradientByIndex } from "themes/tokens/gradients";
 
 import { useHomeData } from "graphql/hooks";
-import { CategoryType } from "graphql/generated/graphql";
 
 const Home = () => {
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
   const { data, loading, error } = useHomeData();
 
   if (loading) {
@@ -46,14 +46,23 @@ const Home = () => {
   return (
     <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
       <ScrollView>
-        {insights ? (
-          <InsightsCard
-            shouldShowTopInset
-            insightsData={insights}
-            greeting={greeting || "Welcome back!"}
-            //userLocation={homeData.}
-          />
-        ) : null}
+        <InsightsCard
+          shouldShowTopInset
+          insightsData={insights}
+          greeting={greeting || "Welcome back!"}
+          userLocation={homeData.userLocation || undefined}
+          profileImageUri={homeData.profilePicture || undefined}
+          categories={
+            bucketCategories?.filter(
+              (c): c is NonNullable<typeof c> => c != null,
+            ) || []
+          }
+          selectedCategoryId={selectedCategoryId}
+          onCategorySelect={setSelectedCategoryId}
+          onLocationPress={() => {
+            /* TODO: navigate to location picker */
+          }}
+        />
 
         {/* <Carousel
           items={categoryCards}

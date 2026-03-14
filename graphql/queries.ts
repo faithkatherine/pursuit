@@ -68,6 +68,8 @@ export const GET_HOME = gql`
       id
       greeting
       timeOfDay
+      profilePicture
+      userLocation
       weather {
         ...WeatherInfo
       }

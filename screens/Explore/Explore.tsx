@@ -15,9 +15,11 @@ import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
 import { getGradientByIndex } from "themes/tokens/gradients";
 import { useBucketCategories, useEvents } from "graphql/hooks";
-import { Category, Event } from "graphql/types";
+import type { GetEventsQuery } from "graphql/generated/graphql";
 
-const EventCard: React.FC<{ event: Event; onPress: () => void }> = ({
+type EventItem = NonNullable<GetEventsQuery["events"]>["events"][number];
+
+const EventCard: React.FC<{ event: EventItem; onPress: () => void }> = ({
   event,
   onPress,
 }) => {
@@ -103,23 +105,25 @@ export const Explore = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesContainer}
           >
-            {categories.map((category: Category, index: number) => (
-              <TouchableOpacity
-                key={category.id}
-                onPress={() => handleCategoryPress(category.id)}
-                style={[
-                  styles.categoryWrapper,
-                  selectedCategory === category.id && styles.selectedCategory,
-                ]}
-              >
-                <BucketCard
-                  id={category.id}
-                  name={category.name}
-                  icon={category.icon}
-                  gradientColors={getGradientByIndex(index)}
-                />
-              </TouchableOpacity>
-            ))}
+            {categories
+              ?.filter((c): c is NonNullable<typeof c> => c != null)
+              .map((category, index) => (
+                <TouchableOpacity
+                  key={category.id}
+                  onPress={() => handleCategoryPress(category.id)}
+                  style={[
+                    styles.categoryWrapper,
+                    selectedCategory === category.id && styles.selectedCategory,
+                  ]}
+                >
+                  <BucketCard
+                    id={category.id}
+                    name={category.name}
+                    icon={category.icon}
+                    gradientColors={getGradientByIndex(index)}
+                  />
+                </TouchableOpacity>
+              ))}
           </ScrollView>
         </View>
 
@@ -128,7 +132,7 @@ export const Explore = () => {
           <SectionHeader
             title={
               selectedCategory
-                ? `${categories.find((c: Category) => c.id === selectedCategory)?.name || "Category"} Events`
+                ? `${categories?.find((c) => c != null && c.id === selectedCategory)?.name || "Category"} Events`
                 : "Events Near You"
             }
             isLoading={eventsLoading}
@@ -150,12 +154,8 @@ export const Explore = () => {
             </View>
           ) : (
             <View style={styles.eventsList}>
-              {events.map((event: Event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  onPress={() => {}}
-                />
+              {events.map((event) => (
+                <EventCard key={event.id} event={event} onPress={() => {}} />
               ))}
             </View>
           )}
