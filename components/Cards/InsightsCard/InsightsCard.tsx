@@ -15,7 +15,7 @@ import { WeatherAnimation } from "./WeatherAnimation";
 import LocationIcon from "assets/icons/location.svg";
 import UserAvatarIcon from "assets/icons/user_avatar.svg";
 import { Button } from "components/Buttons";
-import { CategoryPills } from "components/Cards/BucketCard";
+import { CategoryPills } from "components/Cards/CategoryCard";
 
 interface InsightsCardProps {
   shouldShowTopInset: boolean;

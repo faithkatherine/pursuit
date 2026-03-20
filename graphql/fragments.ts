@@ -40,6 +40,8 @@ export const RECOMMENDATION_FRAGMENT = gql`
     title
     date
     locationName
+    reason
+    source
   }
 `;
 

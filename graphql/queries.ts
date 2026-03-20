@@ -10,6 +10,9 @@ import {
   EVENT_FRAGMENT,
 } from "./fragments";
 
+// Note: GET_INSIGHTS_DATA removed — insights are included in GET_HOME
+// Note: GET_RECOMMENDATIONS removed — recommendations are included in GET_HOME
+
 export const COMPLETE_ONBOARDING = gql`
   mutation CompleteOnboarding(
     $allowLocationSharing: Boolean
@@ -44,24 +47,6 @@ export const COMPLETE_ONBOARDING = gql`
   }
 `;
 
-export const GET_INSIGHTS_DATA = gql`
-  query GetInsightsData {
-    getInsightsData {
-      ...InsightsInfo
-    }
-  }
-  ${INSIGHTS_FRAGMENT}
-`;
-
-export const GET_RECOMMENDATIONS = gql`
-  query GetRecommendations($offset: Int = 0, $limit: Int = 10) {
-    getRecommendations(offset: $offset, limit: $limit) {
-      ...RecommendationInfo
-    }
-  }
-  ${RECOMMENDATION_FRAGMENT}
-`;
-
 export const GET_HOME = gql`
   query GetHome($offset: Int = 0, $limit: Int = 10) {
     getHome(offset: $offset, limit: $limit) {
@@ -76,7 +61,7 @@ export const GET_HOME = gql`
       insights {
         ...InsightsInfo
       }
-      bucketCategories {
+      categories {
         ...CategoryInfo
       }
       recommendations {

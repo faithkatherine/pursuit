@@ -10,7 +10,7 @@ import {
   Pressable,
 } from "react-native";
 import { Layout, Loading, Error, SectionHeader } from "components/Layout";
-import { BucketCard } from "components/Cards/BucketCard";
+import { CategoryCard } from "components/Cards/CategoryCard";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
 import { getGradientByIndex } from "themes/tokens/gradients";
@@ -116,7 +116,7 @@ export const Explore = () => {
                     selectedCategory === category.id && styles.selectedCategory,
                   ]}
                 >
-                  <BucketCard
+                  <CategoryCard
                     id={category.id}
                     name={category.name}
                     icon={category.icon}

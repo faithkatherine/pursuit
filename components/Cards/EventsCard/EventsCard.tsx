@@ -1,11 +1,16 @@
 import React from "react";
 import { Text, Image, View, StyleSheet, Pressable } from "react-native";
-import colors, { theme } from "themes/tokens/colors";
+import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { Recommendation } from "graphql/types";
-import DateIcon from "assets/icons/date.svg";
-import LocationIcon from "assets/icons/location.svg";
-import ClockIcon from "assets/icons/clock.svg";
+interface Recommendation {
+  id: string;
+  image?: string | null;
+  title: string;
+  date?: string | null;
+  locationName?: string | null;
+  reason?: string | null;
+  source?: string | null;
+}
 
 interface RecommendationCardProps {
   recommendation: Recommendation;
@@ -14,12 +19,14 @@ interface RecommendationCardProps {
 export const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation, onPress }) => {
   return (
     <Pressable onPress={onPress} testID="recommendation-card" style={styles.container}>
-      <Image
-        source={{ uri: recommendation.image }}
-        testID="recommendation-card-image"
-        style={styles.image}
-        resizeMode="cover"
-      />
+      {recommendation.image && (
+        <Image
+          source={{ uri: recommendation.image }}
+          testID="recommendation-card-image"
+          style={styles.image}
+          resizeMode="cover"
+        />
+      )}
       <View style={styles.content}>
         <Text style={styles.title}>{recommendation.title}</Text>
         <Text style={styles.date}>{recommendation.date}</Text>

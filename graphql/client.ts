@@ -362,7 +362,7 @@ const cache = new InMemoryCache({
             return { ...existing, ...incoming };
           },
         },
-        bucketCategories: {
+        categories: {
           keyArgs: false,
           merge(existing = [], incoming, { args }) {
             const { offset = 0 } = args || {};

@@ -1,30 +1,30 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { render } from "@testing-library/react-native";
 import Home from "../Home";
 import { useQuery } from "@apollo/client";
-import { useAuth } from "contexts/AuthContext";
-import { Alert } from "react-native";
 
 // Mock the Layout components
 jest.mock("components/Layout", () => ({
   Layout: ({ children }: { children: React.ReactNode }) => children,
   Loading: () => <text>Loading...</text>,
   Error: ({ error }: { error: string }) => <text>Error: {error}</text>,
+  SectionHeader: ({ title }: { title: string }) => <text>{title}</text>,
 }));
 
 // Mock the card components
 jest.mock("components/Cards/InsightsCard", () => ({
-  InsightsCard: ({ insightsData }: any) => (
-    <text testID="insights-card">Insights: {insightsData.id}</text>
+  InsightsCard: ({ greeting }: any) => (
+    <text testID="insights-card">{greeting}</text>
   ),
 }));
 
 jest.mock("components/Cards/BucketCard", () => ({
-  BucketCard: ({ name, emoji }: any) => (
+  BucketCard: ({ name, icon }: any) => (
     <text testID="bucket-card">
-      {emoji} {name}
+      {icon} {name}
     </text>
   ),
+  CategoryPills: () => null,
 }));
 
 jest.mock("components/Cards/EventsCard", () => ({
@@ -33,14 +33,8 @@ jest.mock("components/Cards/EventsCard", () => ({
   ),
 }));
 
-jest.mock("components/Cards/CategoryDetail", () => ({
-  CategoryDetail: ({ title }: any) => (
-    <text testID="category-detail">{title}</text>
-  ),
-}));
-
 // Mock the Carousel component
-jest.mock("components/Carousel/Carousel", () => ({
+jest.mock("components/Carousel", () => ({
   Carousel: ({ items, header }: any) => (
     <div testID="carousel">
       {header}
@@ -49,45 +43,34 @@ jest.mock("components/Carousel/Carousel", () => ({
   ),
 }));
 
-// Mock the AddBucket component
-jest.mock("components/Buckets/AddBucket", () => ({
-  AddBucket: () => <text testID="add-bucket">Add Bucket Form</text>,
-}));
-
 // Mock Apollo Client
 jest.mock("@apollo/client", () => ({
   useQuery: jest.fn(),
 }));
 
-// Mock Auth Context
-jest.mock("contexts/AuthContext", () => ({
-  useAuth: jest.fn(),
+// Mock graphql hooks
+jest.mock("graphql/hooks", () => ({
+  useHomeData: () => (useQuery as jest.Mock)(),
 }));
 
-// Mock Alert
-jest.mock("react-native", () => ({
-  ...jest.requireActual("react-native"),
-  Alert: {
-    alert: jest.fn(),
-  },
+// Mock gradients
+jest.mock("themes/tokens/gradients", () => ({
+  getGradientByIndex: () => ["#000", "#fff"],
 }));
 
 describe("Home Screen", () => {
-  const mockUser = {
-    id: "1",
-    name: "Test User",
-    email: "test@example.com",
-  };
-
   const mockHomeData = {
     getHome: {
       id: "home-1",
       greeting: "Good morning, Test User",
       timeOfDay: "morning",
+      profilePicture: null,
+      userLocation: "San Francisco",
       weather: {
         city: "San Francisco",
         condition: "Sunny",
         temperature: 22,
+        icon: "01d",
       },
       insights: {
         id: "insights-1",
@@ -95,6 +78,7 @@ describe("Home Screen", () => {
           city: "San Francisco",
           condition: "Sunny",
           temperature: 22,
+          icon: "01d",
         },
         nextDestination: {
           location: "Tokyo, Japan",
@@ -107,9 +91,9 @@ describe("Home Screen", () => {
         },
         recentAchievement: "Completed hiking challenge",
       },
-      bucketCategories: [
-        { id: "1", name: "Travel", emoji: "✈️" },
-        { id: "2", name: "Food", emoji: "🍕" },
+      categories: [
+        { id: "1", name: "Travel", icon: "✈️", color: "#007AFF" },
+        { id: "2", name: "Food", icon: "🍕", color: "#FF6B35" },
       ],
       recommendations: [
         {
@@ -117,42 +101,26 @@ describe("Home Screen", () => {
           title: "Beach Cleanup",
           date: "2023-10-15",
           locationName: "Santa Monica",
+          image: null,
+          reason: "Based on your interest in Outdoors",
+          source: "content_based",
         },
         {
           id: "2",
           title: "Tech Conference",
           date: "2023-11-20",
           locationName: "LA",
+          image: null,
+          reason: "Trending in your area",
+          source: "popular",
         },
       ],
-      upcoming: [
-        {
-          id: "1",
-          title: "Learn to surf",
-          description: "Take surfing lessons",
-          image: "surf-image.jpg",
-          category: { name: "Travel" },
-        },
-        {
-          id: "2",
-          title: "Visit Tokyo",
-          description: "Explore Japan",
-          image: "tokyo-image.jpg",
-          category: { name: "Travel" },
-        },
-      ],
+      upcoming: [],
     },
   };
 
-  const mockSignOut = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-
-    (useAuth as jest.Mock).mockReturnValue({
-      user: mockUser,
-      signOut: mockSignOut,
-    });
 
     (useQuery as jest.Mock).mockReturnValue({
       loading: false,
@@ -185,68 +153,17 @@ describe("Home Screen", () => {
   });
 
   it("should render home content when data is loaded", () => {
-    const { getByText, getByTestId } = render(<Home />);
+    const { getByTestId, getAllByTestId } = render(<Home />);
 
-    // Check greeting
-    expect(getByText("Good morning, Test User")).toBeTruthy();
-
-    // Check insights card
     expect(getByTestId("insights-card")).toBeTruthy();
-
-    // Check bucket categories
-    expect(getByText("✈️ Travel")).toBeTruthy();
-    expect(getByText("🍕 Food")).toBeTruthy();
-
-    // Check recommendations
-    expect(getByText("Beach Cleanup")).toBeTruthy();
-    expect(getByText("Tech Conference")).toBeTruthy();
-
-    // Check upcoming bucket items
-    expect(getByText("Learn to surf")).toBeTruthy();
-    expect(getByText("Visit Tokyo")).toBeTruthy();
+    expect(getByTestId("carousel")).toBeTruthy();
+    expect(getAllByTestId("recommendation-card")).toHaveLength(2);
   });
 
-  it("should open add bucket modal when add button is pressed", () => {
-    const { getByText, getByTestId } = render(<Home />);
-
-    const addButton = getByText("+");
-    fireEvent.press(addButton);
-
-    // Modal should be visible with AddBucket component
-    expect(getByTestId("add-bucket")).toBeTruthy();
-  });
-
-  it("should show sign out confirmation when sign out button is pressed", () => {
+  it("should render section headers", () => {
     const { getByText } = render(<Home />);
-
-    const signOutButton = getByText("Sign Out");
-    fireEvent.press(signOutButton);
-
-    expect(Alert.alert).toHaveBeenCalledWith(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      expect.arrayContaining([
-        expect.objectContaining({ text: "Cancel", style: "cancel" }),
-        expect.objectContaining({ text: "Sign Out", style: "destructive" }),
-      ])
-    );
-  });
-
-  it("should call signOut when confirmed", () => {
-    (Alert.alert as jest.Mock).mockImplementation((title, message, buttons) => {
-      // Simulate pressing the "Sign Out" button
-      const signOutButton = buttons.find((btn: any) => btn.text === "Sign Out");
-      if (signOutButton) {
-        signOutButton.onPress();
-      }
-    });
-
-    const { getByText } = render(<Home />);
-
-    const signOutButton = getByText("Sign Out");
-    fireEvent.press(signOutButton);
-
-    expect(mockSignOut).toHaveBeenCalled();
+    expect(getByText("Categories")).toBeTruthy();
+    expect(getByText("Events Near You")).toBeTruthy();
   });
 
   it("should handle empty home data gracefully", () => {
@@ -256,52 +173,25 @@ describe("Home Screen", () => {
       data: { getHome: null },
     });
 
-    const { container } = render(<Home />);
-    // Component should not crash and return null
-    expect(container).toBeTruthy();
-  });
-
-  it("should render buckets section title", () => {
     const { getByText } = render(<Home />);
-    expect(getByText("Your Buckets")).toBeTruthy();
+    // Falls back to Loading when homeData is null
+    expect(getByText("Loading...")).toBeTruthy();
   });
 
-  it("should render recommendations section title", () => {
-    const { getByText } = render(<Home />);
-    expect(getByText("Recommendations")).toBeTruthy();
-  });
-
-  it("should render upcoming section title", () => {
-    const { getByText } = render(<Home />);
-    expect(getByText("Upcoming")).toBeTruthy();
-  });
-
-  it("should handle missing category gracefully", () => {
-    const dataWithMissingCategory = {
-      ...mockHomeData,
-      getHome: {
-        ...mockHomeData.getHome,
-        upcoming: [
-          {
-            id: "1",
-            title: "Learn to surf",
-            description: "Take surfing lessons",
-            image: "surf-image.jpg",
-            category: null,
-          },
-        ],
-      },
-    };
-
+  it("should handle empty categories", () => {
     (useQuery as jest.Mock).mockReturnValue({
       loading: false,
       error: null,
-      data: dataWithMissingCategory,
+      data: {
+        getHome: {
+          ...mockHomeData.getHome,
+          categories: [],
+        },
+      },
     });
 
-    const { getByText } = render(<Home />);
-
-    // Should still render the bucket item with default category
-    expect(getByText("Learn to surf")).toBeTruthy();
+    const { queryByTestId } = render(<Home />);
+    // Carousel should not render when no categories
+    expect(queryByTestId("carousel")).toBeNull();
   });
 });

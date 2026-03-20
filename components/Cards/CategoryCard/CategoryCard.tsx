@@ -11,14 +11,14 @@ import { colors } from "themes/tokens/colors";
 import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
 
 // --- BucketCard ---
-interface BucketCardProps {
+interface CategoryCardProps {
   id: string;
   name: string;
   icon: string;
   gradientColors: [string, string];
 }
 
-export const BucketCard: React.FC<BucketCardProps> = ({
+export const CategoryCard: React.FC<CategoryCardProps> = ({
   id,
   name,
   icon,

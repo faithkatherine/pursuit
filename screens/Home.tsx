@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 import { Layout, Loading, Error, SectionHeader } from "components/Layout";
 import { InsightsCard } from "components/Cards/InsightsCard";
+import { CategoryCard } from "components/Cards/CategoryCard";
+import { RecommendationCard } from "components/Cards/EventsCard";
+import { Carousel } from "components/Carousel";
 
-import { typography, fontWeights } from "themes/tokens/typography";
-import { theme, colors } from "themes/tokens/colors";
+import { colors } from "themes/tokens/colors";
 import { getGradientByIndex } from "themes/tokens/gradients";
 
 import { useHomeData } from "graphql/hooks";
@@ -29,19 +31,7 @@ const Home = () => {
     return <Loading />;
   }
 
-  const { greeting, insights, bucketCategories, recommendations } = homeData;
-
-  // const categoryCards = bucketCategories.map(
-  //   (category: CategoryType, index: number) => (
-  //     <BucketCard
-  //       key={category.id}
-  //       id={category.id}
-  //       name={category.name}
-  //       icon={category.icon}
-  //       gradientColors={getGradientByIndex(index)}
-  //     />
-  //   ),
-  // );
+  const { greeting, insights, categories, recommendations } = homeData;
 
   return (
     <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
@@ -53,8 +43,9 @@ const Home = () => {
           userLocation={homeData.userLocation || undefined}
           profileImageUri={homeData.profilePicture || undefined}
           categories={
-            bucketCategories?.filter(
-              (c): c is NonNullable<typeof c> => c != null,
+            categories?.filter(
+              (category): category is NonNullable<typeof category> =>
+                category != null,
             ) || []
           }
           selectedCategoryId={selectedCategoryId}
@@ -64,24 +55,21 @@ const Home = () => {
           }}
         />
 
-        {/* <Carousel
-          items={categoryCards}
-          header={<SectionHeader title="Categories" />}
-        /> */}
-
-        <View style={styles.horizontalPadding}>
-          <SectionHeader title="Events Near You" />
-          {/* <View style={styles.eventsSection}>
-            {recommendations?.map(
-              (recommendation: Recommendation, index: number) => (
+        <View style={styles.sectionContainer}>
+          <SectionHeader title="Recommendations" />
+          <View style={styles.eventsSection}>
+            {recommendations
+              ?.filter((r): r is NonNullable<typeof r> => r != null)
+              .map((recommendation) => (
                 <RecommendationCard
-                  key={index}
+                  key={recommendation.id}
                   recommendation={recommendation}
                   onPress={() => {}}
                 />
-              ),
-            )}
-          </View> */}
+              ))}
+          </View>
+          <SectionHeader title="Currently trending" />
+          {/* <Carousel items={categoryCards} /> */}
         </View>
       </ScrollView>
     </Layout>
@@ -89,8 +77,9 @@ const Home = () => {
 };
 
 const styles = StyleSheet.create({
-  horizontalPadding: {
+  sectionContainer: {
     paddingHorizontal: 20,
+    paddingVertical: 12,
   },
 
   eventsSection: {
