@@ -6,6 +6,7 @@ import colors from "themes/tokens/colors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "../Buttons";
 import { fontWeights } from "themes/tokens/typography";
+import { SectionHeader } from "components/Layout";
 interface CarouselProps {
   header: ReactNode;
   items: ReactNode[];
@@ -21,15 +22,14 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>{header}</View>
-
+      {header}
       <FlatList
         horizontal
         data={items}
         renderItem={({ item }) => <Fragment>{item}</Fragment>}
         contentContainerStyle={{
-          paddingLeft: 24,
-          paddingRight: 24,
+          paddingLeft: 20,
+          paddingRight: 20,
           gap: gap ? gap : 8,
         }}
         showsHorizontalScrollIndicator={false}
@@ -40,14 +40,14 @@ export const Carousel: React.FC<CarouselProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 24,
+    marginVertical: 20,
   },
   header: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 27,
+    paddingHorizontal: 20,
     marginBottom: 16,
   },
   chevrons: {

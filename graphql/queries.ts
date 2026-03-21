@@ -2,16 +2,11 @@ import { gql } from "@apollo/client";
 
 import {
   BUCKET_CATEGORY_FRAGMENT,
-  INSIGHTS_FRAGMENT,
   BUCKET_ITEM_FRAGMENT,
   WEATHER_FRAGMENT,
-  RECOMMENDATION_FRAGMENT,
   AUTH_USER_FRAGMENT,
   EVENT_FRAGMENT,
 } from "./fragments";
-
-// Note: GET_INSIGHTS_DATA removed — insights are included in GET_HOME
-// Note: GET_RECOMMENDATIONS removed — recommendations are included in GET_HOME
 
 export const COMPLETE_ONBOARDING = gql`
   mutation CompleteOnboarding(
@@ -58,25 +53,32 @@ export const GET_HOME = gql`
       weather {
         ...WeatherInfo
       }
-      insights {
-        ...InsightsInfo
-      }
       categories {
         ...CategoryInfo
       }
       recommendations {
-        ...RecommendationInfo
+        ...EventInfo
       }
-      upcoming {
-        ...BucketItemInfo
+      trending {
+        ...EventInfo
+      }
+      upcomingEvents {
+        ...EventInfo
+      }
+      activeTrip {
+        id
+        name
+        destination
+        startDate
+        endDate
+        coverImage
+        eventCount
       }
     }
   }
   ${WEATHER_FRAGMENT}
-  ${INSIGHTS_FRAGMENT}
   ${BUCKET_CATEGORY_FRAGMENT}
-  ${RECOMMENDATION_FRAGMENT}
-  ${BUCKET_ITEM_FRAGMENT}
+  ${EVENT_FRAGMENT}
 `;
 
 export const ADD_BUCKET_CATEGORY = gql`

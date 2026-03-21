@@ -1,10 +1,12 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import {
   GET_BUCKET_CATEGORIES,
   GET_BUCKET_ITEMS,
   GET_HOME,
   GET_EVENTS,
   GET_SAVED_EVENTS,
+  SAVE_EVENT,
+  UNSAVE_EVENT,
 } from "./queries";
 import { getCachePolicy } from "./cache";
 import {
@@ -13,6 +15,8 @@ import {
   GetHomeQuery,
   GetEventsQuery,
   GetSavedEventsQuery,
+  SaveEventMutation,
+  UnsaveEventMutation,
 } from "graphql/generated/graphql";
 
 export const useBucketCategories = () => {
@@ -70,6 +74,14 @@ export const useEvents = (filters?: {
     ...result,
     events: result.data?.events?.events || [],
   };
+};
+
+export const useSaveEvent = () => {
+  return useMutation<SaveEventMutation>(SAVE_EVENT);
+};
+
+export const useUnsaveEvent = () => {
+  return useMutation<UnsaveEventMutation>(UNSAVE_EVENT);
 };
 
 export const useSavedEvents = (offset = 0, limit = 20) => {

@@ -176,12 +176,6 @@ const cache = new InMemoryCache({
             return { ...existing, ...incoming };
           },
         },
-        // Insights data - merge for dynamic updates
-        getInsightsData: {
-          merge(existing, incoming) {
-            return { ...existing, ...incoming };
-          },
-        },
         // Events - merge for dynamic updates
         getEvents: {
           keyArgs: false,
@@ -224,20 +218,6 @@ const cache = new InMemoryCache({
             const merged = existing ? existing.slice() : [];
 
             // Handle pagination by replacing items at correct offset
-            for (let i = 0; i < incoming.length; ++i) {
-              merged[offset + i] = incoming[i];
-            }
-
-            return merged;
-          },
-        },
-        // Recommendations - merge for dynamic updates
-        getRecommendations: {
-          keyArgs: false,
-          merge(existing = [], incoming, { args }) {
-            const { offset = 0 } = args || {};
-            const merged = existing ? existing.slice() : [];
-
             for (let i = 0; i < incoming.length; ++i) {
               merged[offset + i] = incoming[i];
             }
@@ -294,51 +274,6 @@ const cache = new InMemoryCache({
         },
       },
     },
-    Recommendation: {
-      fields: {
-        // Recommendations will be dynamic once backend is connected
-        title: {
-          merge(existing, incoming) {
-            return incoming;
-          },
-        },
-        date: {
-          merge(existing, incoming) {
-            return incoming;
-          },
-        },
-        locationName: {
-          merge(existing, incoming) {
-            return incoming;
-          },
-        },
-      },
-    },
-    InsightsData: {
-      fields: {
-        // Weather and insights will be very dynamic
-        weather: {
-          merge(existing, incoming) {
-            return { ...existing, ...incoming };
-          },
-        },
-        progress: {
-          merge(existing, incoming) {
-            return { ...existing, ...incoming };
-          },
-        },
-        nextDestination: {
-          merge(existing, incoming) {
-            return { ...existing, ...incoming };
-          },
-        },
-        recentAchievement: {
-          merge(existing, incoming) {
-            return incoming;
-          },
-        },
-      },
-    },
     HomeData: {
       fields: {
         // All nested fields in home data should merge for dynamic updates
@@ -357,11 +292,6 @@ const cache = new InMemoryCache({
             return { ...existing, ...incoming };
           },
         },
-        insights: {
-          merge(existing, incoming) {
-            return { ...existing, ...incoming };
-          },
-        },
         categories: {
           keyArgs: false,
           merge(existing = [], incoming, { args }) {
@@ -376,19 +306,6 @@ const cache = new InMemoryCache({
           },
         },
         recommendations: {
-          keyArgs: false,
-          merge(existing = [], incoming, { args }) {
-            const { offset = 0 } = args || {};
-            const merged = existing ? existing.slice() : [];
-
-            for (let i = 0; i < incoming.length; ++i) {
-              merged[offset + i] = incoming[i];
-            }
-
-            return merged;
-          },
-        },
-        upcoming: {
           keyArgs: false,
           merge(existing = [], incoming, { args }) {
             const { offset = 0 } = args || {};

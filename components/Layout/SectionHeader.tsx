@@ -54,12 +54,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 20,
-    fontWeight: fontWeights.semibold,
+    fontWeight: fontWeights.bold,
     color: theme.text.primary,
-    fontFamily: "Work Sans",
+    fontFamily: typography.h3.fontFamily,
     flex: 1,
   },
   rightSection: {

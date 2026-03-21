@@ -11,7 +11,11 @@ export * from "./Buttons";
 export * from "./Cards/CategoryCard";
 export * from "./Cards/CategoryDetail";
 export * from "./Cards/EventsCard";
+export * from "./Cards/ExploreCard";
 export * from "./Cards/InsightsCard";
+export * from "./Cards/TrendingCard";
+export * from "./Cards/UpcomingCard";
+export * from "./Cards/TripCard";
 
 // Other Components
 export * from "./Carousel";

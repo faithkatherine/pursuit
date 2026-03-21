@@ -9,7 +9,6 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "themes/tokens/colors";
 import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
-import { InsightsDataType } from "graphql/generated/graphql";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WeatherAnimation } from "./WeatherAnimation";
 import LocationIcon from "assets/icons/location.svg";
@@ -17,38 +16,28 @@ import UserAvatarIcon from "assets/icons/user_avatar.svg";
 import { Button } from "components/Buttons";
 import { CategoryPills } from "components/Cards/CategoryCard";
 
+interface WeatherData {
+  city?: string | null;
+  condition?: string | null;
+  temperature?: number | null;
+  icon?: string | null;
+}
+
 interface InsightsCardProps {
   shouldShowTopInset: boolean;
   greeting: string;
   userLocation?: string;
   profileImageUri?: string;
-  insightsData?: InsightsDataType | null;
+  weather?: WeatherData | null;
   categories?: Array<{ id: string; name: string; icon: string; color: string }>;
   selectedCategoryId?: string | null;
   onLocationPress?: () => void;
   onCategorySelect?: (categoryId: string | null) => void;
 }
 
-// --- QuickStats ---
-const QuickStats: React.FC<{
-  progress: InsightsDataType["progress"];
-}> = ({ progress }) => {
-  if (!progress) return null;
-
-  const completed = progress.completed ?? 0;
-  const goal = progress.yearlyGoal ?? 0;
-  const remaining = progress.remaining ?? 0;
-
-  return (
-    <Text style={styles.quickStats}>
-      {completed} completed &middot; {goal} goal &middot; {remaining} remaining
-    </Text>
-  );
-};
-
 // --- InsightsCard ---
 export const InsightsCard: React.FC<InsightsCardProps> = ({
-  insightsData,
+  weather,
   greeting,
   shouldShowTopInset = true,
   profileImageUri,
@@ -93,21 +82,18 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
               <Text style={styles.subheading}>Ready for your adventure?</Text>
             </View>
           </View>
-          {insightsData?.progress && (
-            <QuickStats progress={insightsData.progress} />
-          )}
         </View>
 
-        {insightsData?.weather ? (
+        {weather ? (
           <View style={styles.weatherSection}>
-            <WeatherAnimation iconCode={insightsData.weather.icon} size={50} />
+            <WeatherAnimation iconCode={weather.icon} size={50} />
             <Text style={styles.weatherTemp}>
-              {insightsData.weather.temperature
-                ? `${Math.round(insightsData.weather.temperature)}\u00B0F`
+              {weather.temperature
+                ? `${Math.round(weather.temperature)}\u00B0F`
                 : ""}
             </Text>
             <Text style={styles.weatherCondition}>
-              {insightsData.weather.condition}
+              {weather.condition}
             </Text>
           </View>
         ) : (
@@ -204,11 +190,5 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: colors.thunder,
     opacity: 0.8,
-  },
-
-  quickStats: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
-    color: colors.white,
   },
 });
