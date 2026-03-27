@@ -31,7 +31,9 @@ const getApiUrl = () => {
 };
 
 const apiUrl = getApiUrl();
-console.log(`[Apollo Client] Platform: ${Platform.OS}, Using API URL: ${apiUrl}`);
+console.log(
+  `[Apollo Client] Platform: ${Platform.OS}, Using API URL: ${apiUrl}`,
+);
 
 const httpLink = createHttpLink({
   uri: apiUrl,
@@ -100,7 +102,7 @@ const errorLink = onError(
                       `,
                         variables: { refreshToken: tokens.refreshToken },
                       }),
-                    }
+                    },
                   );
 
                   const result = await response.json();
@@ -161,7 +163,7 @@ const errorLink = onError(
     if (networkError) {
       console.error("[Apollo] Network error:", networkError);
     }
-  }
+  },
 );
 
 const link = from([errorLink, authLink, httpLink]);
@@ -196,7 +198,7 @@ const cache = new InMemoryCache({
             // For categories, we want to merge and avoid duplicates
             const existingIds = new Set(existing.map((item: any) => item.id));
             const newItems = incoming.filter(
-              (item: any) => !existingIds.has(item.id)
+              (item: any) => !existingIds.has(item.id),
             );
             return [...existing, ...newItems];
           },
@@ -205,7 +207,7 @@ const cache = new InMemoryCache({
           merge(existing = [], incoming) {
             const existingIds = new Set(existing.map((item: any) => item.id));
             const newItems = incoming.filter(
-              (item: any) => !existingIds.has(item.id)
+              (item: any) => !existingIds.has(item.id),
             );
             return [...existing, ...newItems];
           },
@@ -328,13 +330,14 @@ export const client = new ApolloClient({
   cache,
   defaultOptions: {
     watchQuery: {
-      errorPolicy: "all", // Changed from "ignore" to show errors
-      fetchPolicy: "cache-and-network", // Use cache first, then network
+      errorPolicy: "all",
+      fetchPolicy: "cache-and-network",
       nextFetchPolicy: "cache-and-network",
+      notifyOnNetworkStatusChange: true,
     },
     query: {
       errorPolicy: "all",
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     },
   },
 });

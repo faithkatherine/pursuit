@@ -5,8 +5,8 @@ import {
   StyleSheet,
   useWindowDimensions,
   Image,
+  TouchableOpacity,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "themes/tokens/colors";
 import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,7 +14,6 @@ import { WeatherAnimation } from "./WeatherAnimation";
 import LocationIcon from "assets/icons/location.svg";
 import UserAvatarIcon from "assets/icons/user_avatar.svg";
 import { Button } from "components/Buttons";
-import { CategoryPills } from "components/Cards/CategoryCard";
 
 interface WeatherData {
   city?: string | null;
@@ -29,10 +28,8 @@ interface InsightsCardProps {
   userLocation?: string;
   profileImageUri?: string;
   weather?: WeatherData | null;
-  categories?: Array<{ id: string; name: string; icon: string; color: string }>;
-  selectedCategoryId?: string | null;
   onLocationPress?: () => void;
-  onCategorySelect?: (categoryId: string | null) => void;
+  onProfilePress: () => void;
 }
 
 // --- InsightsCard ---
@@ -40,19 +37,16 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
   weather,
   greeting,
   shouldShowTopInset = true,
+  userLocation,
   profileImageUri,
-  categories,
-  selectedCategoryId,
   onLocationPress,
-  onCategorySelect,
+  onProfilePress,
 }) => {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
   return (
-    <LinearGradient
-      colors={[colors.deluge, colors.roseFog]}
-      locations={[0, 1]}
+    <View
       style={[
         styles.container,
         {
@@ -60,23 +54,27 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
           paddingTop: shouldShowTopInset ? insets.top : 0,
         },
       ]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
     >
       <View style={styles.userDetails}>
         <View style={styles.subUserDetails}>
           <View style={styles.header}>
-            {profileImageUri ? (
-              <Image
-                source={{ uri: profileImageUri }}
-                style={styles.profileImage}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.profileIconContainer}>
-                <UserAvatarIcon width={28} height={28} color={colors.deluge} />
-              </View>
-            )}
+            <TouchableOpacity onPress={onProfilePress} activeOpacity={0.7}>
+              {profileImageUri ? (
+                <Image
+                  source={{ uri: profileImageUri }}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.profileIconContainer}>
+                  <UserAvatarIcon
+                    width={28}
+                    height={28}
+                    color={colors.deluge}
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
             <View style={styles.greetingContainer}>
               <Text style={styles.greeting}>{greeting}</Text>
               <Text style={styles.subheading}>Ready for your adventure?</Text>
@@ -84,7 +82,7 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
           </View>
         </View>
 
-        {weather ? (
+        {userLocation && weather && (
           <View style={styles.weatherSection}>
             <WeatherAnimation iconCode={weather.icon} size={50} />
             <Text style={styles.weatherTemp}>
@@ -92,41 +90,35 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
                 ? `${Math.round(weather.temperature)}\u00B0F`
                 : ""}
             </Text>
-            <Text style={styles.weatherCondition}>
-              {weather.condition}
-            </Text>
+            <Text style={styles.weatherCondition}>{weather.condition}</Text>
           </View>
-        ) : (
+        )}
+      </View>
+      {!userLocation && (
+        <View style={styles.location}>
           <Button
             variant="secondary"
             onPress={onLocationPress}
-            icon={<LocationIcon width={16} height={16} stroke={colors.white} />}
-            style={{
-              circleDimensions: { width: 32, height: 32, borderWidth: 0 },
-              backgroundColor: colors.black,
-            }}
+            icon={<LocationIcon width={16} height={16} color={colors.white} />}
+            style={styles.locationButton}
           />
-        )}
-      </View>
-
-      {categories && categories.length > 0 && (
-        <CategoryPills
-          categories={categories}
-          selectedCategoryId={selectedCategoryId}
-          onCategorySelect={onCategorySelect}
-        />
+          <Text style={styles.locationText}>
+            Enable location access for more personalized events
+          </Text>
+        </View>
       )}
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 16,
+    paddingBottom: 12,
     overflow: "hidden",
     flex: 1,
-    gap: 16,
+    gap: 12,
     paddingHorizontal: 20,
+    backgroundColor: "transparent",
   },
   userDetails: {
     flexDirection: "row",
@@ -190,5 +182,21 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: colors.thunder,
     opacity: 0.8,
+  },
+  locationButton: {
+    backgroundColor: colors.black,
+    width: 50,
+    height: 50,
+  },
+  location: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  locationText: {
+    maxWidth: 250,
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.lg,
+    color: colors.black,
   },
 });

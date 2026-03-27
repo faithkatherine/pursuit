@@ -15,7 +15,7 @@ export * from "./Cards/ExploreCard";
 export * from "./Cards/InsightsCard";
 export * from "./Cards/TrendingCard";
 export * from "./Cards/UpcomingCard";
-export * from "./Cards/TripCard";
+export * from "./Cards/HeroCard";
 
 // Other Components
 export * from "./Carousel";

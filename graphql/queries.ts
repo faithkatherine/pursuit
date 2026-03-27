@@ -50,6 +50,7 @@ export const GET_HOME = gql`
       timeOfDay
       profilePicture
       userLocation
+      allowLocationSharing
       weather {
         ...WeatherInfo
       }
@@ -348,6 +349,21 @@ export const UNSAVE_EVENT = gql`
     }
   }
   ${EVENT_FRAGMENT}
+`;
+
+export const ENABLE_LOCATION = gql`
+  mutation EnableLocation($locationName: String!, $location: [Float]!) {
+    enableLocation(locationName: $locationName, location: $location) {
+      ok
+      user {
+        id
+        profile {
+          locationName
+          allowLocationSharing
+        }
+      }
+    }
+  }
 `;
 
 export const SKIP_ONBOARDING = gql`

@@ -1,7 +1,6 @@
 import { useRouter, useSegments } from "expo-router";
-import React, { createContext, useEffect } from "react";
+import React, { createContext } from "react";
 import { useAuth } from "./AuthProvider";
-import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { Alert } from "react-native";
 import { useMutation } from "@apollo/client";
@@ -11,6 +10,7 @@ import {
   CompleteOnboardingMutation,
   CompleteOnboardingMutationVariables,
 } from "graphql/generated/graphql";
+import { useLocationPermission } from "graphql/hooks";
 
 interface OnboardingContextType {
   currentStep: number;
@@ -27,20 +27,9 @@ interface OnboardingContextType {
   skipOnboarding: () => void;
 }
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>({
-  currentStep: 1,
-  totalSteps: 4,
-  emailPermissionGranted: false,
-  locationPermissionGranted: false,
-  notificationPermissionGranted: false,
-  skipOnboardingMutationLoading: false,
-  toggleLocationPermission: () => {},
-  toggleNotificationPermission: () => {},
-  toggleEmailPermission: () => {},
-  nextStep: () => {},
-  prevStep: () => {},
-  skipOnboarding: () => {},
-});
+const OnboardingContext = createContext<OnboardingContextType | undefined>(
+  undefined,
+);
 
 type StepName = "welcome" | "preferences" | "interests" | "confirmation";
 
@@ -75,12 +64,13 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
   const totalSteps = steps.length;
-  const { updateUser } = useAuth();
-  const [locationPermissionGranted, setLocationPermissionGranted] =
-    React.useState<boolean>(false);
-  const [location, setLocation] =
-    React.useState<Location.LocationObject | null>(null);
-  const [locationName, setLocationName] = React.useState<string | null>(null);
+  const { user, updateUser } = useAuth();
+  const {
+    locationPermissionGranted,
+    location,
+    locationName,
+    toggleLocationPermission,
+  } = useLocationPermission();
   const [emailPermissionGranted, setEmailPermissionGranted] =
     React.useState<boolean>(false);
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
@@ -88,13 +78,7 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [skipOnboardingMutation, { loading: skipOnboardingMutationLoading }] =
     useMutation<SkipOnboardingMutation>(SKIP_ONBOARDING);
-  const [
-    completeOnboardingMutation,
-    {
-      loading: completeOnboardingMutationLoading,
-      error: completeOnboardingError,
-    },
-  ] = useMutation<
+  const [completeOnboardingMutation] = useMutation<
     CompleteOnboardingMutation,
     CompleteOnboardingMutationVariables
   >(COMPLETE_ONBOARDING);
@@ -150,52 +134,6 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
           "There was an issue skipping onboarding. Please try again later.",
         );
       });
-  };
-
-  const toggleLocationPermission = async (enabled: boolean) => {
-    setLocationPermissionGranted(enabled);
-    if (!enabled) {
-      setLocation(null);
-      setLocationName(null);
-      return;
-    }
-
-    try {
-      const result = await Location.requestForegroundPermissionsAsync();
-      if (result.status !== "granted") {
-        setLocationPermissionGranted(false);
-        return;
-      }
-
-      // Get current location
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation);
-
-      // Reverse geocode to get location name
-      const [geocode] = await Location.reverseGeocodeAsync({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      });
-
-      if (geocode) {
-        const name = [geocode.city, geocode.region || geocode.country]
-          .filter(Boolean)
-          .join(", ");
-        setLocationName(name || null);
-        console.log("Location obtained:", {
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-          name,
-        });
-      }
-    } catch (error) {
-      console.error("Failed to get location:", error);
-      setLocationPermissionGranted(false);
-      Alert.alert(
-        "Location Error",
-        "Unable to get your location. Please try again later.",
-      );
-    }
   };
 
   const toggleNotificationPermission = async (enabled: boolean) => {

@@ -40,7 +40,7 @@ export const Carousel: React.FC<CarouselProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 20,
+    marginVertical: 12,
   },
   header: {
     display: "flex",

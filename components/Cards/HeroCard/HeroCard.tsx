@@ -13,7 +13,7 @@ import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { Button } from "components/Buttons/Buttons";
 import { formatEventDate } from "utils/date";
 
-export interface TripCardData {
+export interface HeroCardData {
   id: string;
   name: string;
   destination: string;
@@ -23,8 +23,8 @@ export interface TripCardData {
   eventCount?: number | null;
 }
 
-interface TripCardProps {
-  trip: TripCardData;
+interface HeroCardProps {
+  trip: HeroCardData;
   onPress: () => void;
 }
 
@@ -53,7 +53,7 @@ function formatDateRange(startDate: string, endDate: string): string {
   return `${start} – ${end}`;
 }
 
-export const TripCard: React.FC<TripCardProps> = ({ trip, onPress }) => {
+export const HeroCard: React.FC<HeroCardProps> = ({ trip, onPress }) => {
   const nights = getNightCount(trip.startDate, trip.endDate);
 
   const tags: string[] = [];
@@ -65,8 +65,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onPress }) => {
     );
 
   return (
-    <Pressable onPress={onPress} testID="trip-card" style={styles.container}>
-      {/* Image */}
+    <Pressable onPress={onPress} testID="hero-card" style={styles.container}>
       {trip.coverImage ? (
         <Image
           source={{ uri: trip.coverImage }}

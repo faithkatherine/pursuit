@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import GoogleIcon from "assets/icons/google.svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface CircleDimensions {
   width?: number;
@@ -27,7 +28,13 @@ interface ButtonProps {
   text?: string;
   loading?: boolean;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "tertiary" | "switch" | "third-party";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "tertiary"
+    | "switch"
+    | "third-party"
+    | "gradient";
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
@@ -123,6 +130,44 @@ export const Button: React.FC<ButtonProps> = ({
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </Pressable>
       );
+
+    case "gradient":
+      return (
+        <View style={[styles.gradientWrapper, style]}>
+          {/* Top-left to bottom-right gradient */}
+          <LinearGradient
+            colors={[colors.shilo, colors.ube, colors.deluge]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          {/* Bottom-left to top-right gradient, blended on top */}
+          <LinearGradient
+            colors={[
+              "rgba(234, 192, 197, 0.8)", // roseFog
+              "transparent",
+              "rgba(139, 127, 188, 0.8)", // ube
+            ]}
+            start={{ x: 0, y: 1 }}
+            end={{ x: 1, y: 0 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <Pressable
+            onPress={onPress}
+            disabled={disabled}
+            style={styles.gradientInner}
+            testID="button-gradient"
+          >
+            {text && (
+              <Text style={[styles.gradientText, textStyle]}>{text}</Text>
+            )}
+            {icon && icon}
+            {loading && (
+              <ActivityIndicator size="small" color={colors.deluge} />
+            )}
+          </Pressable>
+        </View>
+      );
   }
 };
 
@@ -213,5 +258,29 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: theme.text.primary,
     fontFamily: typography.button.fontFamily,
+  },
+  gradientWrapper: {
+    width: "100%",
+    borderRadius: 28,
+    padding: 1,
+    alignSelf: "center",
+    overflow: "hidden",
+  },
+  gradientInner: {
+    backgroundColor: colors.white,
+    borderRadius: 27,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+  },
+  gradientText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.lg,
+    color: colors.black,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
