@@ -87,7 +87,7 @@ export const SignUp = () => {
     <AuthLayout
       ref={authLayoutRef}
       heroTitle="Join The Pursuit Experience"
-      heroSubtitle="Start planning your next adventure!"
+      heroSubtitle="Start planning your next adventure"
     >
       <Controller
         control={control}

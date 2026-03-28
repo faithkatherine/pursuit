@@ -8,7 +8,8 @@ import {
   Easing,
   useWindowDimensions,
 } from "react-native";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "providers/AuthProvider";
 import { images } from "assets/images";
@@ -21,6 +22,7 @@ const GetStarted = () => {
   const router = useRouter();
   const { isAuthenticated, needsOnboarding } = useAuth();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const containerMargin = 27;
   const imageContainerWidth = width - containerMargin * 2;
 
@@ -38,7 +40,7 @@ const GetStarted = () => {
 
   // Create animated values for each image's opacity (crossfade effect)
   const fadeAnims = useRef(
-    imageKeys.map((_, i) => new Animated.Value(i === 0 ? 1 : 0))
+    imageKeys.map((_, i) => new Animated.Value(i === 0 ? 1 : 0)),
   ).current;
 
   const crossfadeToIndex = (fromIndex: number, toIndex: number) => {
@@ -112,8 +114,8 @@ const GetStarted = () => {
   };
 
   return (
-    <Layout>
-      <View style={styles.container}>
+    <Layout shouldShowTopInset={false}>
+      <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
         <View style={[styles.imageContainer, { width: imageContainerWidth }]}>
           {imageKeys.map((imageKey, index) => (
             <Animated.View

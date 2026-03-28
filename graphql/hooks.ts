@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Alert, Linking } from "react-native";
 import * as Location from "expo-location";
 import { useQuery, useMutation } from "@apollo/client";
@@ -20,6 +20,7 @@ import {
   GetSavedEventsQuery,
   SaveEventMutation,
   UnsaveEventMutation,
+  UserType,
 } from "graphql/generated/graphql";
 
 export const useBucketCategories = () => {
@@ -193,4 +194,75 @@ export const useLocationPermission = () => {
     locationName,
     toggleLocationPermission,
   };
+};
+
+export const useLocationSync = (user: UserType | null) => {
+  const [isSynced, setIsSynced] = useState(false);
+  const hasRun = useRef(false);
+  const [enableLocationMutation] = useMutation(ENABLE_LOCATION);
+
+  useEffect(() => {
+    if (hasRun.current) return;
+
+    // Skip if no user or user hasn't opted into location sharing
+    if (!user || !user.profile?.allowLocationSharing) {
+      setIsSynced(true);
+      return;
+    }
+
+    hasRun.current = true;
+
+    const syncLocation = async () => {
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        let granted = status === "granted";
+
+        if (!granted) {
+          const result = await Location.requestForegroundPermissionsAsync();
+          granted = result.status === "granted";
+        }
+
+        if (!granted) {
+          // Permission denied — use stale backend data
+          setIsSynced(true);
+          return;
+        }
+
+        const currentLocation =
+          (await Location.getLastKnownPositionAsync()) ??
+          (await Location.getCurrentPositionAsync({}));
+        const [geocode] = await Location.reverseGeocodeAsync({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        });
+
+        if (geocode) {
+          const name = [geocode.city, geocode.region || geocode.country]
+            .filter(Boolean)
+            .join(", ");
+
+          // Only update if location actually changed
+          if (name && name !== user.profile?.locationName) {
+            await enableLocationMutation({
+              variables: {
+                locationName: name,
+                location: [
+                  currentLocation.coords.latitude,
+                  currentLocation.coords.longitude,
+                ],
+              },
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Location sync failed:", error);
+      } finally {
+        setIsSynced(true);
+      }
+    };
+
+    syncLocation();
+  }, [user, enableLocationMutation]);
+
+  return { isSynced };
 };

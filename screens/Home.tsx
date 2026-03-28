@@ -66,7 +66,9 @@ const Home = () => {
     (t): t is NonNullable<typeof t> => t != null,
   );
 
+  // Hero card priority: active trip → first upcoming event → first recommendation
   const heroTrip = activeTrip as HeroCardData | null;
+
   const heroEvent =
     !heroTrip && validUpcoming.length > 0 ? validUpcoming[0] : null;
   const heroEventAsCard: HeroCardData | null = heroEvent
@@ -80,9 +82,38 @@ const Home = () => {
       }
     : null;
 
+  const heroRecommendation =
+    !heroTrip && !heroEvent && validRecommendations.length > 0
+      ? validRecommendations[0]
+      : null;
+  const heroRecommendationAsCard: HeroCardData | null = heroRecommendation
+    ? {
+        id: heroRecommendation.id,
+        name: heroRecommendation.name,
+        destination: heroRecommendation.locationName ?? "",
+        startDate: heroRecommendation.date,
+        endDate: heroRecommendation.date,
+        coverImage: heroRecommendation.image ?? null,
+      }
+    : null;
+
+  const heroCard = heroTrip ?? heroEventAsCard ?? heroRecommendationAsCard;
+  const heroTitle = heroTrip
+    ? "Your Upcoming Trip"
+    : heroEvent
+      ? "Don't Miss This"
+      : "Recommended For You";
+
+  // Lists show 4, skipping the first if used as hero
   const remainingUpcoming = heroEvent
-    ? validUpcoming.slice(1, 4)
-    : validUpcoming.slice(0, 4);
+    ? validUpcoming.slice(1, 5)
+    : validUpcoming.slice(0, 3);
+
+  const remainingRecommendations = heroRecommendation
+    ? validRecommendations.slice(1, 4)
+    : validRecommendations.slice(0, 3);
+
+  const displayTrending = validTrending.slice(0, 3);
 
   const fadeStart = insightsHeight - insets.top;
   const statusBarOpacity = scrollY.interpolate({
@@ -140,28 +171,21 @@ const Home = () => {
                 }
               />
 
-              {(heroTrip || heroEventAsCard) && (
+              {heroCard && (
                 <View
                   style={[
                     styles.heroSection,
                     { paddingBottom: carouselSpacing },
                   ]}
                 >
-                  <SectionHeader
-                    title={heroTrip ? "Your Upcoming Trip" : "Don't Miss This"}
-                  />
-                  <HeroCard
-                    trip={(heroTrip ?? heroEventAsCard)!}
-                    onPress={() => {}}
-                  />
+                  <SectionHeader title={heroTitle} />
+                  <HeroCard trip={heroCard} onPress={() => {}} />
                   {!heroTrip && (
                     <View style={styles.tripCtaContainer}>
                       <Button
                         variant="gradient"
                         text="Plan a Trip"
                         onPress={() => router.push("/travel")}
-                        style={styles.tripCtaButton}
-                        textStyle={styles.tripCtaText}
                       />
                     </View>
                   )}
@@ -199,7 +223,7 @@ const Home = () => {
         <View
           style={[styles.sectionContainer, { paddingVertical: sectionSpacing }]}
         >
-          {validRecommendations.length > 0 && (
+          {remainingRecommendations.length > 0 && (
             <>
               <SectionHeader
                 title="Recommendations"
@@ -212,7 +236,7 @@ const Home = () => {
                 }
               />
               <View style={styles.eventsSection}>
-                {validRecommendations.slice(0, 4).map((recommendation) => (
+                {remainingRecommendations.map((recommendation) => (
                   <RecommendationCard
                     key={recommendation.id}
                     recommendation={recommendation as EventCardData}
@@ -223,7 +247,7 @@ const Home = () => {
             </>
           )}
 
-          {validTrending.length > 0 && (
+          {displayTrending.length > 0 && (
             <Carousel
               gap={16}
               header={
@@ -238,7 +262,7 @@ const Home = () => {
                   }
                 />
               }
-              items={validTrending.slice(0, 4).map((event) => (
+              items={displayTrending.map((event) => (
                 <TrendingCard
                   key={event.id}
                   event={event as EventCardData}
@@ -276,15 +300,6 @@ const styles = StyleSheet.create({
   tripCtaContainer: {
     paddingHorizontal: 20,
     paddingTop: 12,
-  },
-  tripCtaButton: {
-    backgroundColor: colors.deluge,
-    borderRadius: 28,
-    paddingVertical: 14,
-  },
-  tripCtaText: {
-    color: colors.white,
-    fontWeight: "600",
   },
 });
 

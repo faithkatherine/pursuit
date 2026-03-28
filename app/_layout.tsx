@@ -1,9 +1,11 @@
 import { ApolloProvider } from "@apollo/client";
+import { useApolloClientDevTools } from "@dev-plugins/apollo-client";
 import { client } from "graphql/client";
-import { StatusBar } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { Slot, SplashScreen } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
+import { useLocationSync } from "graphql/hooks";
 import { useEffect, useState, useCallback } from "react";
 import { SplashScreen as CustomSplashScreen } from "components/SplashScreen";
 import { Loading } from "components/Layout";
@@ -12,7 +14,8 @@ import { Loading } from "components/Layout";
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutContent() {
-  const { isLoading: authIsLoading } = useAuth();
+  const { isLoading: authIsLoading, isAuthenticated, user } = useAuth();
+  const { isSynced } = useLocationSync(user);
   const [appIsReady, setAppIsReady] = useState(false);
   const [showCustomSplash, setShowCustomSplash] = useState(true);
 
@@ -59,13 +62,20 @@ function RootLayoutContent() {
     return <Loading />;
   }
 
+  // Wait for location sync before rendering authenticated content
+  if (isAuthenticated && !isSynced) {
+    return <Loading />;
+  }
+
   return <Slot />;
 }
 
 export default function RootLayout() {
+  useApolloClientDevTools(client);
+
   return (
     <SafeAreaProvider>
-      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <StatusBar style="light" translucent />
       <ApolloProvider client={client}>
         <AuthProvider>
           <RootLayoutContent />

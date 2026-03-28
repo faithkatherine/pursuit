@@ -2,6 +2,8 @@ import colors, { theme } from "themes/tokens/colors";
 import { fontSizes, fontWeights, typography } from "themes/tokens/typography";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Pressable,
   StyleSheet,
   Switch,
@@ -10,6 +12,7 @@ import {
 } from "react-native";
 import GoogleIcon from "assets/icons/google.svg";
 import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useRef } from "react";
 
 interface CircleDimensions {
   width?: number;
@@ -133,42 +136,82 @@ export const Button: React.FC<ButtonProps> = ({
 
     case "gradient":
       return (
-        <View style={[styles.gradientWrapper, style]}>
-          {/* Top-left to bottom-right gradient */}
-          <LinearGradient
-            colors={[colors.shilo, colors.ube, colors.deluge]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          {/* Bottom-left to top-right gradient, blended on top */}
-          <LinearGradient
-            colors={[
-              "rgba(234, 192, 197, 0.8)", // roseFog
-              "transparent",
-              "rgba(139, 127, 188, 0.8)", // ube
-            ]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <Pressable
-            onPress={onPress}
-            disabled={disabled}
-            style={styles.gradientInner}
-            testID="button-gradient"
-          >
-            {text && (
-              <Text style={[styles.gradientText, textStyle]}>{text}</Text>
-            )}
-            {icon && icon}
-            {loading && (
-              <ActivityIndicator size="small" color={colors.deluge} />
-            )}
-          </Pressable>
-        </View>
+        <AnimatedGradientButton
+          onPress={onPress}
+          disabled={disabled}
+          text={text}
+          textStyle={textStyle}
+          icon={icon}
+          loading={loading}
+          style={style}
+        />
       );
   }
+};
+
+const AnimatedGradientButton: React.FC<{
+  onPress?: () => void;
+  disabled?: boolean;
+  text?: string;
+  textStyle?: object;
+  icon?: React.ReactNode;
+  loading?: boolean;
+  style?: object;
+}> = ({ onPress, disabled, text, textStyle, icon, loading, style }) => {
+  const rotation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.timing(rotation, {
+        toValue: 1,
+        duration: 3000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [rotation]);
+
+  const spin = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["180deg", "360deg"],
+  });
+
+  return (
+    <View style={[styles.gradientWrapper, style]}>
+      <Animated.View
+        style={[styles.gradientRotating, { transform: [{ rotate: spin }] }]}
+      >
+        <LinearGradient
+          colors={[colors.shilo, colors.ube, colors.deluge]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={[
+            "rgba(234, 192, 197, 0.8)",
+            "transparent",
+            "rgba(139, 127, 188, 0.8)",
+          ]}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 0 }}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
+      <Pressable
+        onPress={onPress}
+        disabled={disabled}
+        style={styles.gradientInner}
+        testID="button-gradient"
+      >
+        {text && <Text style={[styles.gradientText, textStyle]}>{text}</Text>}
+        {icon && icon}
+        {loading && <ActivityIndicator size="small" color={colors.deluge} />}
+      </Pressable>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -262,9 +305,16 @@ const styles = StyleSheet.create({
   gradientWrapper: {
     width: "100%",
     borderRadius: 28,
-    padding: 1,
+    padding: 2,
     alignSelf: "center",
     overflow: "hidden",
+  },
+  gradientRotating: {
+    position: "absolute",
+    top: "-50%",
+    left: "-25%",
+    width: "150%",
+    height: "200%",
   },
   gradientInner: {
     backgroundColor: colors.white,

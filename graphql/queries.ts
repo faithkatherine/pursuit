@@ -166,6 +166,7 @@ export const SIGN_IN = gql`
           authProvider
           profile {
             isOnboardingCompleted
+            hasSkippedOnboarding
             bio
             locationName
           }
@@ -204,6 +205,7 @@ export const SIGN_UP = gql`
           authProvider
           profile {
             isOnboardingCompleted
+            hasSkippedOnboarding
             bio
             locationName
           }
@@ -232,6 +234,7 @@ export const GOOGLE_SIGN_IN = gql`
           authProvider
           profile {
             isOnboardingCompleted
+            hasSkippedOnboarding
             bio
             locationName
           }
@@ -275,6 +278,7 @@ export const GET_USER = gql`
         hasSkippedOnboarding
         bio
         locationName
+        allowLocationSharing
       }
     }
   }

@@ -1367,6 +1367,11 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
+"@dev-plugins/apollo-client@~0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@dev-plugins/apollo-client/-/apollo-client-0.2.0.tgz#6b29b4f45ecb335a96fe532923c2823634623287"
+  integrity sha512-TLxOl3Ednrs3w5b2wx6+Lg4wZDGE20XGDwLDIkkNSG5QT0huJ8VWk+vM1zNcbbGUioqOSvhoy4XqENdWH6qBvw==
+
 "@egjs/hammerjs@^2.0.17":
   version "2.0.17"
   resolved "https://registry.npmjs.org/@egjs/hammerjs/-/hammerjs-2.0.17.tgz"
