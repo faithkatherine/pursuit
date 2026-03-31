@@ -56,9 +56,9 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
   };
 
   const saveIcon = saving ? (
-    <ActivityIndicator size="small" color={colors.shilo} />
+    <ActivityIndicator size="small" color={colors.deluge} />
   ) : (
-    <HeartIcon size={16} color={colors.shilo} filled={isSaved} />
+    <HeartIcon size={16} color={colors.deluge} filled={isSaved} />
   );
 
   return (
@@ -94,7 +94,12 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
       </View>
 
       {/* Image area with inset */}
-      <View style={[styles.imageWrapper, { margin: CARD_PADDING, height: IMAGE_HEIGHT }]}>
+      <View
+        style={[
+          styles.imageWrapper,
+          { margin: CARD_PADDING, height: IMAGE_HEIGHT },
+        ]}
+      >
         <Image
           source={{ uri: event.image }}
           style={styles.image}
@@ -132,7 +137,7 @@ const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
     borderRadius: 16,
-    backgroundColor: colors.shilo,
+    backgroundColor: colors.deluge,
     overflow: "visible",
   },
   saveButtonOuter: {
@@ -206,14 +211,14 @@ const styles = StyleSheet.create({
     fontFamily: typography.h4.fontFamily,
     fontSize: fontSizes.base,
     fontWeight: fontWeights.bold,
-    color: colors.thunder,
+    color: colors.white,
     marginBottom: 2,
   },
   subtitle: {
     fontFamily: typography.body.fontFamily,
     fontSize: fontSizes.sm,
     fontWeight: fontWeights.medium,
-    color: colors.thunder,
+    color: colors.white,
     opacity: 0.7,
   },
 });

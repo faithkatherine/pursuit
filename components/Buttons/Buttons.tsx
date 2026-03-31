@@ -87,7 +87,9 @@ export const Button: React.FC<ButtonProps> = ({
           ]}
           testID="button-secondary"
         >
-          {text && <Text style={styles.secondaryButtonText}>{text}</Text>}
+          {text && (
+            <Text style={[styles.secondaryButtonText, textStyle]}>{text}</Text>
+          )}
           {icon && icon}
         </Pressable>
       );

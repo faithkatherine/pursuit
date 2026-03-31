@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button } from "components/Buttons";
 import { typography, fontWeights } from "themes/tokens/typography";
-import { theme } from "themes/tokens/colors";
+import colors, { theme } from "themes/tokens/colors";
 
 interface SectionHeaderProps {
   title: string;
@@ -36,11 +36,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
             variant={variant}
             onPress={onButtonPress}
             style={styles.button}
-            circleDimensions={
-              buttonText === "+"
-                ? { width: 32, height: 32, borderRadius: 16 }
-                : undefined
-            }
+            textStyle={styles.buttonText}
           />
         )}
       </View>
@@ -84,5 +80,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
+    backgroundColor: colors.deluge,
+  },
+  buttonText: {
+    fontSize: 14,
+    color: colors.white,
   },
 });

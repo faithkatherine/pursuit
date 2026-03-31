@@ -101,8 +101,8 @@ const Home = () => {
   const heroTitle = heroTrip
     ? "Your Upcoming Trip"
     : heroEvent
-      ? "Don't Miss This"
-      : "Recommended For You";
+      ? "Don't Miss This Event"
+      : "Our Top Recommendation For You";
 
   // Lists show 4, skipping the first if used as hero
   const remainingUpcoming = heroEvent
