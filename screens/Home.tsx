@@ -1,5 +1,14 @@
-import { useRef, useState } from "react";
-import { View, StyleSheet, Animated, useWindowDimensions } from "react-native";
+import { useRef, useState, useCallback, useMemo } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  useWindowDimensions,
+  Modal,
+  Pressable,
+  FlatList,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -11,27 +20,134 @@ import {
   type EventCardData,
 } from "components/Cards/EventsCard";
 import { TrendingCard } from "components/Cards/TrendingCard";
-import { UpcomingCard } from "components/Cards/UpcomingCard";
 import { HeroCard, type HeroCardData } from "components/Cards/HeroCard";
-import { Button } from "components/Buttons";
 import { Carousel } from "components/Carousel";
 
-import { colors } from "themes/tokens/colors";
+import TravelIcon from "assets/icons/travel_explore.svg";
+import Chevron from "assets/icons/chevron.svg";
+import ScheduleIcon from "assets/icons/schedule_events.svg";
 
-import { useHomeData, useLocationPermission } from "graphql/hooks";
+import { colors } from "themes/tokens/colors";
+import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+
+import { useHomeData } from "graphql/hooks";
+
+// ---------------------------------------------------------------------------
+// Greeting + subtitle utilities (client-side, no backend dependency)
+// ---------------------------------------------------------------------------
+
+type TimeBucket = "morning" | "afternoon" | "evening" | "late";
+
+function getTimeBucket(now: Date): TimeBucket {
+  const h = now.getHours();
+  if (h >= 5 && h < 12) return "morning";
+  if (h >= 12 && h < 17) return "afternoon";
+  if (h >= 17 && h < 22) return "evening";
+  return "late";
+}
+
+function getGreeting(bucket: TimeBucket, firstName?: string | null): string {
+  const name = firstName ? `, ${firstName}` : "";
+  switch (bucket) {
+    case "morning":
+      return `Good morning${name}`;
+    case "afternoon":
+      return `Good afternoon${name}`;
+    case "evening":
+      return `Good evening${name}`;
+    case "late":
+      return firstName ? `Still up, ${firstName}?` : "Still up?";
+  }
+}
+
+const SUBTITLE_SETS: Record<TimeBucket, string[]> = {
+  morning: [
+    "What\u2019s on your radar today?",
+    "Pick something for later",
+    "Make today count",
+  ],
+  afternoon: [
+    "Got plans tonight?",
+    "Find something for the evening",
+    "What\u2019s the move?",
+  ],
+  evening: [
+    "Where to tonight?",
+    "Pick your next adventure",
+    "Something fun ahead?",
+  ],
+  late: ["Anything calling you?", "Quiet plans for tomorrow?"],
+};
+
+/**
+ * Deterministic daily rotation: hash date string + userId into an index.
+ * Stable within a day, changes day-to-day.
+ */
+function getGreetingPrompt(now: Date, userId?: string | null): string {
+  const bucket = getTimeBucket(now);
+  const set = SUBTITLE_SETS[bucket];
+  const dateStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const seed = `${dateStr}:${userId ?? "anon"}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  }
+  const index = Math.abs(hash) % set.length;
+  return set[index];
+}
+
+// ---------------------------------------------------------------------------
+// Time filter chips
+// ---------------------------------------------------------------------------
+
+type TimeFilter = "tonight" | "weekend" | "next_week";
+
+const TIME_FILTERS: { key: TimeFilter; label: string }[] = [
+  { key: "tonight", label: "Tonight" },
+  { key: "weekend", label: "This weekend" },
+  { key: "next_week", label: "Next week" },
+];
+
+const FILTER_LABELS: Record<TimeFilter, string> = {
+  tonight: "tonight",
+  weekend: "this weekend",
+  next_week: "next week",
+};
+
+function getHoursUntil(dateStr: string): number | null {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  const ms = d.getTime() - Date.now();
+  if (ms < 0) return null;
+  return Math.round(ms / (1000 * 60 * 60));
+}
+
+// ---------------------------------------------------------------------------
+// Home screen
+// ---------------------------------------------------------------------------
 
 const Home = () => {
   const router = useRouter();
   const { height: screenHeight } = useWindowDimensions();
-  const { data, loading, error } = useHomeData();
-  const { toggleLocationPermission } = useLocationPermission();
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [insightsHeight, setInsightsHeight] = useState(200);
+  const [neighborhoodId, setNeighborhoodId] = useState<string | null>(null);
+  const [showNeighborhoodPicker, setShowNeighborhoodPicker] = useState(false);
+  const [timeFilter, setTimeFilter] = useState<TimeFilter | null>(null);
 
-  // Dynamic spacing based on screen height
-  const sectionSpacing = Math.round(screenHeight * 0.012); // ~10-12px
-  const carouselSpacing = Math.round(screenHeight * 0.015); // ~12-14px
+  const { data, loading, error } = useHomeData(neighborhoodId, timeFilter);
+
+  const sectionSpacing = Math.round(screenHeight * 0.012);
+  const carouselSpacing = Math.round(screenHeight * 0.015);
+
+  const handleNeighborhoodSelect = useCallback((id: string | null) => {
+    setNeighborhoodId(id);
+    setShowNeighborhoodPicker(false);
+  }, []);
+
+  // Compute greeting + subtitle once per render (cheap, all client-side)
+  const now = useMemo(() => new Date(), []);
 
   if (loading) {
     return <Loading />;
@@ -47,18 +163,22 @@ const Home = () => {
   }
 
   const {
-    greeting,
     weather,
-    categories,
     recommendations,
     trending,
     upcomingEvents,
     activeTrip,
+    cityName,
+    activeNeighborhood,
+    neighborhoods,
   } = homeData;
 
-  const validUpcoming = (upcomingEvents ?? []).filter(
-    (e): e is NonNullable<typeof e> => e != null,
-  );
+  // Extract first name from backend greeting ("Hi Faith" → "Faith")
+  const firstName = homeData.greeting?.replace(/^Hi\s+/, "") || null;
+  const bucket = getTimeBucket(now);
+  const greetingText = getGreeting(bucket, firstName);
+  const subtitleText = getGreetingPrompt(now, homeData.id);
+
   const validRecommendations = (recommendations ?? []).filter(
     (r): r is NonNullable<typeof r> => r != null,
   );
@@ -66,24 +186,11 @@ const Home = () => {
     (t): t is NonNullable<typeof t> => t != null,
   );
 
-  // Hero card priority: active trip → first upcoming event → first recommendation
+  // Hero card priority: trip within ~30 days → first recommendation (editor's pick)
   const heroTrip = activeTrip as HeroCardData | null;
 
-  const heroEvent =
-    !heroTrip && validUpcoming.length > 0 ? validUpcoming[0] : null;
-  const heroEventAsCard: HeroCardData | null = heroEvent
-    ? {
-        id: heroEvent.id,
-        name: heroEvent.name,
-        destination: heroEvent.locationName ?? "",
-        startDate: heroEvent.date,
-        endDate: heroEvent.date,
-        coverImage: heroEvent.image ?? null,
-      }
-    : null;
-
   const heroRecommendation =
-    !heroTrip && !heroEvent && validRecommendations.length > 0
+    !heroTrip && validRecommendations.length > 0
       ? validRecommendations[0]
       : null;
   const heroRecommendationAsCard: HeroCardData | null = heroRecommendation
@@ -92,28 +199,36 @@ const Home = () => {
         name: heroRecommendation.name,
         destination: heroRecommendation.locationName ?? "",
         startDate: heroRecommendation.date,
-        endDate: heroRecommendation.date,
+        endDate: heroRecommendation.endDate ?? heroRecommendation.date,
         coverImage: heroRecommendation.image ?? null,
+        curatorNote: (heroRecommendation as any).curatorNote ?? null,
+        curatorName: (heroRecommendation as any).curatorName ?? null,
       }
     : null;
 
-  const heroCard = heroTrip ?? heroEventAsCard ?? heroRecommendationAsCard;
-  const heroTitle = heroTrip
-    ? "Your Upcoming Trip"
-    : heroEvent
-      ? "Don't Miss This Event"
-      : "Our Top Recommendation For You";
-
-  // Lists show 4, skipping the first if used as hero
-  const remainingUpcoming = heroEvent
-    ? validUpcoming.slice(1, 5)
-    : validUpcoming.slice(0, 3);
+  const heroCard = heroTrip ?? heroRecommendationAsCard;
+  const isEditorsPick = !heroTrip && !!heroRecommendation;
 
   const remainingRecommendations = heroRecommendation
-    ? validRecommendations.slice(1, 4)
-    : validRecommendations.slice(0, 3);
+    ? validRecommendations.slice(1, 8)
+    : validRecommendations.slice(0, 8);
 
-  const displayTrending = validTrending.slice(0, 3);
+  const displayTrending = validTrending.slice(0, 10);
+
+  // Next Up: soonest saved event within 24 hours
+  const validUpcoming = (upcomingEvents ?? []).filter(
+    (e): e is NonNullable<typeof e> => e != null,
+  );
+  const nextUpEvent = validUpcoming.length > 0 ? validUpcoming[0] : null;
+  const nextUpHours = nextUpEvent?.date ? getHoursUntil(nextUpEvent.date) : null;
+  const showNextUp = nextUpHours != null && nextUpHours <= 24;
+
+  // Empty filter state
+  const hasFilter = timeFilter != null;
+  const isFilterEmpty =
+    hasFilter &&
+    remainingRecommendations.length === 0 &&
+    displayTrending.length === 0;
 
   const fadeStart = insightsHeight - insets.top;
   const statusBarOpacity = scrollY.interpolate({
@@ -121,6 +236,8 @@ const Home = () => {
     outputRange: [0, 0, 1],
     extrapolate: "clamp",
   });
+
+  const neighborhoodName = activeNeighborhood?.name ?? null;
 
   return (
     <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
@@ -138,14 +255,12 @@ const Home = () => {
         )}
       >
         <View onLayout={(e) => setInsightsHeight(e.nativeEvent.layout.height)}>
-          {/* Horizontal: purple (left) → pink (right) */}
           <LinearGradient
             colors={[colors.deluge, colors.roseFog]}
             locations={[0, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            {/* Vertical: transparent at top → white at bottom (extended for seamless fade) */}
             <LinearGradient
               colors={[
                 "transparent",
@@ -160,16 +275,87 @@ const Home = () => {
               <InsightsCard
                 shouldShowTopInset
                 weather={weather}
-                greeting={greeting || "Welcome back!"}
-                userLocation={homeData.userLocation || undefined}
-                profileImageUri={homeData.profilePicture || undefined}
-                onLocationPress={() => {
-                  toggleLocationPermission(true);
-                }}
-                onProfilePress={() =>
-                  router.push("/(protected)/(tabs)/profile")
-                }
+                greeting={greetingText}
+                subtitle={subtitleText}
+                cityName={cityName ?? undefined}
+                neighborhoodName={neighborhoodName ?? undefined}
+                onChipPress={() => setShowNeighborhoodPicker(true)}
               />
+
+              {/* Next Up strip — saved event within 24 hours */}
+              {showNextUp && nextUpEvent && (
+                <Pressable
+                  style={styles.ctaStrip}
+                  onPress={() => {}}
+                >
+                  <ScheduleIcon width={18} height={18} fill={colors.thunder} />
+                  <View style={styles.ctaStripContent}>
+                    <Text style={styles.ctaStripLabel}>
+                      NEXT UP {"\u00B7"} IN{" "}
+                      {nextUpHours === 0
+                        ? "< 1 HOUR"
+                        : `${nextUpHours} HOUR${nextUpHours === 1 ? "" : "S"}`}
+                    </Text>
+                    <Text style={styles.ctaStripTitle} numberOfLines={1}>
+                      {nextUpEvent.name}
+                      {nextUpEvent.locationName
+                        ? ` \u00B7 ${nextUpEvent.locationName}`
+                        : ""}
+                    </Text>
+                  </View>
+                  <View style={{ transform: [{ rotate: "180deg" }] }}>
+                    <Chevron width={14} height={14} fill={colors.aluminium} />
+                  </View>
+                </Pressable>
+              )}
+
+              {/* Plan a Trip strip — only when no upcoming trips */}
+              {!activeTrip && (
+                <Pressable
+                  style={styles.ctaStrip}
+                  onPress={() => router.push("/travel")}
+                >
+                  <TravelIcon width={18} height={18} fill={colors.thunder} />
+                  <View style={styles.ctaStripContent}>
+                    <Text style={styles.ctaStripTitle}>Plan a trip</Text>
+                  </View>
+                  <View style={{ transform: [{ rotate: "180deg" }] }}>
+                    <Chevron width={14} height={14} fill={colors.aluminium} />
+                  </View>
+                </Pressable>
+              )}
+
+              {/* Time filter chips */}
+              <View style={styles.filterRow}>
+                {TIME_FILTERS.map((f) => {
+                  const selected = timeFilter === f.key;
+                  return (
+                    <Pressable
+                      key={f.key}
+                      onPress={() =>
+                        setTimeFilter(selected ? null : f.key)
+                      }
+                      style={[
+                        styles.filterChip,
+                        selected
+                          ? styles.filterChipSelected
+                          : styles.filterChipUnselected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.filterChipText,
+                          selected
+                            ? styles.filterChipTextSelected
+                            : styles.filterChipTextUnselected,
+                        ]}
+                      >
+                        {f.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
               {heroCard && (
                 <View
@@ -178,101 +364,152 @@ const Home = () => {
                     { paddingBottom: carouselSpacing },
                   ]}
                 >
-                  <SectionHeader title={heroTitle} />
-                  <HeroCard trip={heroCard} onPress={() => {}} />
-                  {!heroTrip && (
-                    <View style={styles.tripCtaContainer}>
-                      <Button
-                        variant="gradient"
-                        text="Plan a Trip"
-                        onPress={() => router.push("/travel")}
-                      />
-                    </View>
-                  )}
+                  <HeroCard
+                    trip={heroCard}
+                    onPress={() => {}}
+                    isEditorsPick={isEditorsPick}
+                  />
                 </View>
               )}
             </LinearGradient>
           </LinearGradient>
         </View>
 
-        {remainingUpcoming.length > 0 && (
-          <Carousel
-            gap={12}
-            header={
-              <SectionHeader
-                title="Your Upcoming Events"
-                buttonText="View All"
-                onButtonPress={() =>
-                  router.push({
-                    pathname: "/explore",
-                    params: { section: "upcoming" },
-                  })
-                }
-              />
-            }
-            items={remainingUpcoming.map((event) => (
-              <UpcomingCard
-                key={event.id}
-                event={event as EventCardData}
-                onPress={() => {}}
-              />
-            ))}
-          />
-        )}
-
         <View
           style={[styles.sectionContainer, { paddingVertical: sectionSpacing }]}
         >
-          {remainingRecommendations.length > 0 && (
+          {isFilterEmpty ? (
+            /* Empty filter state */
+            <View style={styles.emptyState}>
+              <ScheduleIcon width={40} height={40} fill={colors.aluminium} />
+              <Text style={styles.emptyStateTitle}>
+                Nothing on for {FILTER_LABELS[timeFilter!]} yet
+              </Text>
+              <Text style={styles.emptyStateSubtitle}>
+                Check back later or explore everything we have.
+              </Text>
+              <Pressable
+                style={styles.emptyStateCta}
+                onPress={() => setTimeFilter(null)}
+              >
+                <Text style={styles.emptyStateCtaText}>Show all events</Text>
+              </Pressable>
+            </View>
+          ) : (
             <>
-              <SectionHeader
-                title="Recommendations"
-                buttonText="View All"
-                onButtonPress={() =>
-                  router.push({
-                    pathname: "/explore",
-                    params: { section: "recommendations" },
-                  })
-                }
-              />
-              <View style={styles.eventsSection}>
-                {remainingRecommendations.map((recommendation) => (
-                  <RecommendationCard
-                    key={recommendation.id}
-                    recommendation={recommendation as EventCardData}
-                    onPress={() => {}}
-                  />
-                ))}
-              </View>
-            </>
-          )}
-
-          {displayTrending.length > 0 && (
-            <Carousel
-              gap={16}
-              header={
-                <SectionHeader
-                  title="Trending"
-                  buttonText="View All"
-                  onButtonPress={() =>
-                    router.push({
-                      pathname: "/explore",
-                      params: { section: "trending" },
-                    })
+              {/* Recommendations — horizontal scroll using TrendingCard */}
+              {remainingRecommendations.length > 0 && (
+                <Carousel
+                  gap={16}
+                  header={
+                    <SectionHeader
+                      title="Made for your week"
+                      buttonText="View All"
+                      onButtonPress={() =>
+                        router.push({
+                          pathname: "/explore",
+                          params: { section: "recommendations" },
+                        })
+                      }
+                    />
                   }
+                  items={remainingRecommendations.map((rec) => (
+                    <TrendingCard
+                      key={rec.id}
+                      event={rec as EventCardData}
+                      onPress={() => {}}
+                    />
+                  ))}
                 />
-              }
-              items={displayTrending.map((event) => (
-                <TrendingCard
-                  key={event.id}
-                  event={event as EventCardData}
-                  onPress={() => {}}
-                />
-              ))}
-            />
+              )}
+
+              {/* Trending — vertical list using RecommendationCard with rank */}
+              {displayTrending.length > 0 && (
+                <>
+                  <SectionHeader
+                    title="Trending"
+                    buttonText="View All"
+                    onButtonPress={() =>
+                      router.push({
+                        pathname: "/explore",
+                        params: { section: "trending" },
+                      })
+                    }
+                  />
+                  <View style={styles.trendingSection}>
+                    {displayTrending.map((event, index) => (
+                      <View key={event.id} style={styles.trendingRow}>
+                        <View style={styles.rankSquare}>
+                          <Text style={styles.rankNumber}>{index + 1}</Text>
+                        </View>
+                        <View style={styles.trendingCardWrapper}>
+                          <RecommendationCard
+                            recommendation={event as EventCardData}
+                            onPress={() => {}}
+                          />
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
+            </>
           )}
         </View>
       </Animated.ScrollView>
+
+      {/* Neighborhood picker bottom sheet */}
+      <Modal
+        visible={showNeighborhoodPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowNeighborhoodPicker(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowNeighborhoodPicker(false)}
+        >
+          <Pressable style={styles.bottomSheet} onPress={() => {}}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Select Neighborhood</Text>
+            <FlatList
+              data={[
+                { id: null, name: `${cityName || "Nairobi"} (all)`, city: "" },
+                ...((neighborhoods ?? []).filter(Boolean) as Array<{
+                  id: string;
+                  name: string;
+                  city: string;
+                }>),
+              ]}
+              keyExtractor={(item) => item.id ?? "all"}
+              renderItem={({ item }) => {
+                const isActive =
+                  item.id === null
+                    ? neighborhoodId === null
+                    : neighborhoodId === item.id;
+                return (
+                  <Pressable
+                    style={[
+                      styles.sheetItem,
+                      isActive && styles.sheetItemActive,
+                    ]}
+                    onPress={() => handleNeighborhoodSelect(item.id)}
+                  >
+                    <Text
+                      style={[
+                        styles.sheetItemText,
+                        isActive && styles.sheetItemTextActive,
+                      ]}
+                    >
+                      {item.name}
+                    </Text>
+                  </Pressable>
+                );
+              }}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Layout>
   );
 };
@@ -287,19 +524,179 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   heroSection: {
-    paddingTop: 4,
+    paddingTop: 8,
     paddingBottom: 16,
   },
   sectionContainer: {
     paddingVertical: 8,
   },
-  eventsSection: {
-    paddingHorizontal: 20,
-    gap: 16,
+  // CTA strips (Next Up, Plan a Trip)
+  ctaStrip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
-  tripCtaContainer: {
+  ctaStripContent: {
+    flex: 1,
+  },
+  ctaStripLabel: {
+    fontFamily: typography.caption.fontFamily,
+    fontSize: 10,
+    fontWeight: fontWeights.semibold,
+    color: colors.thunder,
+    letterSpacing: 0.8,
+    marginBottom: 2,
+  },
+  ctaStripTitle: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
+    color: colors.thunder,
+  },
+  // Time filter chips
+  filterRow: {
+    flexDirection: "row",
+    gap: 8,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingBottom: 20,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  filterChipSelected: {
+    backgroundColor: colors.thunder,
+  },
+  filterChipUnselected: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.25)",
+  },
+  filterChipText: {
+    fontFamily: typography.caption.fontFamily,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
+  },
+  filterChipTextSelected: {
+    color: colors.white,
+  },
+  filterChipTextUnselected: {
+    color: colors.thunder,
+  },
+  // Trending
+  trendingSection: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  trendingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  rankSquare: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    backgroundColor: colors.deluge,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rankNumber: {
+    fontFamily: typography.h4.fontFamily,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.bold,
+    color: colors.white,
+  },
+  trendingCardWrapper: {
+    flex: 1,
+  },
+  // Empty filter state
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 32,
+    gap: 8,
+  },
+  emptyStateTitle: {
+    fontFamily: typography.h4.fontFamily,
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.semibold,
+    color: colors.thunder,
+    textAlign: "center",
+    marginTop: 12,
+  },
+  emptyStateSubtitle: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.sm,
+    color: colors.aluminium,
+    textAlign: "center",
+  },
+  emptyStateCta: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: colors.deluge,
+  },
+  emptyStateCtaText: {
+    fontFamily: typography.caption.fontFamily,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semibold,
+    color: colors.white,
+  },
+  // Bottom sheet styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  bottomSheet: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    maxHeight: "60%",
+  },
+  sheetHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.aluminium,
+    alignSelf: "center",
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontFamily: typography.h4.fontFamily,
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.semibold,
+    color: colors.thunder,
+    marginBottom: 12,
+  },
+  sheetItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  sheetItemActive: {
+    backgroundColor: "rgba(124, 92, 156, 0.1)",
+  },
+  sheetItemText: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.base,
+    color: colors.thunder,
+  },
+  sheetItemTextActive: {
+    fontWeight: fontWeights.semibold,
+    color: colors.deluge,
   },
 });
 

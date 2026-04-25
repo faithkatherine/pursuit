@@ -18,15 +18,6 @@ jest.mock("components/Cards/InsightsCard", () => ({
   ),
 }));
 
-jest.mock("components/Cards/BucketCard", () => ({
-  BucketCard: ({ name, icon }: any) => (
-    <text testID="bucket-card">
-      {icon} {name}
-    </text>
-  ),
-  CategoryPills: () => null,
-}));
-
 jest.mock("components/Cards/EventsCard", () => ({
   RecommendationCard: ({ recommendation }: any) => (
     <text testID="recommendation-card">{recommendation.name}</text>
@@ -39,6 +30,12 @@ jest.mock("components/Cards/TrendingCard", () => ({
   ),
 }));
 
+jest.mock("components/Cards/HeroCard", () => ({
+  HeroCard: ({ trip }: any) => (
+    <text testID="hero-card">{trip.name}</text>
+  ),
+}));
+
 jest.mock("components/Carousel", () => ({
   Carousel: ({ header, items }: any) => (
     <text testID="carousel">
@@ -48,9 +45,15 @@ jest.mock("components/Carousel", () => ({
   ),
 }));
 
+jest.mock("components/Buttons", () => ({
+  Button: ({ text }: any) => <text>{text}</text>,
+}));
+
 // Mock Apollo Client
 jest.mock("@apollo/client", () => ({
   useQuery: jest.fn(),
+  useMutation: jest.fn(() => [jest.fn()]),
+  gql: jest.fn((s: any) => s),
 }));
 
 // Mock graphql hooks
@@ -62,82 +65,86 @@ describe("Home Screen", () => {
   const mockHomeData = {
     getHome: {
       id: "home-1",
-      greeting: "Good morning, Test User",
+      greeting: "Hi Faith",
       timeOfDay: "morning",
+      dayOfWeek: "Friday",
+      cityName: "Nairobi",
       profilePicture: null,
-      userLocation: "San Francisco",
+      userLocation: "Nairobi, Kenya",
+      allowLocationSharing: true,
+      activeNeighborhood: { id: "1", name: "Westlands", city: "Nairobi" },
+      neighborhoods: [
+        { id: "1", name: "Westlands", city: "Nairobi" },
+        { id: "2", name: "Karen", city: "Nairobi" },
+      ],
       weather: {
-        city: "San Francisco",
+        city: "Nairobi",
         condition: "Sunny",
-        temperature: 22,
+        temperature: 26,
         icon: "01d",
       },
       categories: [
-        { id: "1", name: "Travel", icon: "✈️", color: "#007AFF" },
-        { id: "2", name: "Food", icon: "🍕", color: "#FF6B35" },
+        { id: "1", name: "Travel", icon: "plane", color: "#007AFF" },
       ],
       recommendations: [
         {
           id: "1",
           name: "Beach Cleanup",
-          description: "Join our community beach cleanup event",
-          date: "2023-10-15",
-          locationName: "Santa Monica",
-          image: "https://images.unsplash.com/photo-1",
+          description: "Community beach cleanup",
+          date: "2026-05-15",
+          endDate: null,
+          locationName: "Diani Beach",
+          image: "https://example.com/photo-1",
           isFree: true,
           isSaved: false,
           reason: "Based on your interest in Outdoors",
           source: "content_based",
-          category: [{ id: "1", name: "Outdoors", icon: "🌲", color: "#34C759" }],
+          curatorNote: null,
+          curatorName: null,
+          category: [{ id: "1", name: "Outdoors", icon: "tree", color: "#34C759" }],
         },
         {
           id: "2",
           name: "Tech Conference",
-          description: "Annual tech conference with top speakers",
-          date: "2023-11-20",
-          locationName: "LA",
-          image: "https://images.unsplash.com/photo-2",
+          description: "Annual tech conference",
+          date: "2026-06-20",
+          endDate: null,
+          locationName: "KICC",
+          image: "https://example.com/photo-2",
           isFree: false,
           isSaved: false,
-          reason: "Trending in your area",
+          reason: "Trending",
           source: "popular",
-          category: [{ id: "2", name: "Tech", icon: "💻", color: "#007AFF" }],
+          curatorNote: null,
+          curatorName: null,
+          category: [{ id: "2", name: "Tech", icon: "laptop", color: "#007AFF" }],
         },
       ],
       trending: [
         {
           id: "3",
           name: "Jazz Festival",
-          description: "Annual jazz festival in the park",
-          date: "2023-12-01",
-          locationName: "Central Park",
-          image: "https://images.unsplash.com/photo-3",
+          description: "Jazz festival in the park",
+          date: "2026-07-01",
+          endDate: null,
+          locationName: "Uhuru Gardens",
+          image: "https://example.com/photo-3",
           isFree: true,
           isSaved: false,
           reason: "Trending",
           source: "trending",
-          category: [{ id: "3", name: "Music", icon: "🎵", color: "#FF6B35" }],
-        },
-        {
-          id: "4",
-          name: "Food Market",
-          description: "Weekend artisan food market",
-          date: "2023-12-10",
-          locationName: "Downtown",
-          image: "https://images.unsplash.com/photo-4",
-          isFree: false,
-          isSaved: false,
-          reason: "Trending",
-          source: "trending",
-          category: [{ id: "4", name: "Food", icon: "🍕", color: "#FF6B35" }],
+          curatorNote: null,
+          curatorName: null,
+          category: [{ id: "3", name: "Music", icon: "music", color: "#FF6B35" }],
         },
       ],
+      upcomingEvents: [],
+      activeTrip: null,
     },
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-
     (useQuery as jest.Mock).mockReturnValue({
       loading: false,
       error: null,
@@ -169,15 +176,18 @@ describe("Home Screen", () => {
   });
 
   it("should render home content when data is loaded", () => {
-    const { getByTestId, getAllByTestId } = render(<Home />);
-
+    const { getByTestId } = render(<Home />);
     expect(getByTestId("insights-card")).toBeTruthy();
-    expect(getAllByTestId("recommendation-card")).toHaveLength(2);
   });
 
-  it("should render section headers", () => {
+  it("should render Made for your week section", () => {
     const { getByText } = render(<Home />);
-    expect(getByText("Recommendations")).toBeTruthy();
+    expect(getByText("Made for your week")).toBeTruthy();
+  });
+
+  it("should render Trending section", () => {
+    const { getByText } = render(<Home />);
+    expect(getByText("Trending")).toBeTruthy();
   });
 
   it("should handle empty home data gracefully", () => {
@@ -188,30 +198,6 @@ describe("Home Screen", () => {
     });
 
     const { getByText } = render(<Home />);
-    // Falls back to Loading when homeData is null
     expect(getByText("Loading...")).toBeTruthy();
-  });
-
-  it("should render trending section when trending data is available", () => {
-    const { getAllByTestId, getByText } = render(<Home />);
-    expect(getByText("Trending")).toBeTruthy();
-    expect(getAllByTestId("trending-card")).toHaveLength(2);
-  });
-
-  it("should handle empty categories", () => {
-    (useQuery as jest.Mock).mockReturnValue({
-      loading: false,
-      error: null,
-      data: {
-        getHome: {
-          ...mockHomeData.getHome,
-          categories: [],
-        },
-      },
-    });
-
-    const { queryAllByTestId } = render(<Home />);
-    // No category cards should render when categories is empty
-    expect(queryAllByTestId("bucket-card")).toHaveLength(0);
   });
 });

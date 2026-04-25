@@ -46,9 +46,19 @@ export const useBucketItems = (selectedCategory?: string | null) => {
   };
 };
 
-export const useHomeData = () => {
+export const useHomeData = (
+  neighborhoodId?: string | null,
+  timeFilter?: string | null,
+) => {
+  const hasFilters = !!neighborhoodId || !!timeFilter;
   return useQuery<GetHomeQuery>(GET_HOME, {
-    variables: { offset: 0, limit: 4 },
+    variables: {
+      offset: 0,
+      limit: 10,
+      neighborhoodId: neighborhoodId || undefined,
+      timeFilter: timeFilter || undefined,
+    },
+    fetchPolicy: hasFilters ? "network-only" : "cache-first",
   });
 };
 

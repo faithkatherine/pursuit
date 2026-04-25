@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import typography, { fontSizes, fontWeights, letterSpacing } from "themes/tokens/typography";
 import { Button } from "components/Buttons/Buttons";
 import { formatEventDate } from "utils/date";
 
@@ -21,11 +21,14 @@ export interface HeroCardData {
   endDate: string;
   coverImage?: string | null;
   eventCount?: number | null;
+  curatorNote?: string | null;
+  curatorName?: string | null;
 }
 
 interface HeroCardProps {
   trip: HeroCardData;
   onPress: () => void;
+  isEditorsPick?: boolean;
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -50,26 +53,36 @@ function formatDateRange(startDate: string, endDate: string): string {
     day: "numeric",
     year: "numeric",
   });
-  return `${start} – ${end}`;
+  return `${start} \u2013 ${end}`;
 }
 
-export const HeroCard: React.FC<HeroCardProps> = ({ trip, onPress }) => {
+export const HeroCard: React.FC<HeroCardProps> = ({
+  trip,
+  onPress,
+  isEditorsPick = false,
+}) => {
   const nights = getNightCount(trip.startDate, trip.endDate);
+  const hasCuratorNote = isEditorsPick && !!trip.curatorNote;
+  const imageHeight = hasCuratorNote ? CARD_WIDTH * 0.62 : IMAGE_HEIGHT;
 
+  // Trip tags: destination + nights + event count
+  // Editor's pick tags: destination only
   const tags: string[] = [];
   if (trip.destination) tags.push(trip.destination);
-  if (nights) tags.push(`${nights} nights`);
-  if (trip.eventCount != null && trip.eventCount > 0)
-    tags.push(
-      `${trip.eventCount} ${trip.eventCount === 1 ? "event" : "events"}`,
-    );
+  if (!isEditorsPick) {
+    if (nights) tags.push(`${nights} nights`);
+    if (trip.eventCount != null && trip.eventCount > 0)
+      tags.push(
+        `${trip.eventCount} ${trip.eventCount === 1 ? "event" : "events"}`,
+      );
+  }
 
   return (
     <Pressable onPress={onPress} testID="hero-card" style={styles.container}>
       {trip.coverImage ? (
         <Image
           source={{ uri: trip.coverImage }}
-          style={styles.image}
+          style={[styles.image, { height: imageHeight }]}
           resizeMode="cover"
         />
       ) : (
@@ -77,15 +90,22 @@ export const HeroCard: React.FC<HeroCardProps> = ({ trip, onPress }) => {
           colors={[colors.deluge, colors.ube]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.image}
+          style={[styles.image, { height: imageHeight }]}
         />
       )}
+
+      {/* Badge */}
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>
+          {isEditorsPick ? "EDITOR\u2019S PICK" : "YOUR TRIP"}
+        </Text>
+      </View>
 
       {/* Bottom gradient overlay */}
       <LinearGradient
         colors={["transparent", "rgba(30,30,46,0.6)", "rgba(30,30,46,0.92)"]}
         locations={[0.0, 0.4, 1]}
-        style={styles.gradient}
+        style={[styles.gradient, { height: imageHeight }]}
       >
         <Text style={styles.tripName} numberOfLines={1}>
           {trip.name}
@@ -94,6 +114,16 @@ export const HeroCard: React.FC<HeroCardProps> = ({ trip, onPress }) => {
         <Text style={styles.dateRange}>
           {formatDateRange(trip.startDate, trip.endDate)}
         </Text>
+
+        {/* Curator note — serif italic with smart quotes */}
+        {hasCuratorNote && (
+          <Text style={styles.curatorNote} numberOfLines={2}>
+            {"\u201C"}
+            {trip.curatorNote}
+            {"\u201D"} {"\u2014"}{" "}
+            {trip.curatorName || "Pursuit team"}
+          </Text>
+        )}
 
         {/* Tags row */}
         {tags.length > 0 && (
@@ -107,16 +137,18 @@ export const HeroCard: React.FC<HeroCardProps> = ({ trip, onPress }) => {
         )}
       </LinearGradient>
 
-      {/* View Details button */}
-      <View style={styles.bottomSection}>
-        <Button
-          variant="primary"
-          text="View Details"
-          onPress={onPress}
-          style={styles.ctaButton}
-          textStyle={styles.ctaButtonText}
-        />
-      </View>
+      {/* View Details — trip only */}
+      {!isEditorsPick && (
+        <View style={styles.bottomSection}>
+          <Button
+            variant="primary"
+            text="View Details"
+            onPress={onPress}
+            style={styles.ctaButton}
+            textStyle={styles.ctaButtonText}
+          />
+        </View>
+      )}
     </Pressable>
   );
 };
@@ -131,14 +163,30 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: IMAGE_HEIGHT,
+  },
+  badge: {
+    position: "absolute",
+    top: 14,
+    left: 14,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    zIndex: 2,
+  },
+  badgeText: {
+    fontFamily: typography.caption.fontFamily,
+    fontSize: 10,
+    fontWeight: fontWeights.semibold,
+    color: colors.white,
+    letterSpacing: letterSpacing.wider * 10,
+    textTransform: "uppercase",
   },
   gradient: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    height: IMAGE_HEIGHT,
     paddingHorizontal: 20,
     paddingBottom: 16,
     justifyContent: "flex-end",
@@ -155,7 +203,15 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     fontWeight: fontWeights.medium,
     color: "rgba(255,255,255,0.75)",
-    marginBottom: 12,
+    marginBottom: 8,
+  },
+  curatorNote: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.sm,
+    fontStyle: "italic",
+    color: "rgba(255,255,255,0.85)",
+    lineHeight: 20,
+    marginBottom: 10,
   },
   tagsRow: {
     flexDirection: "row",

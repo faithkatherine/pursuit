@@ -43,16 +43,28 @@ export const COMPLETE_ONBOARDING = gql`
 `;
 
 export const GET_HOME = gql`
-  query GetHome($offset: Int = 0, $limit: Int = 10) {
-    getHome(offset: $offset, limit: $limit) {
+  query GetHome($offset: Int = 0, $limit: Int = 10, $neighborhoodId: ID, $timeFilter: String) {
+    getHome(offset: $offset, limit: $limit, neighborhoodId: $neighborhoodId, timeFilter: $timeFilter) {
       id
       greeting
       timeOfDay
+      dayOfWeek
+      cityName
       profilePicture
       userLocation
       allowLocationSharing
       weather {
         ...WeatherInfo
+      }
+      activeNeighborhood {
+        id
+        name
+        city
+      }
+      neighborhoods {
+        id
+        name
+        city
       }
       categories {
         ...CategoryInfo

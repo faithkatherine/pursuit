@@ -71,6 +71,8 @@ export const EVENT_FRAGMENT = gql`
     isSaved
     reason
     source
+    curatorNote
+    curatorName
     category {
       ...CategoryInfo
     }
