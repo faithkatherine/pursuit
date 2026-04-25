@@ -13,15 +13,23 @@ import {
 import Svg, { Path } from "react-native-svg";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Loading, Error } from "components/Layout";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { Layout, Loading, Error } from "components/Layout";
 import { Button } from "components/Buttons";
 import { HeartIcon } from "components/Icons/HeartIcon";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
-import { useEvents, useSavedEvents, useSaveEvent, useUnsaveEvent } from "graphql/hooks";
+import {
+  useEvents,
+  useSavedEvents,
+  useSaveEvent,
+  useUnsaveEvent,
+} from "graphql/hooks";
 import { ExploreCard } from "components/Cards/ExploreCard";
 import type { ExploreCardData } from "components/Cards/ExploreCard";
 import BackIcon from "assets/icons/back.svg";
+import { BackNavigationHeader } from "components/Layout/BackNavigationHeader";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
@@ -38,10 +46,18 @@ type EventItem = ExploreCardData;
 export const Explore = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [insightsHeight, setInsightsHeight] = useState(200);
   const { section } = useLocalSearchParams<{ section?: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentIndexRef = useRef(0);
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const fadeStart = insightsHeight - insets.top;
+  const statusBarOpacity = scrollY.interpolate({
+    inputRange: [0, fadeStart * 0.6, fadeStart],
+    outputRange: [0, 0, 1],
+    extrapolate: "clamp",
+  });
 
   const title = (section && SECTION_TITLES[section]) || "Explore";
   const isUpcoming = section === "upcoming";
@@ -72,10 +88,9 @@ export const Explore = () => {
   const currentEvent =
     currentIndex < displayEvents.length ? displayEvents[currentIndex] : null;
 
-  const isCurrentSaved =
-    currentEvent
-      ? savedMap[currentEvent.id] ?? currentEvent.isSaved ?? false
-      : false;
+  const isCurrentSaved = currentEvent
+    ? (savedMap[currentEvent.id] ?? currentEvent.isSaved ?? false)
+    : false;
 
   const handleSave = useCallback(async () => {
     if (!currentEvent || saving) return;
@@ -212,10 +227,7 @@ export const Explore = () => {
             style={[
               styles.cardWrapper,
               {
-                transform: [
-                  { translateX: position.x },
-                  { rotate: cardRotate },
-                ],
+                transform: [{ translateX: position.x }, { rotate: cardRotate }],
                 opacity: cardOpacity,
               },
             ]}
@@ -277,142 +289,187 @@ export const Explore = () => {
   }
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <BackIcon width={20} height={20} stroke={theme.text.primary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>{title}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
+      <Animated.View
+        style={[
+          styles.statusBarFill,
+          { height: insets.top, opacity: statusBarOpacity },
+        ]}
+      />
+      <Animated.ScrollView
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
+      >
+        <View onLayout={(e) => setInsightsHeight(e.nativeEvent.layout.height)}>
+          {/* Horizontal: purple (left) → pink (right) */}
+          <LinearGradient
+            colors={[colors.deluge, colors.roseFog]}
+            locations={[0, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            {/* Vertical: transparent at top → white at bottom (extended for seamless fade) */}
+            <LinearGradient
+              colors={[
+                "transparent",
+                "transparent",
+                "rgba(255,255,255,0.5)",
+                colors.white,
+              ]}
+              locations={[0, 0.6, 0.85, 1]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+            >
+              <BackNavigationHeader
+                title={title}
+                onBackPress={() => router.back()}
+              />
 
-      {/* Search + filter */}
-      <View style={styles.searchRow}>
-        <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>🔍</Text>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search events..."
-            value={searchQuery}
-            onChangeText={(text) => {
-              setSearchQuery(text);
-              setCurrentIndex(0);
-              currentIndexRef.current = 0;
-            }}
-            placeholderTextColor={theme.text.secondary}
-          />
-        </View>
-        <Pressable
-          style={styles.filterButton}
-          onPress={() => {
-            /* TODO: open filter sheet */
-          }}
-        >
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M3 6h18M7 12h10M10 18h4"
-              stroke={theme.text.primary}
-              strokeWidth={2}
-              strokeLinecap="round"
-            />
-          </Svg>
-        </Pressable>
-      </View>
-
-      {/* Cards stack */}
-      {loading ? (
-        <Loading />
-      ) : displayEvents.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No events found</Text>
-          <Text style={styles.emptySubtext}>
-            {searchQuery
-              ? "Try a different search term"
-              : "Check back soon for new events"}
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.stackContainer}>
-          <View style={styles.cardArea}>{renderCards()}</View>
-          {currentIndex < displayEvents.length && (
-            <View style={styles.actionBar}>
-              {/* Undo — go back */}
-              <Button
-                variant="secondary"
-                icon={
+              {/* Search + filter */}
+              <View style={styles.searchRow}>
+                <View style={styles.searchContainer}>
+                  <Text style={styles.searchIcon}>🔍</Text>
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search events..."
+                    value={searchQuery}
+                    onChangeText={(text) => {
+                      setSearchQuery(text);
+                      setCurrentIndex(0);
+                      currentIndexRef.current = 0;
+                    }}
+                    placeholderTextColor={theme.text.secondary}
+                  />
+                </View>
+                <Pressable
+                  style={styles.filterButton}
+                  onPress={() => {
+                    /* TODO: open filter sheet */
+                  }}
+                >
                   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                     <Path
-                      d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"
-                      fill={currentIndex > 0 ? colors.thunder : colors.aluminium}
+                      d="M3 6h18M7 12h10M10 18h4"
+                      stroke={theme.text.primary}
+                      strokeWidth={2}
+                      strokeLinecap="round"
                     />
                   </Svg>
-                }
-                onPress={() => {
-                  if (currentIndex > 0) swipeCard("right");
-                }}
-                disabled={currentIndex <= 0}
-                circleDimensions={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 26,
-                  borderWidth: 1.5,
-                  backgroundColor: colors.white,
-                }}
-                style={styles.actionButtonStyle}
-              />
+                </Pressable>
+              </View>
+            </LinearGradient>
+          </LinearGradient>
 
-              {/* Save / favorite */}
-              <Button
-                variant="secondary"
-                icon={
-                  saving ? (
-                    <ActivityIndicator size="small" color={colors.deluge} />
-                  ) : (
-                    <HeartIcon
-                      size={22}
-                      color={colors.deluge}
-                      filled={isCurrentSaved}
-                    />
-                  )
-                }
-                onPress={handleSave}
-                circleDimensions={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
-                  borderWidth: 1.5,
-                  backgroundColor: colors.white,
-                }}
-                style={styles.actionButtonStyle}
-              />
+          {/* Cards stack */}
+          {loading ? (
+            <Loading />
+          ) : displayEvents.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No events found</Text>
+              <Text style={styles.emptySubtext}>
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Check back soon for new events"}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.stackContainer}>
+              <View style={styles.cardArea}>{renderCards()}</View>
+              {currentIndex < displayEvents.length && (
+                <View style={styles.actionBar}>
+                  {/* Undo — go back */}
+                  <Button
+                    variant="secondary"
+                    icon={
+                      <Svg
+                        width={20}
+                        height={20}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <Path
+                          d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"
+                          fill={
+                            currentIndex > 0 ? colors.thunder : colors.aluminium
+                          }
+                        />
+                      </Svg>
+                    }
+                    onPress={() => {
+                      if (currentIndex > 0) swipeCard("right");
+                    }}
+                    disabled={currentIndex <= 0}
+                    circleDimensions={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 26,
+                      borderWidth: 1.5,
+                      backgroundColor: colors.white,
+                    }}
+                    style={styles.actionButtonStyle}
+                  />
 
-              {/* Forward — next card */}
-              <Button
-                variant="secondary"
-                icon={
-                  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                    <Path
-                      d="M13.025 1l-2.847 2.828 6.176 6.176H0v3.992h16.354l-6.176 6.176L13.025 23 24 12z"
-                      fill={colors.white}
-                    />
-                  </Svg>
-                }
-                onPress={() => swipeCard("left")}
-                circleDimensions={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 26,
-                  borderWidth: 0,
-                  backgroundColor: colors.deluge,
-                }}
-                style={styles.actionButtonStyle}
-              />
+                  {/* Save / favorite */}
+                  <Button
+                    variant="secondary"
+                    icon={
+                      saving ? (
+                        <ActivityIndicator size="small" color={colors.deluge} />
+                      ) : (
+                        <HeartIcon
+                          size={22}
+                          color={colors.deluge}
+                          filled={isCurrentSaved}
+                        />
+                      )
+                    }
+                    onPress={handleSave}
+                    circleDimensions={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 30,
+                      borderWidth: 1.5,
+                      backgroundColor: colors.white,
+                    }}
+                    style={styles.actionButtonStyle}
+                  />
+
+                  {/* Forward — next card */}
+                  <Button
+                    variant="secondary"
+                    icon={
+                      <Svg
+                        width={18}
+                        height={18}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <Path
+                          d="M13.025 1l-2.847 2.828 6.176 6.176H0v3.992h16.354l-6.176 6.176L13.025 23 24 12z"
+                          fill={colors.white}
+                        />
+                      </Svg>
+                    }
+                    onPress={() => swipeCard("left")}
+                    circleDimensions={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 26,
+                      borderWidth: 0,
+                      backgroundColor: colors.deluge,
+                    }}
+                    style={styles.actionButtonStyle}
+                  />
+                </View>
+              )}
             </View>
           )}
         </View>
-      )}
-    </View>
+      </Animated.ScrollView>
+    </Layout>
   );
 };
 
@@ -420,6 +477,14 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  statusBarFill: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.deluge,
+    zIndex: 1,
   },
   header: {
     flexDirection: "row",
