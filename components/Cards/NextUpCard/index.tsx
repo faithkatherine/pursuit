@@ -1,0 +1,1 @@
+export { NextUpCard } from "./NextUpCard";

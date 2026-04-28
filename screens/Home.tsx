@@ -23,14 +23,14 @@ import { TrendingCard } from "components/Cards/TrendingCard";
 import { HeroCard, type HeroCardData } from "components/Cards/HeroCard";
 import { Carousel } from "components/Carousel";
 
-import TravelIcon from "assets/icons/travel_explore.svg";
-import Chevron from "assets/icons/chevron.svg";
 import ScheduleIcon from "assets/icons/schedule_events.svg";
 
 import { colors } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 
 import { useHomeData } from "graphql/hooks";
+import { NextUpCard } from "components/Cards/NextUpCard";
+import { TripCard } from "components/Cards/TripCard";
 
 // ---------------------------------------------------------------------------
 // Greeting + subtitle utilities (client-side, no backend dependency)
@@ -220,7 +220,9 @@ const Home = () => {
     (e): e is NonNullable<typeof e> => e != null,
   );
   const nextUpEvent = validUpcoming.length > 0 ? validUpcoming[0] : null;
-  const nextUpHours = nextUpEvent?.date ? getHoursUntil(nextUpEvent.date) : null;
+  const nextUpHours = nextUpEvent?.date
+    ? getHoursUntil(nextUpEvent.date)
+    : null;
   const showNextUp = nextUpHours != null && nextUpHours <= 24;
 
   // Empty filter state
@@ -284,46 +286,14 @@ const Home = () => {
 
               {/* Next Up strip — saved event within 24 hours */}
               {showNextUp && nextUpEvent && (
-                <Pressable
-                  style={styles.ctaStrip}
-                  onPress={() => {}}
-                >
-                  <ScheduleIcon width={18} height={18} fill={colors.thunder} />
-                  <View style={styles.ctaStripContent}>
-                    <Text style={styles.ctaStripLabel}>
-                      NEXT UP {"\u00B7"} IN{" "}
-                      {nextUpHours === 0
-                        ? "< 1 HOUR"
-                        : `${nextUpHours} HOUR${nextUpHours === 1 ? "" : "S"}`}
-                    </Text>
-                    <Text style={styles.ctaStripTitle} numberOfLines={1}>
-                      {nextUpEvent.name}
-                      {nextUpEvent.locationName
-                        ? ` \u00B7 ${nextUpEvent.locationName}`
-                        : ""}
-                    </Text>
-                  </View>
-                  <View style={{ transform: [{ rotate: "180deg" }] }}>
-                    <Chevron width={14} height={14} fill={colors.aluminium} />
-                  </View>
-                </Pressable>
+                <NextUpCard
+                  nextUpEvent={nextUpEvent as EventCardData}
+                  nextUpHours={nextUpHours!}
+                />
               )}
 
               {/* Plan a Trip strip — only when no upcoming trips */}
-              {!activeTrip && (
-                <Pressable
-                  style={styles.ctaStrip}
-                  onPress={() => router.push("/travel")}
-                >
-                  <TravelIcon width={18} height={18} fill={colors.thunder} />
-                  <View style={styles.ctaStripContent}>
-                    <Text style={styles.ctaStripTitle}>Plan a trip</Text>
-                  </View>
-                  <View style={{ transform: [{ rotate: "180deg" }] }}>
-                    <Chevron width={14} height={14} fill={colors.aluminium} />
-                  </View>
-                </Pressable>
-              )}
+              {!activeTrip && <TripCard />}
 
               {/* Time filter chips */}
               <View style={styles.filterRow}>
@@ -332,9 +302,7 @@ const Home = () => {
                   return (
                     <Pressable
                       key={f.key}
-                      onPress={() =>
-                        setTimeFilter(selected ? null : f.key)
-                      }
+                      onPress={() => setTimeFilter(selected ? null : f.key)}
                       style={[
                         styles.filterChip,
                         selected
@@ -529,35 +497,6 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     paddingVertical: 8,
-  },
-  // CTA strips (Next Up, Plan a Trip)
-  ctaStrip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginHorizontal: 20,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.35)",
-  },
-  ctaStripContent: {
-    flex: 1,
-  },
-  ctaStripLabel: {
-    fontFamily: typography.caption.fontFamily,
-    fontSize: 10,
-    fontWeight: fontWeights.semibold,
-    color: colors.thunder,
-    letterSpacing: 0.8,
-    marginBottom: 2,
-  },
-  ctaStripTitle: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.medium,
-    color: colors.thunder,
   },
   // Time filter chips
   filterRow: {
