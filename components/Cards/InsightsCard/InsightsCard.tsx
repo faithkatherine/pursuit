@@ -53,11 +53,7 @@ export const InsightsCard: React.FC<InsightsCardProps> = ({
 
         {/* Right: weather + location chip */}
         {weather && (
-          <Pressable
-            onPress={onChipPress}
-            style={styles.chip}
-            hitSlop={8}
-          >
+          <Pressable onPress={onChipPress} style={styles.chip} hitSlop={8}>
             <View style={styles.chipContent}>
               <WeatherAnimation iconCode={weather.icon} size={30} />
               <Text style={styles.chipText}>
@@ -80,7 +76,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "flex-start",
   },
   greetingContainer: {
     flexShrink: 1,
@@ -91,11 +87,12 @@ const styles = StyleSheet.create({
     fontSize: fontSizes["2xl"],
     fontWeight: fontWeights.bold,
     color: colors.black,
+    maxWidth: 200,
   },
   subtitle: {
     fontFamily: typography.body.fontFamily,
     fontSize: fontSizes.sm,
-    fontWeight: fontWeights.regular,
+    fontWeight: fontWeights.medium,
     color: colors.black,
     opacity: 0.55,
   },

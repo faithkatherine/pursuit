@@ -24,13 +24,13 @@ import { HeroCard, type HeroCardData } from "components/Cards/HeroCard";
 import { Carousel } from "components/Carousel";
 
 import ScheduleIcon from "assets/icons/schedule_events.svg";
+import ProfileIcon from "assets/icons/profile.svg";
 
 import { colors } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 
 import { useHomeData } from "graphql/hooks";
-import { NextUpCard } from "components/Cards/NextUpCard";
-import { TripCard } from "components/Cards/TripCard";
+import { CTACard } from "components/Cards/CTACard";
 
 // ---------------------------------------------------------------------------
 // Greeting + subtitle utilities (client-side, no backend dependency)
@@ -286,14 +286,31 @@ const Home = () => {
 
               {/* Next Up strip — saved event within 24 hours */}
               {showNextUp && nextUpEvent && (
-                <NextUpCard
-                  nextUpEvent={nextUpEvent as EventCardData}
-                  nextUpHours={nextUpHours!}
+                <CTACard
+                  title="Next Up"
+                  subtitle={`${
+                    nextUpHours! <= 1
+                      ? "Less than an hour"
+                      : `In ${nextUpHours} hours`
+                  }`}
+                  icon={
+                    <ScheduleIcon width={33} height={33} fill={colors.white} />
+                  }
+                  onPress={() => router.push("/upcoming")}
                 />
               )}
 
               {/* Plan a Trip strip — only when no upcoming trips */}
-              {!activeTrip && <TripCard />}
+              {!activeTrip && (
+                <CTACard
+                  title="Plan a Trip"
+                  subtitle="Explore the world with us"
+                  icon={
+                    <ProfileIcon width={33} height={33} fill={colors.white} />
+                  }
+                  onPress={() => router.push("/travel")}
+                />
+              )}
 
               {/* Time filter chips */}
               <View style={styles.filterRow}>
