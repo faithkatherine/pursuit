@@ -308,6 +308,7 @@ const Home = () => {
                   icon={
                     <ProfileIcon width={33} height={33} fill={colors.white} />
                   }
+                  backgroundColor={colors.roseFog}
                   onPress={() => router.push("/travel")}
                 />
               )}

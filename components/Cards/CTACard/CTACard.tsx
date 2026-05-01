@@ -13,6 +13,7 @@ interface CTACardProps {
   nextUpEvent?: EventCardData | null;
   nextUpHours?: number | null;
   variant?: "primary" | "secondary";
+  backgroundColor?: string;
   onPress: () => void;
 }
 
@@ -21,6 +22,7 @@ export const CTACard: React.FC<CTACardProps> = ({
   subtitle,
   icon,
   variant = "primary",
+  backgroundColor,
   nextUpEvent,
   nextUpHours,
   onPress,
@@ -28,7 +30,10 @@ export const CTACard: React.FC<CTACardProps> = ({
   switch (variant) {
     case "primary":
       return (
-        <Pressable style={styles.ctaStrip} onPress={onPress}>
+        <Pressable
+          style={[styles.ctaStrip, { backgroundColor: backgroundColor }]}
+          onPress={onPress}
+        >
           <View style={styles.ctaIconBox}>{icon}</View>
           <View style={styles.ctaStripContent}>
             <Text style={styles.ctaStripTitle}>{title}</Text>
@@ -39,7 +44,7 @@ export const CTACard: React.FC<CTACardProps> = ({
               width={24}
               height={24}
               stroke={colors.black87}
-              strokeWidth={48}
+              strokeWidth={36}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -54,8 +59,10 @@ export const CTACard: React.FC<CTACardProps> = ({
         >
           <View style={styles.ctaIconBox}>{icon}</View>
           <View style={styles.ctaStripContent}>
-            <Text style={styles.ctaStripTitle}>{title}</Text>
-            <Text style={styles.ctaStripSubtitle}>{subtitle}</Text>
+            <Text style={styles.ctaStripTitle}>
+              NEXT UP IN {nextUpHours} HOURS
+            </Text>
+            <Text style={styles.ctaStripSubtitle}>{nextUpEvent?.name}</Text>
           </View>
           <View>
             <ChevronIcon
@@ -91,7 +98,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 7,
-    backgroundColor: colors.lightPurple,
+    backgroundColor: colors.ube50,
     alignItems: "center",
     justifyContent: "center",
   },
