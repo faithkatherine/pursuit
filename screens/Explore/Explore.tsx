@@ -20,6 +20,7 @@ import { Button } from "components/Buttons";
 import { HeartIcon } from "components/Icons/HeartIcon";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import {
   useEvents,
   useSavedEvents,
@@ -402,14 +403,16 @@ export const Explore = () => {
                       if (currentIndex > 0) swipeCard("right");
                     }}
                     disabled={currentIndex <= 0}
-                    circleDimensions={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 26,
-                      borderWidth: 1.5,
-                      backgroundColor: colors.white,
-                    }}
-                    style={styles.actionButtonStyle}
+                    style={[
+                      styles.actionButtonStyle,
+                      {
+                        width: 52,
+                        height: 52,
+                        borderRadius: radii.full,
+                        borderWidth: 1.5,
+                        backgroundColor: colors.white,
+                      },
+                    ]}
                   />
 
                   {/* Save / favorite */}
@@ -427,14 +430,16 @@ export const Explore = () => {
                       )
                     }
                     onPress={handleSave}
-                    circleDimensions={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: 30,
-                      borderWidth: 1.5,
-                      backgroundColor: colors.white,
-                    }}
-                    style={styles.actionButtonStyle}
+                    style={[
+                      styles.actionButtonStyle,
+                      {
+                        width: 60,
+                        height: 60,
+                        borderRadius: radii.full,
+                        borderWidth: 1.5,
+                        backgroundColor: colors.white,
+                      },
+                    ]}
                   />
 
                   {/* Forward — next card */}
@@ -454,14 +459,17 @@ export const Explore = () => {
                       </Svg>
                     }
                     onPress={() => swipeCard("left")}
-                    circleDimensions={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 26,
-                      borderWidth: 0,
-                      backgroundColor: colors.deluge,
-                    }}
-                    style={styles.actionButtonStyle}
+                    style={[
+                      styles.actionButtonStyle,
+                      {
+                        width: 52,
+                        height: 52,
+                        borderRadius: radii.full,
+                        borderWidth: 0,
+                        elevation: 0,
+                        backgroundColor: colors.deluge,
+                      },
+                    ]}
                   />
                 </View>
               )}
@@ -495,7 +503,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
@@ -523,7 +531,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#F5F5F5",
-    borderRadius: 12,
+    borderRadius: radii.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -540,7 +548,7 @@ const styles = StyleSheet.create({
   filterButton: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: radii.md,
     backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
@@ -582,7 +590,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.deluge,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 20,
+    borderRadius: radii.xl,
   },
   resetButtonText: {
     fontFamily: typography.body.fontFamily,

@@ -1,6 +1,7 @@
 import { View, Text, Modal, StyleSheet, Pressable } from "react-native";
 import CloseIcon from "assets/icons/close.svg";
 import colors from "themes/tokens/colors";
+import { radii } from "themes/tokens/spacing";
 import { Button } from "components/Buttons";
 
 interface BaseModalProps {
@@ -45,17 +46,21 @@ export const BaseModal: React.FC<BaseModalProps> = ({
               {shouldShowCloseIcon && (
                 <Button
                   variant="secondary"
-                  circleDimensions={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    backgroundColor: colors.black,
-                  }}
+                  style={[
+                    styles.bottomSheetClose,
+                    {
+                      width: 32,
+                      height: 32,
+                      borderRadius: radii.lg,
+                      backgroundColor: colors.black,
+                      elevation: 0,
+                      borderWidth: 0,
+                    },
+                  ]}
                   onPress={onClose}
                   icon={
                     <CloseIcon width={24} height={24} color={colors.white} />
                   }
-                  style={styles.bottomSheetClose}
                 />
               )}
               <View>{children}</View>
@@ -85,17 +90,21 @@ export const BaseModal: React.FC<BaseModalProps> = ({
               {shouldShowCloseIcon && (
                 <Button
                   variant="secondary"
-                  circleDimensions={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    backgroundColor: colors.black,
-                  }}
+                  style={[
+                    styles.bottomSheetClose,
+                    {
+                      width: 32,
+                      height: 32,
+                      borderRadius: radii.lg,
+                      backgroundColor: colors.black,
+                      elevation: 0,
+                      borderWidth: 0,
+                    },
+                  ]}
                   onPress={onClose}
                   icon={
                     <CloseIcon width={24} height={24} color={colors.white} />
                   }
-                  style={styles.bottomSheetClose}
                 />
               )}
             </View>

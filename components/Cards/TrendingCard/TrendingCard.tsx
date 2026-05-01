@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Text,
   Image,
@@ -6,219 +6,209 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
-  Dimensions,
 } from "react-native";
-import colors from "themes/tokens/colors";
+import colors, { theme } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { useSaveEvent, useUnsaveEvent } from "graphql/hooks";
+import { radii } from "themes/tokens/spacing";
 import { Button } from "components/Buttons/Buttons";
 import { HeartIcon } from "components/Icons/HeartIcon";
 import { formatEventDate } from "utils/date";
-import type { EventCardData } from "components/Cards/EventsCard";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH * 0.7;
-const IMAGE_HEIGHT = CARD_WIDTH * 0.57;
-const CARD_PADDING = CARD_WIDTH * 0.054;
-const SAVE_BUTTON_SIZE = CARD_WIDTH * 0.143;
-const SAVE_BUTTON_OUTER = SAVE_BUTTON_SIZE * 1.5;
+import type { EventInfoFragment } from "graphql/generated/graphql";
+import { useSaveToggle } from "hooks/useSaveToggle";
 
 interface TrendingCardProps {
-  event: EventCardData;
+  recommendation: EventInfoFragment;
   onPress: () => void;
 }
 
 export const TrendingCard: React.FC<TrendingCardProps> = ({
-  event,
+  recommendation,
   onPress,
 }) => {
-  const [isSaved, setIsSaved] = useState(event.isSaved);
-  const [saving, setSaving] = useState(false);
-  const [saveEvent] = useSaveEvent();
-  const [unsaveEvent] = useUnsaveEvent();
+  const { isSaved, saving, handleSave } = useSaveToggle(
+    recommendation.id,
+    recommendation.isSaved ?? false,
+  );
 
-  const handleSave = async () => {
-    if (saving) return;
-    setSaving(true);
-    try {
-      if (isSaved) {
-        await unsaveEvent({ variables: { id: event.id } });
-        setIsSaved(false);
-      } else {
-        await saveEvent({ variables: { id: event.id } });
-        setIsSaved(true);
-      }
-    } catch {
-      // revert on error
-    } finally {
-      setSaving(false);
-    }
-  };
+  const categoryName = recommendation.category[0]?.name;
 
   const saveIcon = saving ? (
     <ActivityIndicator size="small" color={colors.deluge} />
   ) : (
-    <HeartIcon size={16} color={colors.deluge} filled={isSaved} />
+    <HeartIcon size={18} color={colors.deluge} filled={isSaved ?? false} />
   );
 
   return (
-    <Pressable
-      onPress={onPress}
-      testID="trending-card"
-      style={styles.container}
-    >
-      {/* Save button - top right with cutout from card background */}
-      <View
-        style={[
-          styles.saveButtonOuter,
-          {
-            width: SAVE_BUTTON_OUTER,
-            height: SAVE_BUTTON_OUTER,
-            borderRadius: SAVE_BUTTON_OUTER / 2,
-          },
-        ]}
-      >
-        <Button
-          variant="secondary"
-          icon={saveIcon}
-          onPress={handleSave}
-          circleDimensions={{
-            width: SAVE_BUTTON_SIZE,
-            height: SAVE_BUTTON_SIZE,
-            borderRadius: SAVE_BUTTON_SIZE / 2,
-            borderWidth: 0,
-            backgroundColor: colors.white,
-          }}
-          style={styles.saveButton}
-        />
-      </View>
-
-      {/* Image area with inset */}
-      <View
-        style={[
-          styles.imageWrapper,
-          { margin: CARD_PADDING, height: IMAGE_HEIGHT },
-        ]}
+    <View style={styles.shadowWrapper}>
+      <Pressable
+        onPress={onPress}
+        testID="trending-card"
+        style={styles.container}
       >
         <Image
-          source={{ uri: event.image }}
+          source={{ uri: recommendation.image ?? undefined }}
+          testID="trending-card-image"
           style={styles.image}
           resizeMode="cover"
         />
 
-        {/* Free/Paid badge - top left */}
-        <View style={styles.priceBadge}>
-          <Text style={styles.priceText}>{event.isFree ? "Free" : "Paid"}</Text>
-        </View>
+        {/* Content */}
+        <View style={styles.content}>
+          {/* Top row: category + save */}
+          <View style={styles.topRow}>
+            {categoryName ? (
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryText}>{categoryName}</Text>
+              </View>
+            ) : (
+              <View />
+            )}
+            <Button
+              variant="secondary"
+              icon={saveIcon}
+              onPress={handleSave}
+              style={[
+                styles.saveButton,
+                {
+                  width: 32,
+                  height: 32,
+                  borderRadius: radii.lg,
+                  borderWidth: 0,
+                  elevation: 0,
+                  backgroundColor: "transparent",
+                },
+              ]}
+            />
+          </View>
 
-        {/* Date badge - bottom right corner */}
-        <View style={styles.dateBadge}>
-          <Text style={styles.dateBadgeLabel}>Date</Text>
-          <Text style={styles.dateBadgeValue}>
-            {formatEventDate(event.date)}
+          <Text style={styles.title} numberOfLines={2}>
+            {recommendation.name}
           </Text>
-        </View>
-      </View>
 
-      {/* Text content below image */}
-      <View style={styles.textContent}>
-        <Text style={styles.eventName} numberOfLines={1}>
-          {event.name}
-        </Text>
-        <Text style={styles.subtitle} numberOfLines={1}>
-          {event.locationName}
-        </Text>
-      </View>
-    </Pressable>
+          <Text style={styles.date}>
+            {formatEventDate(recommendation.date, {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            })}
+          </Text>
+
+          <View style={styles.bottomRow}>
+            <Text style={styles.location} numberOfLines={1}>
+              {recommendation.locationName}
+            </Text>
+            <View
+              style={[
+                styles.priceBadge,
+                recommendation.isFree ? styles.freeBadge : styles.paidBadge,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.priceText,
+                  recommendation.isFree ? styles.freeText : styles.paidText,
+                ]}
+              >
+                {recommendation.isFree ? "Free" : "Paid"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Pressable>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: CARD_WIDTH,
-    borderRadius: 16,
-    backgroundColor: colors.deluge,
-    overflow: "visible",
+  shadowWrapper: {
+    borderRadius: radii.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  saveButtonOuter: {
-    position: "absolute",
-    top: -SAVE_BUTTON_OUTER * 0.17,
-    right: -SAVE_BUTTON_OUTER * 0.17,
+  container: {
     backgroundColor: colors.white,
+    borderRadius: radii.md,
+    flexDirection: "row",
+    overflow: "hidden",
+  },
+  image: {
+    width: 130,
+    height: "auto",
+  },
+  content: {
+    flex: 1,
+    padding: 12,
+    justifyContent: "space-between",
+    backgroundColor: colors.ghostWhite,
+    gap: 4,
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
+  },
+  categoryBadge: {
+    backgroundColor: colors.delugeLight,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.sm,
+  },
+  categoryText: {
+    fontFamily: typography.caption.fontFamily,
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.medium,
+    color: colors.white,
   },
   saveButton: {
     padding: 0,
     elevation: 0,
     shadowOpacity: 0,
   },
-  imageWrapper: {
-    borderRadius: 12,
-    overflow: "hidden",
-    position: "relative",
+  title: {
+    fontFamily: typography.h4.fontFamily,
+    fontSize: fontSizes.base,
+    fontWeight: fontWeights.bold,
+    color: theme.text.primary,
   },
-  image: {
-    width: "100%",
-    height: "100%",
+  date: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.sm,
+    color: colors.thunder,
+  },
+  location: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
+    color: theme.text.secondary,
+  },
+  bottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   priceBadge: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-    zIndex: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radii.xs,
+  },
+  freeBadge: {
+    backgroundColor: "rgba(52, 199, 89, 0.12)",
+  },
+  paidBadge: {
+    backgroundColor: "rgba(124, 92, 156, 0.1)",
   },
   priceText: {
     fontFamily: typography.caption.fontFamily,
     fontSize: fontSizes.xs,
     fontWeight: fontWeights.semibold,
-    color: colors.white,
   },
-  dateBadge: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: colors.white,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderTopLeftRadius: 12,
-    alignItems: "center",
+  freeText: {
+    color: "rgb(52, 199, 89)",
   },
-  dateBadgeLabel: {
-    fontFamily: typography.caption.fontFamily,
-    fontSize: fontSizes.xs,
-    fontWeight: fontWeights.medium,
-    color: colors.black,
-    opacity: 0.7,
-  },
-  dateBadgeValue: {
-    fontFamily: typography.caption.fontFamily,
-    fontSize: fontSizes.xs,
-    fontWeight: fontWeights.bold,
-    color: colors.black,
-  },
-  textContent: {
-    paddingHorizontal: 14,
-    paddingTop: 2,
-    paddingBottom: 14,
-  },
-  eventName: {
-    fontFamily: typography.h4.fontFamily,
-    fontSize: fontSizes.base,
-    fontWeight: fontWeights.bold,
-    color: colors.white,
-    marginBottom: 2,
-  },
-  subtitle: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.medium,
-    color: colors.white,
-    opacity: 0.7,
+  paidText: {
+    color: colors.deluge,
   },
 });

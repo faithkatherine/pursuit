@@ -9,7 +9,12 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights, letterSpacing } from "themes/tokens/typography";
+import typography, {
+  fontSizes,
+  fontWeights,
+  letterSpacing,
+} from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import { Button } from "components/Buttons/Buttons";
 import { formatEventDate } from "utils/date";
 
@@ -120,8 +125,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           <Text style={styles.curatorNote} numberOfLines={2}>
             {"\u201C"}
             {trip.curatorNote}
-            {"\u201D"} {"\u2014"}{" "}
-            {trip.curatorName || "Pursuit team"}
+            {"\u201D"} {"\u2014"} {trip.curatorName || "Pursuit team"}
           </Text>
         )}
 
@@ -156,7 +160,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     overflow: "hidden",
     backgroundColor: colors.midnightBlue,
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
@@ -171,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.25)",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     zIndex: 2,
   },
   badgeText: {
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.15)",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: radii.xl,
   },
   tagText: {
     fontFamily: typography.caption.fontFamily,
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     backgroundColor: colors.white,
-    borderRadius: 28,
+    borderRadius: radii.full,
     paddingVertical: 14,
     shadowColor: "transparent",
   },

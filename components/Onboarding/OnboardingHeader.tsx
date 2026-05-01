@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { Button } from "components/Buttons";
 import BackIcon from "assets/icons/back.svg";
 import colors from "themes/tokens/colors";
+import { radii } from "themes/tokens/spacing";
 
 interface OnboardingHeaderProps {
   showBackButton?: boolean;
@@ -19,11 +20,12 @@ export const OnboardingHeader = ({
       {showBackButton && (
         <Button
           variant="secondary"
-          circleDimensions={{
+          style={{
             width: 40,
             height: 40,
-            borderRadius: 20,
+            borderRadius: radii.xl,
             borderWidth: 0,
+            elevation: 0,
             backgroundColor: colors.white50,
           }}
           icon={<BackIcon fill={colors.white} width={24} height={24} />}
@@ -32,7 +34,8 @@ export const OnboardingHeader = ({
       )}
       {showBackButton && (
         <Button
-          variant="tertiary"
+          variant="secondary"
+          ghost
           text="Skip"
           textStyle={styles.skipButtonText}
           onPress={onSkipPress}

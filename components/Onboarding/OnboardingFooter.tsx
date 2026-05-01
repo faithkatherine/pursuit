@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import colors, { theme } from "themes/tokens/colors";
-import spacing from "themes/tokens/spacing";
+import spacing, { radii } from "themes/tokens/spacing";
 import typography from "themes/tokens/typography";
 import { OnboardingProgressMarkers } from "./OnboardingProgressMarkers";
 
@@ -53,7 +53,8 @@ export const OnboardingFooter = ({
             text="Maybe Later"
             style={styles.skipButton}
             textStyle={styles.skipButtonText}
-            variant="tertiary"
+            variant="secondary"
+            ghost
             onPress={onSkipAllPress}
           />
           {skipOnboardingMutationLoading && (
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
   button: {
     height: 60,
     backgroundColor: colors.black,
-    borderRadius: 50,
+    borderRadius: radii.full,
   },
   buttonText: {
     fontFamily: typography.h4.fontFamily,

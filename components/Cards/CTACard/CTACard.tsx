@@ -4,13 +4,14 @@ import ChevronIcon from "assets/icons/chevron.svg";
 import ProfileIcon from "assets/icons/profile.svg";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { EventCardData } from "../EventsCard";
+import { radii } from "themes/tokens/spacing";
+import { EventInfoFragment } from "graphql/generated/graphql";
 
 interface CTACardProps {
   title: string;
   subtitle: string;
   icon: React.ReactNode;
-  nextUpEvent?: EventCardData | null;
+  nextUpEvent?: EventInfoFragment | null;
   nextUpHours?: number | null;
   variant?: "primary" | "secondary";
   backgroundColor?: string;
@@ -88,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 8,
     paddingVertical: 8,
-    borderRadius: 14,
+    borderRadius: radii.lg,
     backgroundColor: colors.shilo,
   },
   ctaStripSecondary: {

@@ -172,10 +172,13 @@ const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
-        // Home data - merge for dynamic updates
+        // Home data - keyed by filter args so each combination has its own
+        // cache entry. Merge simply replaces so filtered results never bleed
+        // into unfiltered results (and vice versa).
         getHome: {
+          keyArgs: ["neighborhoodId", "timeFilter"],
           merge(existing, incoming) {
-            return { ...existing, ...incoming };
+            return incoming;
           },
         },
         // Events - merge for dynamic updates
@@ -308,16 +311,8 @@ const cache = new InMemoryCache({
           },
         },
         recommendations: {
-          keyArgs: false,
-          merge(existing = [], incoming, { args }) {
-            const { offset = 0 } = args || {};
-            const merged = existing ? existing.slice() : [];
-
-            for (let i = 0; i < incoming.length; ++i) {
-              merged[offset + i] = incoming[i];
-            }
-
-            return merged;
+          merge(existing, incoming) {
+            return incoming;
           },
         },
       },
@@ -332,7 +327,6 @@ export const client = new ApolloClient({
     watchQuery: {
       errorPolicy: "all",
       fetchPolicy: "cache-and-network",
-      nextFetchPolicy: "cache-and-network",
       notifyOnNetworkStatusChange: true,
     },
     query: {

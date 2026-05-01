@@ -47,6 +47,7 @@ export const GET_HOME = gql`
     getHome(offset: $offset, limit: $limit, neighborhoodId: $neighborhoodId, timeFilter: $timeFilter) {
       id
       greeting
+      greetingPrompt
       timeOfDay
       dayOfWeek
       cityName

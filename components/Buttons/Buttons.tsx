@@ -1,12 +1,12 @@
 import colors, { theme } from "themes/tokens/colors";
-import { fontSizes, fontWeights, typography } from "themes/tokens/typography";
+import { fontSizes, typography } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import {
   ActivityIndicator,
   Animated,
   Easing,
   Pressable,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from "react-native";
@@ -14,36 +14,19 @@ import GoogleIcon from "assets/icons/google.svg";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef } from "react";
 
-interface CircleDimensions {
-  width?: number;
-  height?: number;
-  borderRadius?: number;
-  borderWidth?: number;
-  backgroundColor?: string;
-}
-
-interface SwitchProps {
-  isEnabled: boolean;
-  onToggle: (enabled: boolean) => void;
-}
-
 interface ButtonProps {
   text?: string;
   loading?: boolean;
   icon?: React.ReactNode;
-  variant?:
-    | "primary"
-    | "secondary"
-    | "tertiary"
-    | "switch"
-    | "third-party"
-    | "gradient";
+  variant?: "primary" | "secondary" | "third-party" | "gradient" | "chips";
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
   textStyle?: object;
-  circleDimensions?: CircleDimensions;
-  switchProps?: SwitchProps;
+  /** secondary only: renders as a transparent ghost/text button (replaces old "tertiary" variant) */
+  ghost?: boolean;
+  /** chips only */
+  selected?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -55,8 +38,8 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   style,
   textStyle,
-  circleDimensions,
-  switchProps,
+  ghost,
+  selected,
 }) => {
   switch (variant) {
     case "primary":
@@ -74,17 +57,25 @@ export const Button: React.FC<ButtonProps> = ({
           {loading && <ActivityIndicator size="small" color={colors.white} />}
         </Pressable>
       );
+
     case "secondary":
-      return (
+      return ghost ? (
         <Pressable
           onPress={onPress}
           disabled={disabled}
-          style={[
-            styles.secondary,
-            circleDimensions,
-            circleDimensions?.borderWidth === 0 && { elevation: 0 },
-            style,
-          ]}
+          style={[style]}
+          testID="button-secondary-ghost"
+        >
+          {text && (
+            <Text style={[styles.ghostButtonText, textStyle]}>{text}</Text>
+          )}
+          {icon && icon}
+        </Pressable>
+      ) : (
+        <Pressable
+          onPress={onPress}
+          disabled={disabled}
+          style={[styles.secondary, style]}
           testID="button-secondary"
         >
           {text && (
@@ -94,45 +85,23 @@ export const Button: React.FC<ButtonProps> = ({
         </Pressable>
       );
 
-    case "tertiary":
-      return (
-        <Pressable
-          onPress={onPress}
-          disabled={disabled}
-          style={[style]}
-          testID="button-tertiary"
-        >
-          {text && (
-            <Text style={[styles.tertiaryButtonText, textStyle]}>{text}</Text>
-          )}
-        </Pressable>
-      );
-
-    case "switch":
-      return (
-        <Switch
-          value={switchProps?.isEnabled}
-          onValueChange={switchProps?.onToggle}
-          thumbColor={
-            switchProps?.isEnabled ? colors.white : colors.graniteGray
-          }
-          trackColor={{
-            false: colors.white,
-            true: colors.black,
-          }}
-          ios_backgroundColor={colors.aluminium}
-          style={[styles.switch, style]}
-          testID="button-switch"
-        />
-      );
-
     case "third-party":
       return (
-        <Pressable style={styles.googleSignInButton} onPress={onPress}>
-          <View style={styles.googleIconContainer}>
-            <GoogleIcon width={20} height={20} style={styles.googleIcon} />
-          </View>
-          <Text style={styles.googleButtonText}>Continue with Google</Text>
+        <Pressable
+          style={[styles.thirdPartyButton, style]}
+          onPress={onPress}
+          testID="button-third-party"
+        >
+          {icon ? (
+            <View style={styles.thirdPartyIconContainer}>{icon}</View>
+          ) : (
+            <View style={styles.thirdPartyIconContainer}>
+              <GoogleIcon width={20} height={20} />
+            </View>
+          )}
+          <Text style={[styles.thirdPartyButtonText, textStyle]}>
+            {text ?? "Continue with Google"}
+          </Text>
         </Pressable>
       );
 
@@ -147,6 +116,29 @@ export const Button: React.FC<ButtonProps> = ({
           loading={loading}
           style={style}
         />
+      );
+
+    case "chips":
+      return (
+        <Pressable
+          onPress={onPress}
+          style={[
+            styles.filterChip,
+            selected ? styles.filterChipSelected : styles.filterChipUnselected,
+          ]}
+          testID="button-chips"
+        >
+          <Text
+            style={[
+              styles.filterChipText,
+              selected
+                ? styles.filterChipTextSelected
+                : styles.filterChipTextUnselected,
+            ]}
+          >
+            {text}
+          </Text>
+        </Pressable>
       );
   }
 };
@@ -220,7 +212,7 @@ const styles = StyleSheet.create({
   primary: {
     width: "100%",
     backgroundColor: colors.deluge,
-    borderRadius: 12,
+    borderRadius: radii.md,
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignSelf: "center",
@@ -245,7 +237,7 @@ const styles = StyleSheet.create({
     borderColor: colors.aluminium,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: radii.md,
     paddingVertical: 12,
     paddingHorizontal: 16,
     shadowColor: "#000",
@@ -261,17 +253,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "500",
   },
-  tertiaryButtonText: {
+  ghostButtonText: {
     fontFamily: typography.h3.fontFamily,
     fontSize: typography.h3.fontSize,
     color: colors.white,
     fontWeight: "500",
   },
-  switch: {
-    transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
-  },
-  googleSignInButton: {
-    borderRadius: 25,
+  thirdPartyButton: {
+    borderRadius: radii.full,
     borderWidth: 1,
     borderColor: theme.border,
     backgroundColor: theme.background,
@@ -287,18 +276,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     height: 56,
   },
-
-  googleIconContainer: {
+  thirdPartyIconContainer: {
     marginRight: 12,
     width: 24,
     height: 24,
     alignItems: "center",
     justifyContent: "center",
   },
-  googleIcon: {
-    fontSize: 20,
-  },
-  googleButtonText: {
+  thirdPartyButtonText: {
     fontSize: 16,
     fontWeight: "600",
     color: theme.text.primary,
@@ -306,7 +291,7 @@ const styles = StyleSheet.create({
   },
   gradientWrapper: {
     width: "100%",
-    borderRadius: 28,
+    borderRadius: radii.full,
     padding: 2,
     alignSelf: "center",
     overflow: "hidden",
@@ -320,7 +305,7 @@ const styles = StyleSheet.create({
   },
   gradientInner: {
     backgroundColor: colors.white,
-    borderRadius: 27,
+    borderRadius: radii.full,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: "center",
@@ -334,5 +319,29 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontWeight: "600",
     textAlign: "center",
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: radii.xl,
+  },
+  filterChipSelected: {
+    backgroundColor: colors.thunder,
+  },
+  filterChipUnselected: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.25)",
+  },
+  filterChipText: {
+    fontFamily: typography.caption.fontFamily,
+    fontSize: fontSizes.sm,
+    fontWeight: "500",
+  },
+  filterChipTextSelected: {
+    color: colors.white,
+  },
+  filterChipTextUnselected: {
+    color: colors.thunder,
   },
 });

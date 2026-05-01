@@ -11,14 +11,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { formatEventDate } from "utils/date";
-import type { EventCardData } from "components/Cards/EventsCard";
+import { radii } from "themes/tokens/spacing";
+import type { EventInfoFragment } from "graphql/generated/graphql";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH * 0.42;
 const CARD_HEIGHT = CARD_WIDTH * 1.35;
 
 interface UpcomingCardProps {
-  event: EventCardData;
+  event: EventInfoFragment;
   onPress: () => void;
 }
 
@@ -44,7 +45,7 @@ export const UpcomingCard: React.FC<UpcomingCardProps> = ({
       style={styles.container}
     >
       <Image
-        source={{ uri: event.image }}
+        source={{ uri: event.image ?? undefined }}
         style={styles.image}
         resizeMode="cover"
       />
@@ -76,9 +77,7 @@ const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderRadius: 16,
-    overflow: "hidden",
-    position: "relative",
+    borderRadius: radii.lg,
   },
   image: {
     ...StyleSheet.absoluteFillObject,
@@ -92,7 +91,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: radii.md,
     alignItems: "center",
     zIndex: 1,
   },

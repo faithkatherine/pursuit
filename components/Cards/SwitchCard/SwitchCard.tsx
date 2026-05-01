@@ -1,9 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { BlurView } from "expo-blur";
-import { Button } from "components/Buttons";
+import { ToggleSwitch } from "components/Buttons";
 import colors from "themes/tokens/colors";
 import typography from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 
 interface SwitchCardProps {
   title: string;
@@ -26,7 +27,7 @@ export const SwitchCard: React.FC<SwitchCardProps> = ({
       >
         <View style={styles.content}>
           <Text style={styles.title}>{title}</Text>
-          <Button variant="switch" switchProps={{ isEnabled, onToggle }} />
+          <ToggleSwitch isEnabled={isEnabled} onToggle={onToggle} />
         </View>
       </BlurView>
     </View>
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: 60,
-    borderRadius: 16,
+    borderRadius: radii.lg,
     overflow: "visible",
     shadowColor: colors.black87,
     shadowOffset: { width: 0, height: 8 },
@@ -50,13 +51,13 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor:
       Platform.OS === "android" ? "rgba(219, 211, 219, 0.53)" : colors.white50,
-    borderRadius: 16,
+    borderRadius: radii.lg,
   },
 
   blurContainer: {
     flex: 1,
     height: 60,
-    borderRadius: 16,
+    borderRadius: radii.lg,
     overflow: "hidden",
     borderWidth: 1.5,
     borderColor: colors.white65,

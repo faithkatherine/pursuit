@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Button } from "components/Buttons";
 import { typography, fontWeights } from "themes/tokens/typography";
 import colors, { theme } from "themes/tokens/colors";
+import { radii } from "themes/tokens/spacing";
 
 interface SectionHeaderProps {
   title: string;
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.05)",
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: radii.md,
   },
   loadingText: {
     fontSize: 12,
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     backgroundColor: colors.deluge,
   },
   buttonText: {

@@ -18,22 +18,20 @@ jest.mock("components/Cards/InsightsCard", () => ({
   ),
 }));
 
-jest.mock("components/Cards/EventsCard", () => ({
-  RecommendationCard: ({ recommendation }: any) => (
-    <text testID="recommendation-card">{recommendation.name}</text>
+jest.mock("components/Cards/TrendingCard", () => ({
+  TrendingCard: ({ recommendation }: any) => (
+    <text testID="trending-card">{recommendation.name}</text>
   ),
 }));
 
-jest.mock("components/Cards/TrendingCard", () => ({
-  TrendingCard: ({ event }: any) => (
-    <text testID="trending-card">{event.name}</text>
+jest.mock("components/Cards/RecommendationCard", () => ({
+  RecommendationCard: ({ event }: any) => (
+    <text testID="recommendation-card">{event.name}</text>
   ),
 }));
 
 jest.mock("components/Cards/HeroCard", () => ({
-  HeroCard: ({ trip }: any) => (
-    <text testID="hero-card">{trip.name}</text>
-  ),
+  HeroCard: ({ trip }: any) => <text testID="hero-card">{trip.name}</text>,
 }));
 
 jest.mock("components/Carousel", () => ({
@@ -101,7 +99,9 @@ describe("Home Screen", () => {
           source: "content_based",
           curatorNote: null,
           curatorName: null,
-          category: [{ id: "1", name: "Outdoors", icon: "tree", color: "#34C759" }],
+          category: [
+            { id: "1", name: "Outdoors", icon: "tree", color: "#34C759" },
+          ],
         },
         {
           id: "2",
@@ -117,7 +117,9 @@ describe("Home Screen", () => {
           source: "popular",
           curatorNote: null,
           curatorName: null,
-          category: [{ id: "2", name: "Tech", icon: "laptop", color: "#007AFF" }],
+          category: [
+            { id: "2", name: "Tech", icon: "laptop", color: "#007AFF" },
+          ],
         },
       ],
       trending: [
@@ -135,7 +137,9 @@ describe("Home Screen", () => {
           source: "trending",
           curatorNote: null,
           curatorName: null,
-          category: [{ id: "3", name: "Music", icon: "music", color: "#FF6B35" }],
+          category: [
+            { id: "3", name: "Music", icon: "music", color: "#FF6B35" },
+          ],
         },
       ],
       upcomingEvents: [],

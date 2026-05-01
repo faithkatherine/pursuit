@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
 import colors, { theme } from "themes/tokens/colors";
 import { typography } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 
 import ItineraryIcon from "assets/icons/itinerary.svg";
 import Svg, {
@@ -237,7 +238,11 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({ onPress }) => {
         <View style={styles.dividerLine} />
       </View>
 
-      <Button variant="third-party" onPress={onPress} />
+      <Button
+        variant="third-party"
+        onPress={onPress}
+        text="Continue with Google"
+      />
     </>
   );
 };
@@ -312,7 +317,7 @@ const styles = StyleSheet.create({
 
   formContainer: {
     backgroundColor: theme.background,
-    borderRadius: 32,
+    borderRadius: radii["3xl"],
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
     padding: "6%",
@@ -328,7 +333,7 @@ const styles = StyleSheet.create({
 
   inputContainer: {
     backgroundColor: theme.background,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     borderWidth: 1,
     borderColor: theme.border,
     paddingHorizontal: 12,
@@ -417,7 +422,7 @@ const styles = StyleSheet.create({
   },
 
   authButton: {
-    borderRadius: 25,
+    borderRadius: radii.full,
     elevation: 4,
     shadowColor: theme.secondary,
     shadowOffset: { width: 0, height: 6 },

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors } from "themes/tokens/colors";
 import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WeatherAnimation } from "./WeatherAnimation";
 
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.35)",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 22,
+    borderRadius: radii.full,
     marginLeft: 8,
   },
   chipContent: {

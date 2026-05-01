@@ -29,4 +29,18 @@ export const layoutSpacing = {
 export type SpacingName = keyof typeof spacing;
 export type LayoutSpacingName = keyof typeof layoutSpacing;
 
+// Border radius tokens
+export const radii = {
+  xs: 4,
+  sm: 6,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  "2xl": 24,
+  "3xl": 32,
+  full: 9999,
+} as const;
+
+export type RadiusName = keyof typeof radii;
+
 export default spacing;

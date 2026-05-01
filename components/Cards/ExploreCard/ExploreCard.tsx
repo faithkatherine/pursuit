@@ -10,6 +10,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import { formatEventDate } from "utils/date";
 import LocationIcon from "assets/icons/location.svg";
 
@@ -91,9 +92,7 @@ export const ExploreCard: React.FC<ExploreCardProps> = ({ event, onPress }) => {
 
         {/* Meta row */}
         <View style={styles.metaRow}>
-          <Text style={styles.dateText}>
-            {formatEventDate(event.date)}
-          </Text>
+          <Text style={styles.dateText}>{formatEventDate(event.date)}</Text>
           {event.isFree && (
             <View style={styles.freeBadge}>
               <Text style={styles.freeBadgeText}>Free</Text>
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderRadius: 24,
+    borderRadius: radii["2xl"],
     overflow: "hidden",
     backgroundColor: colors.prim,
     shadowColor: "#000",
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: radii.xl,
   },
   categoryBadgeText: {
     fontFamily: typography.body.fontFamily,
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.9)",
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: radii.xl,
   },
   dateBadgeText: {
     fontFamily: typography.body.fontFamily,
@@ -203,7 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.2)",
     paddingHorizontal: 10,
     paddingVertical: 3,
-    borderRadius: 10,
+    borderRadius: radii.md,
   },
   freeBadgeText: {
     fontFamily: typography.body.fontFamily,

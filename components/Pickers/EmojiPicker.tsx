@@ -5,6 +5,7 @@ import { GET_EMOJI_LIBRARY } from "graphql/queries";
 import { Loading, Error } from "components/Layout";
 import { GetEmojiLibraryQuery } from "graphql/types";
 import colors from "themes/tokens/colors";
+import { radii } from "themes/tokens/spacing";
 
 interface EmojiPickerProps {
   selectedEmoji: string;
@@ -48,7 +49,7 @@ export const EmojiPicker = ({
 
 const styles = StyleSheet.create({
   emojiScrollContainer: {
-    borderRadius: 16,
+    borderRadius: radii.lg,
     backgroundColor: colors.prim,
     padding: 16,
   },
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     backgroundColor: colors.prim,
-    borderRadius: 22,
+    borderRadius: radii.full,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,

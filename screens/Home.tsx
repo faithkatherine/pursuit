@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,113 +14,25 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { Layout, Loading, Error, SectionHeader } from "components/Layout";
+import { Button } from "components/Buttons";
 import { InsightsCard } from "components/Cards/InsightsCard";
-import {
-  RecommendationCard,
-  type EventCardData,
-} from "components/Cards/EventsCard";
 import { TrendingCard } from "components/Cards/TrendingCard";
+import { RecommendationCard } from "components/Cards/RecommendationCard";
 import { HeroCard, type HeroCardData } from "components/Cards/HeroCard";
 import { Carousel } from "components/Carousel";
+import type { EventInfoFragment } from "graphql/generated/graphql";
 
 import ScheduleIcon from "assets/icons/schedule_events.svg";
 import ProfileIcon from "assets/icons/profile.svg";
 
 import { colors } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 
 import { useHomeData } from "graphql/hooks";
 import { CTACard } from "components/Cards/CTACard";
-
-// ---------------------------------------------------------------------------
-// Greeting + subtitle utilities (client-side, no backend dependency)
-// ---------------------------------------------------------------------------
-
-type TimeBucket = "morning" | "afternoon" | "evening" | "late";
-
-function getTimeBucket(now: Date): TimeBucket {
-  const h = now.getHours();
-  if (h >= 5 && h < 12) return "morning";
-  if (h >= 12 && h < 17) return "afternoon";
-  if (h >= 17 && h < 22) return "evening";
-  return "late";
-}
-
-function getGreeting(bucket: TimeBucket, firstName?: string | null): string {
-  const name = firstName ? `, ${firstName}` : "";
-  switch (bucket) {
-    case "morning":
-      return `Good morning${name}`;
-    case "afternoon":
-      return `Good afternoon${name}`;
-    case "evening":
-      return `Good evening${name}`;
-    case "late":
-      return firstName ? `Still up, ${firstName}?` : "Still up?";
-  }
-}
-
-const SUBTITLE_SETS: Record<TimeBucket, string[]> = {
-  morning: [
-    "What\u2019s on your radar today?",
-    "Pick something for later",
-    "Make today count",
-  ],
-  afternoon: [
-    "Got plans tonight?",
-    "Find something for the evening",
-    "What\u2019s the move?",
-  ],
-  evening: [
-    "Where to tonight?",
-    "Pick your next adventure",
-    "Something fun ahead?",
-  ],
-  late: ["Anything calling you?", "Quiet plans for tomorrow?"],
-};
-
-/**
- * Deterministic daily rotation: hash date string + userId into an index.
- * Stable within a day, changes day-to-day.
- */
-function getGreetingPrompt(now: Date, userId?: string | null): string {
-  const bucket = getTimeBucket(now);
-  const set = SUBTITLE_SETS[bucket];
-  const dateStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-  const seed = `${dateStr}:${userId ?? "anon"}`;
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
-  }
-  const index = Math.abs(hash) % set.length;
-  return set[index];
-}
-
-// ---------------------------------------------------------------------------
-// Time filter chips
-// ---------------------------------------------------------------------------
-
-type TimeFilter = "tonight" | "weekend" | "next_week";
-
-const TIME_FILTERS: { key: TimeFilter; label: string }[] = [
-  { key: "tonight", label: "Tonight" },
-  { key: "weekend", label: "This weekend" },
-  { key: "next_week", label: "Next week" },
-];
-
-const FILTER_LABELS: Record<TimeFilter, string> = {
-  tonight: "tonight",
-  weekend: "this weekend",
-  next_week: "next week",
-};
-
-function getHoursUntil(dateStr: string): number | null {
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return null;
-  const ms = d.getTime() - Date.now();
-  if (ms < 0) return null;
-  return Math.round(ms / (1000 * 60 * 60));
-}
+import type { TimeFilter } from "types/time";
+import { TIME_FILTERS, FILTER_LABELS, getHoursUntil } from "utils/timeFilter";
 
 // ---------------------------------------------------------------------------
 // Home screen
@@ -146,9 +58,6 @@ const Home = () => {
     setShowNeighborhoodPicker(false);
   }, []);
 
-  // Compute greeting + subtitle once per render (cheap, all client-side)
-  const now = useMemo(() => new Date(), []);
-
   if (loading) {
     return <Loading />;
   }
@@ -173,11 +82,9 @@ const Home = () => {
     neighborhoods,
   } = homeData;
 
-  // Extract first name from backend greeting ("Hi Faith" → "Faith")
-  const firstName = homeData.greeting?.replace(/^Hi\s+/, "") || null;
-  const bucket = getTimeBucket(now);
-  const greetingText = getGreeting(bucket, firstName);
-  const subtitleText = getGreetingPrompt(now, homeData.id);
+  const greetingText = homeData.greeting ?? "Hello";
+  const subtitleText =
+    homeData.greetingPrompt ?? "Ready for your next adventure?";
 
   const validRecommendations = (recommendations ?? []).filter(
     (r): r is NonNullable<typeof r> => r != null,
@@ -258,7 +165,7 @@ const Home = () => {
       >
         <View onLayout={(e) => setInsightsHeight(e.nativeEvent.layout.height)}>
           <LinearGradient
-            colors={[colors.deluge, colors.roseFog]}
+            colors={[colors.silverSand, colors.roseFog]}
             locations={[0, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -308,37 +215,25 @@ const Home = () => {
                   icon={
                     <ProfileIcon width={33} height={33} fill={colors.white} />
                   }
-                  backgroundColor={colors.roseFog}
+                  backgroundColor={colors.shilo}
                   onPress={() => router.push("/travel")}
                 />
               )}
 
               {/* Time filter chips */}
               <View style={styles.filterRow}>
-                {TIME_FILTERS.map((f) => {
-                  const selected = timeFilter === f.key;
+                {TIME_FILTERS.map((filter) => {
+                  const selected = timeFilter === filter.key;
                   return (
-                    <Pressable
-                      key={f.key}
-                      onPress={() => setTimeFilter(selected ? null : f.key)}
-                      style={[
-                        styles.filterChip,
-                        selected
-                          ? styles.filterChipSelected
-                          : styles.filterChipUnselected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          selected
-                            ? styles.filterChipTextSelected
-                            : styles.filterChipTextUnselected,
-                        ]}
-                      >
-                        {f.label}
-                      </Text>
-                    </Pressable>
+                    <Button
+                      key={filter.key}
+                      variant="chips"
+                      text={filter.label}
+                      selected={selected}
+                      onPress={() =>
+                        setTimeFilter(selected ? null : filter.key)
+                      }
+                    />
                   );
                 })}
               </View>
@@ -383,7 +278,7 @@ const Home = () => {
             </View>
           ) : (
             <>
-              {/* Recommendations — horizontal scroll using TrendingCard */}
+              {/* Recommendations — horizontal scroll using RecommendationCard */}
               {remainingRecommendations.length > 0 && (
                 <Carousel
                   gap={16}
@@ -400,16 +295,16 @@ const Home = () => {
                     />
                   }
                   items={remainingRecommendations.map((rec) => (
-                    <TrendingCard
+                    <RecommendationCard
                       key={rec.id}
-                      event={rec as EventCardData}
+                      event={rec as EventInfoFragment}
                       onPress={() => {}}
                     />
                   ))}
                 />
               )}
 
-              {/* Trending — vertical list using RecommendationCard with rank */}
+              {/* Trending — vertical list using TrendingCard with rank */}
               {displayTrending.length > 0 && (
                 <>
                   <SectionHeader
@@ -425,12 +320,9 @@ const Home = () => {
                   <View style={styles.trendingSection}>
                     {displayTrending.map((event, index) => (
                       <View key={event.id} style={styles.trendingRow}>
-                        <View style={styles.rankSquare}>
-                          <Text style={styles.rankNumber}>{index + 1}</Text>
-                        </View>
                         <View style={styles.trendingCardWrapper}>
-                          <RecommendationCard
-                            recommendation={event as EventCardData}
+                          <TrendingCard
+                            recommendation={event as EventInfoFragment}
                             onPress={() => {}}
                           />
                         </View>
@@ -523,30 +415,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  filterChipSelected: {
-    backgroundColor: colors.thunder,
-  },
-  filterChipUnselected: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.25)",
-  },
-  filterChipText: {
-    fontFamily: typography.caption.fontFamily,
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.medium,
-  },
-  filterChipTextSelected: {
-    color: colors.white,
-  },
-  filterChipTextUnselected: {
-    color: colors.thunder,
-  },
   // Trending
   trendingSection: {
     paddingHorizontal: 20,
@@ -560,7 +428,7 @@ const styles = StyleSheet.create({
   rankSquare: {
     width: 28,
     height: 28,
-    borderRadius: 6,
+    borderRadius: radii.sm,
     backgroundColor: colors.deluge,
     alignItems: "center",
     justifyContent: "center",
@@ -599,7 +467,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     backgroundColor: colors.deluge,
   },
   emptyStateCtaText: {
@@ -641,7 +509,7 @@ const styles = StyleSheet.create({
   sheetItem: {
     paddingVertical: 14,
     paddingHorizontal: 12,
-    borderRadius: 10,
+    borderRadius: radii.md,
   },
   sheetItemActive: {
     backgroundColor: "rgba(124, 92, 156, 0.1)",

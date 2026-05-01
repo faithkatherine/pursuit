@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "themes/tokens/colors";
 import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 
 // --- BucketCard ---
 interface CategoryCardProps {
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: 150,
     height: 80,
-    borderRadius: 8,
+    borderRadius: radii.sm,
     padding: 16,
     justifyContent: "space-between",
   },
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   pill: {
-    borderRadius: 16,
+    borderRadius: radii.lg,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderWidth: 1,

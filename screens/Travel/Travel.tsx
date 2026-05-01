@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Layout } from "components/Layout";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import BeginJourneyIcon from "assets/icons/begin_journey.svg";
 
 const Travel = () => {
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.prim,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 24,
+    borderRadius: radii["2xl"],
   },
   comingSoonText: {
     fontFamily: typography.body.fontFamily,

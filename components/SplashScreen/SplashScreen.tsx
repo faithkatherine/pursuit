@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { StyleSheet, Text, Animated, Easing } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "themes/tokens/colors";
+import { radii } from "themes/tokens/spacing";
 
 interface SplashScreenProps {
   onFinish?: () => void;
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     backgroundColor: colors.white02,
-    borderRadius: 20,
+    borderRadius: radii.xl,
   },
   tagline: {
     fontSize: 16,

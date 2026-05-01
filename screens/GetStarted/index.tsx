@@ -15,6 +15,7 @@ import { useAuth } from "providers/AuthProvider";
 import { images } from "assets/images";
 import { theme } from "themes/tokens/colors";
 import typography from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import { Button } from "components/Buttons";
 import { setHasSeenGetStarted } from "utils/secureStorage";
 
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     height: 400,
-    borderRadius: 20,
+    borderRadius: radii.xl,
     overflow: "hidden",
     flexGrow: 0,
   },
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
   },
   carouselImage: {
     height: 400,
-    borderRadius: 20,
+    borderRadius: radii.xl,
   },
   contentContainer: {
     alignItems: "center",
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 48,
     backgroundColor: theme.secondary,
-    borderRadius: 16,
+    borderRadius: radii.lg,
     elevation: 8,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
   indicator: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: radii.xs,
     backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
   activeIndicator: {

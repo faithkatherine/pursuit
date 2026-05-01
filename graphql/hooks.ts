@@ -50,15 +50,23 @@ export const useHomeData = (
   neighborhoodId?: string | null,
   timeFilter?: string | null,
 ) => {
-  const hasFilters = !!neighborhoodId || !!timeFilter;
+  // network-only when nothing is filtered (app open / all cleared) or when
+  // the neighbourhood changes — both cases where the user expects fully fresh
+  // personalised data. cache-and-network for time filter chips so the last
+  // known results show instantly while the network updates in the background.
+  const fetchPolicy =
+    timeFilter && !neighborhoodId ? "cache-and-network" : "network-only";
+
   return useQuery<GetHomeQuery>(GET_HOME, {
     variables: {
       offset: 0,
-      limit: 10,
+      limit: 5,
       neighborhoodId: neighborhoodId || undefined,
       timeFilter: timeFilter || undefined,
     },
-    fetchPolicy: hasFilters ? "network-only" : "cache-first",
+    fetchPolicy,
+    nextFetchPolicy: "cache-first",
+    notifyOnNetworkStatusChange: true,
   });
 };
 

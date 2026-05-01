@@ -1,5 +1,6 @@
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii } from "themes/tokens/spacing";
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -68,9 +69,7 @@ export const CategoryDetail: React.FC<CategoryDetailProps> = ({
         </Text>
         <View style={styles.metaContainer}>
           <Text style={styles.category}>{category}</Text>
-          {date && (
-            <Text style={styles.date}>{date.toLocaleDateString()}</Text>
-          )}
+          {date && <Text style={styles.date}>{date.toLocaleDateString()}</Text>}
         </View>
       </View>
     </TouchableOpacity>
@@ -81,9 +80,7 @@ const styles = StyleSheet.create({
   container: {
     width: 185,
     height: 220,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: colors.white,
+    borderRadius: radii.lg,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
@@ -117,7 +114,7 @@ const styles = StyleSheet.create({
     right: 12,
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: radii.xs,
   },
   completedBadge: {
     position: "absolute",
@@ -125,7 +122,7 @@ const styles = StyleSheet.create({
     left: 8,
     width: 24,
     height: 24,
-    borderRadius: 12,
+    borderRadius: radii.md,
     backgroundColor: colors.white,
     justifyContent: "center",
     alignItems: "center",
