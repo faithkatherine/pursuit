@@ -31,6 +31,23 @@ export const colors = {
   midnightBlue: "#1a1a2e",
   darkNavy: "#16213e",
   deepCharcoal: "#0f0f23",
+  // Category variant palette
+  parchment: "rgb(245, 240, 230)",
+  parchmentDeep: "rgb(232, 222, 200)",
+  linen: "rgb(242, 232, 220)",
+  tannin: "rgb(107, 74, 42)",
+  mistLavender: "rgb(244, 240, 248)",
+  sageMist: "rgb(234, 239, 227)",
+  sage: "rgb(184, 201, 168)",
+  forest: "rgb(59, 90, 44)",
+  peachVeil: "rgb(245, 232, 224)",
+  terracotta: "rgb(139, 74, 42)",
+  mustardCream: "rgb(240, 232, 212)",
+  mustard: "rgb(212, 184, 90)",
+  goldOlive: "rgb(107, 90, 26)",
+  skyMist: "rgb(224, 232, 240)",
+  skyDust: "rgb(168, 196, 216)",
+  deepHorizon: "rgb(42, 74, 107)",
 } as const;
 
 // Semantic color names for easier usage

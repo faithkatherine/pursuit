@@ -299,6 +299,7 @@ const Home = () => {
                       key={rec.id}
                       event={rec as EventInfoFragment}
                       onPress={() => {}}
+                      useVariant
                     />
                   ))}
                 />
