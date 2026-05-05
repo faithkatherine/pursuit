@@ -69,6 +69,7 @@ export const EVENT_FRAGMENT = gql`
     locationName
     isFree
     isSaved
+    isEditorsPick
     reason
     source
     curatorNote

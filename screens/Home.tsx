@@ -23,7 +23,6 @@ import { Carousel } from "components/Carousel";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 
 import ScheduleIcon from "assets/icons/schedule_events.svg";
-import ProfileIcon from "assets/icons/profile.svg";
 
 import { colors } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
@@ -93,7 +92,7 @@ const Home = () => {
     (t): t is NonNullable<typeof t> => t != null,
   );
 
-  // Hero card priority: trip within ~30 days → first recommendation (editor's pick)
+  // Hero card priority: trip within ~30 days → first recommendation (may be editor's pick)
   const heroTrip = activeTrip as HeroCardData | null;
 
   const heroRecommendation =
@@ -108,13 +107,13 @@ const Home = () => {
         startDate: heroRecommendation.date,
         endDate: heroRecommendation.endDate ?? heroRecommendation.date,
         coverImage: heroRecommendation.image ?? null,
-        curatorNote: (heroRecommendation as any).curatorNote ?? null,
-        curatorName: (heroRecommendation as any).curatorName ?? null,
+        curatorNote: heroRecommendation.curatorNote ?? null,
+        curatorName: heroRecommendation.curatorName ?? null,
       }
     : null;
 
   const heroCard = heroTrip ?? heroRecommendationAsCard;
-  const isEditorsPick = !heroTrip && !!heroRecommendation;
+  const isEditorsPick = !heroTrip && !!heroRecommendation?.isEditorsPick;
 
   const remainingRecommendations = heroRecommendation
     ? validRecommendations.slice(1, 8)
@@ -123,14 +122,18 @@ const Home = () => {
   const displayTrending = validTrending.slice(0, 10);
 
   // Next Up: soonest saved event within 24 hours
+  // Saved Event CTA: soonest upcoming saved event not in active trip
   const validUpcoming = (upcomingEvents ?? []).filter(
     (e): e is NonNullable<typeof e> => e != null,
   );
-  const nextUpEvent = validUpcoming.length > 0 ? validUpcoming[0] : null;
-  const nextUpHours = nextUpEvent?.date
-    ? getHoursUntil(nextUpEvent.date)
-    : null;
-  const showNextUp = nextUpHours != null && nextUpHours <= 24;
+  const activeEventIds = new Set(
+    activeTrip?.events?.map((e: any) => e.id) ?? [],
+  );
+  const upcomingSavedEvents = validUpcoming.filter(
+    (e) => !activeEventIds.has(e.id),
+  );
+  const nextSavedEvent =
+    upcomingSavedEvents.length > 0 ? upcomingSavedEvents[0] : null;
 
   // Empty filter state
   const hasFilter = timeFilter != null;
@@ -191,32 +194,44 @@ const Home = () => {
                 onChipPress={() => setShowNeighborhoodPicker(true)}
               />
 
-              {/* Next Up strip — saved event within 24 hours */}
-              {showNextUp && nextUpEvent && (
-                <CTACard
-                  title="Next Up"
-                  subtitle={`${
-                    nextUpHours! <= 1
-                      ? "Less than an hour"
-                      : `In ${nextUpHours} hours`
-                  }`}
-                  icon={
-                    <ScheduleIcon width={33} height={33} fill={colors.white} />
+              {/* Trip CTA — always shown */}
+              <CTACard
+                type="trip"
+                tripData={
+                  activeTrip
+                    ? {
+                        id: activeTrip.id,
+                        name: activeTrip.name,
+                        startDate: activeTrip.startDate,
+                        events: (activeTrip as any).events ?? [],
+                      }
+                    : null
+                }
+                onPress={() => {
+                  if (activeTrip) {
+                    // Navigate to trip detail
+                    router.push(`/trip/${activeTrip.id}`);
+                  } else {
+                    // Navigate to plan a trip
+                    router.push("/travel");
                   }
-                  onPress={() => router.push("/upcoming")}
-                />
-              )}
+                }}
+              />
 
-              {/* Plan a Trip strip — only when no upcoming trips */}
-              {!activeTrip && (
+              {/* Saved Event CTA — conditional */}
+              {nextSavedEvent && (
                 <CTACard
-                  title="Plan a Trip"
-                  subtitle="Explore the world with us"
-                  icon={
-                    <ProfileIcon width={33} height={33} fill={colors.white} />
-                  }
-                  backgroundColor={colors.shilo}
-                  onPress={() => router.push("/travel")}
+                  type="saved-event"
+                  eventData={{
+                    id: nextSavedEvent.id,
+                    name: nextSavedEvent.name,
+                    locationName: nextSavedEvent.locationName,
+                    date: nextSavedEvent.date,
+                  }}
+                  onPress={() => {
+                    // Navigate to event detail
+                    router.push(`/event/${nextSavedEvent.id}`);
+                  }}
                 />
               )}
 

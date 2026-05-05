@@ -99,12 +99,12 @@ export const HeroCard: React.FC<HeroCardProps> = ({
         />
       )}
 
-      {/* Badge */}
-      <View style={styles.badge}>
-        <Text style={styles.badgeText}>
-          {isEditorsPick ? "EDITOR\u2019S PICK" : "YOUR TRIP"}
-        </Text>
-      </View>
+      {/* Badge — only shown for Editor's Pick */}
+      {isEditorsPick && (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>EDITOR\u2019S PICK</Text>
+        </View>
+      )}
 
       {/* Bottom gradient overlay */}
       <LinearGradient

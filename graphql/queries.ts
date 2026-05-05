@@ -87,6 +87,9 @@ export const GET_HOME = gql`
         endDate
         coverImage
         eventCount
+        events {
+          id
+        }
       }
     }
   }
