@@ -1,13 +1,11 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Animated,
   useWindowDimensions,
-  Modal,
   Pressable,
-  FlatList,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -28,7 +26,7 @@ import { colors } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
 
-import { useHomeData } from "graphql/hooks";
+import { useHomeData, useLocationPermission } from "graphql/hooks";
 import { CTACard } from "components/Cards/CTACard";
 import type { TimeFilter } from "types/time";
 import { TIME_FILTERS, FILTER_LABELS, getHoursUntil } from "utils/timeFilter";
@@ -43,19 +41,14 @@ const Home = () => {
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [insightsHeight, setInsightsHeight] = useState(200);
-  const [neighborhoodId, setNeighborhoodId] = useState<string | null>(null);
-  const [showNeighborhoodPicker, setShowNeighborhoodPicker] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter | null>(null);
 
-  const { data, loading, error } = useHomeData(neighborhoodId, timeFilter);
+  const { data, loading, error, refetch } = useHomeData(timeFilter);
+  const { toggleLocationPermission, isLocationLoading } =
+    useLocationPermission();
 
   const sectionSpacing = Math.round(screenHeight * 0.012);
   const carouselSpacing = Math.round(screenHeight * 0.015);
-
-  const handleNeighborhoodSelect = useCallback((id: string | null) => {
-    setNeighborhoodId(id);
-    setShowNeighborhoodPicker(false);
-  }, []);
 
   if (loading) {
     return <Loading />;
@@ -72,18 +65,28 @@ const Home = () => {
 
   const {
     weather,
+    editorsPick,
     recommendations,
     trending,
     upcomingEvents,
+    nextSavedEvent,
     activeTrip,
     cityName,
-    activeNeighborhood,
-    neighborhoods,
+    allowLocationSharing,
   } = homeData;
 
   const greetingText = homeData.greeting ?? "Hello";
   const subtitleText =
     homeData.greetingPrompt ?? "Ready for your next adventure?";
+
+  const handleLocationEnable = async () => {
+    try {
+      await toggleLocationPermission(true);
+      await refetch();
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const validRecommendations = (recommendations ?? []).filter(
     (r): r is NonNullable<typeof r> => r != null,
@@ -92,13 +95,24 @@ const Home = () => {
     (t): t is NonNullable<typeof t> => t != null,
   );
 
-  // Hero card priority: trip within ~30 days → first recommendation (may be editor's pick)
+  // Hero card priority: trip within ~30 days → editor's pick → first recommendation
   const heroTrip = activeTrip as HeroCardData | null;
 
+  const heroEditorsPick = editorsPick
+    ? {
+        id: editorsPick.id,
+        name: editorsPick.name,
+        destination: editorsPick.locationName ?? "",
+        startDate: editorsPick.date,
+        endDate: editorsPick.endDate ?? editorsPick.date,
+        coverImage: editorsPick.image ?? null,
+        curatorNote: editorsPick.curatorNote ?? null,
+        curatorName: editorsPick.curatorName ?? null,
+      }
+    : null;
+
   const heroRecommendation =
-    !heroTrip && validRecommendations.length > 0
-      ? validRecommendations[0]
-      : null;
+    validRecommendations.length > 0 ? validRecommendations[0] : null;
   const heroRecommendationAsCard: HeroCardData | null = heroRecommendation
     ? {
         id: heroRecommendation.id,
@@ -112,12 +126,10 @@ const Home = () => {
       }
     : null;
 
-  const heroCard = heroTrip ?? heroRecommendationAsCard;
-  const isEditorsPick = !heroTrip && !!heroRecommendation?.isEditorsPick;
+  const heroCard = heroTrip ?? heroEditorsPick ?? heroRecommendationAsCard;
+  const isEditorsPick = !heroTrip && !!editorsPick;
 
-  const remainingRecommendations = heroRecommendation
-    ? validRecommendations.slice(1, 8)
-    : validRecommendations.slice(0, 8);
+  const remainingRecommendations = validRecommendations.slice(0, 8);
 
   const displayTrending = validTrending.slice(0, 10);
 
@@ -126,15 +138,6 @@ const Home = () => {
   const validUpcoming = (upcomingEvents ?? []).filter(
     (e): e is NonNullable<typeof e> => e != null,
   );
-  const activeEventIds = new Set(
-    activeTrip?.events?.map((e: any) => e.id) ?? [],
-  );
-  const upcomingSavedEvents = validUpcoming.filter(
-    (e) => !activeEventIds.has(e.id),
-  );
-  const nextSavedEvent =
-    upcomingSavedEvents.length > 0 ? upcomingSavedEvents[0] : null;
-
   // Empty filter state
   const hasFilter = timeFilter != null;
   const isFilterEmpty =
@@ -148,8 +151,6 @@ const Home = () => {
     outputRange: [0, 0, 1],
     extrapolate: "clamp",
   });
-
-  const neighborhoodName = activeNeighborhood?.name ?? null;
 
   return (
     <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
@@ -190,8 +191,12 @@ const Home = () => {
                 greeting={greetingText}
                 subtitle={subtitleText}
                 cityName={cityName ?? undefined}
-                neighborhoodName={neighborhoodName ?? undefined}
-                onChipPress={() => setShowNeighborhoodPicker(true)}
+                allowLocationSharing={allowLocationSharing ?? false}
+                isLocationLoading={isLocationLoading}
+                onChipPress={() => {
+                  // TODO: Implement neighborhood filter
+                }}
+                onLocationEnablePress={handleLocationEnable}
               />
 
               {/* Trip CTA — always shown */}
@@ -351,59 +356,6 @@ const Home = () => {
           )}
         </View>
       </Animated.ScrollView>
-
-      {/* Neighborhood picker bottom sheet */}
-      <Modal
-        visible={showNeighborhoodPicker}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowNeighborhoodPicker(false)}
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setShowNeighborhoodPicker(false)}
-        >
-          <Pressable style={styles.bottomSheet} onPress={() => {}}>
-            <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>Select Neighborhood</Text>
-            <FlatList
-              data={[
-                { id: null, name: `${cityName || "Nairobi"} (all)`, city: "" },
-                ...((neighborhoods ?? []).filter(Boolean) as Array<{
-                  id: string;
-                  name: string;
-                  city: string;
-                }>),
-              ]}
-              keyExtractor={(item) => item.id ?? "all"}
-              renderItem={({ item }) => {
-                const isActive =
-                  item.id === null
-                    ? neighborhoodId === null
-                    : neighborhoodId === item.id;
-                return (
-                  <Pressable
-                    style={[
-                      styles.sheetItem,
-                      isActive && styles.sheetItemActive,
-                    ]}
-                    onPress={() => handleNeighborhoodSelect(item.id)}
-                  >
-                    <Text
-                      style={[
-                        styles.sheetItemText,
-                        isActive && styles.sheetItemTextActive,
-                      ]}
-                    >
-                      {item.name}
-                    </Text>
-                  </Pressable>
-                );
-              }}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
     </Layout>
   );
 };

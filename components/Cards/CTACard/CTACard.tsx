@@ -299,13 +299,13 @@ export const CTACard: React.FC<CTACardProps> = ({
     >
       {isTripCTA ? (
         <LinearGradient
-          colors={[colors.roseFog, colors.shilo]}
+          colors={[colors.careysPink, colors.mustardCream]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.gradient}
         >
           <View style={[styles.iconBox, styles.tripIconBox]}>
-            <TravelIcon width={24} height={24} fill={colors.deluge} />
+            <TravelIcon width={36} height={36} fill={colors.deluge} />
             {shouldShowShimmer && (
               <Animated.View style={[styles.shimmer, shimmerStyle]}>
                 <LinearGradient

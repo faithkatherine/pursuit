@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { Slot, SplashScreen } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
-import { useLocationSync } from "graphql/hooks";
+import { reconcileLocation, useLocationSync } from "graphql/hooks";
 import { useEffect, useState, useCallback } from "react";
 import { SplashScreen as CustomSplashScreen } from "components/SplashScreen";
 import { Loading } from "components/Layout";
@@ -15,9 +15,21 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayoutContent() {
   const { isLoading: authIsLoading, isAuthenticated, user } = useAuth();
-  const { isSynced } = useLocationSync(user);
+  const [isReconciled, setIsReconciled] = useState(false);
+  const [shouldSync, setShouldSync] = useState(false);
+  const { isSynced } = useLocationSync(user, shouldSync);
   const [appIsReady, setAppIsReady] = useState(false);
   const [showCustomSplash, setShowCustomSplash] = useState(true);
+
+  // Run location reconciliation after user profile is available
+  useEffect(() => {
+    if (!user || !user.profile || isReconciled) return;
+
+    reconcileLocation(user, client).then((result) => {
+      setShouldSync(result.shouldSync);
+      setIsReconciled(true);
+    });
+  }, [user, isReconciled]);
 
   useEffect(() => {
     async function prepare() {
@@ -62,8 +74,9 @@ function RootLayoutContent() {
     return <Loading />;
   }
 
-  // Wait for location sync before rendering authenticated content
-  if (isAuthenticated && !isSynced) {
+  // Gate router on reconciliation completion
+  // This ensures backend state is correct before home mounts and fires getHome
+  if (isAuthenticated && !isReconciled) {
     return <Loading />;
   }
 

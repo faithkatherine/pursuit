@@ -43,8 +43,8 @@ export const COMPLETE_ONBOARDING = gql`
 `;
 
 export const GET_HOME = gql`
-  query GetHome($offset: Int = 0, $limit: Int = 10, $neighborhoodId: ID, $timeFilter: String) {
-    getHome(offset: $offset, limit: $limit, neighborhoodId: $neighborhoodId, timeFilter: $timeFilter) {
+  query GetHome($offset: Int = 0, $limit: Int = 10, $timeFilter: String) {
+    getHome(offset: $offset, limit: $limit, timeFilter: $timeFilter) {
       id
       greeting
       greetingPrompt
@@ -57,18 +57,11 @@ export const GET_HOME = gql`
       weather {
         ...WeatherInfo
       }
-      activeNeighborhood {
-        id
-        name
-        city
-      }
-      neighborhoods {
-        id
-        name
-        city
-      }
       categories {
         ...CategoryInfo
+      }
+      editorsPick {
+        ...EventInfo
       }
       recommendations {
         ...EventInfo
@@ -77,6 +70,9 @@ export const GET_HOME = gql`
         ...EventInfo
       }
       upcomingEvents {
+        ...EventInfo
+      }
+      nextSavedEvent {
         ...EventInfo
       }
       activeTrip {
@@ -380,6 +376,22 @@ export const ENABLE_LOCATION = gql`
         profile {
           locationName
           allowLocationSharing
+        }
+      }
+    }
+  }
+`;
+
+export const DISABLE_LOCATION = gql`
+  mutation DisableLocation {
+    disableLocation {
+      ok
+      user {
+        id
+        profile {
+          locationName
+          allowLocationSharing
+          location
         }
       }
     }

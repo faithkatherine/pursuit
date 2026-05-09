@@ -1,7 +1,13 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Alert, Linking } from "react-native";
 import * as Location from "expo-location";
-import { useQuery, useMutation } from "@apollo/client";
+import {
+  useQuery,
+  useMutation,
+  useApolloClient,
+  ApolloClient,
+} from "@apollo/client";
+import type { NormalizedCacheObject } from "@apollo/client";
 import {
   GET_BUCKET_CATEGORIES,
   GET_BUCKET_ITEMS,
@@ -11,6 +17,7 @@ import {
   SAVE_EVENT,
   UNSAVE_EVENT,
   ENABLE_LOCATION,
+  DISABLE_LOCATION,
 } from "./queries";
 import {
   GetBucketCategoriesQuery,
@@ -22,6 +29,75 @@ import {
   UnsaveEventMutation,
   UserType,
 } from "graphql/generated/graphql";
+
+// Module-level session guard for proactive permission prompt
+let hasPromptedThisSession = false;
+
+/**
+ * Standalone location reconciliation logic - runs in _layout before home mounts
+ * Returns shouldSync flag for post-mount background sync
+ */
+export const reconcileLocation = async (
+  user: UserType,
+  client: ApolloClient<NormalizedCacheObject>,
+): Promise<{ shouldSync: boolean }> => {
+  try {
+    // Step 1: Read OS permission status (do not request)
+    const { status } = await Location.getForegroundPermissionsAsync();
+    const backendEnabled = user.profile?.allowLocationSharing ?? false;
+
+    console.log("Reconciliation:", { status, backendEnabled });
+
+    // Path A: undetermined + backend true (reinstall, previously opted in)
+    if (status === "undetermined" && backendEnabled) {
+      if (hasPromptedThisSession) {
+        console.log("Already prompted this session");
+        return { shouldSync: false };
+      }
+
+      hasPromptedThisSession = true;
+      console.log("Path A: Proactive permission prompt");
+
+      // Show OS permission dialog
+      const { status: newStatus } =
+        await Location.requestForegroundPermissionsAsync();
+
+      if (newStatus === "granted") {
+        console.log("Permission granted, will sync");
+        return { shouldSync: true };
+      } else {
+        // Denied → disable backend
+        console.log("Permission denied, disabling backend");
+        await client.mutate({
+          mutation: DISABLE_LOCATION,
+        });
+        return { shouldSync: false };
+      }
+    }
+
+    // Path B: denied + backend true (user actively revoked)
+    if (status === "denied" && backendEnabled) {
+      console.log("Path B: Permission revoked, disabling backend");
+      await client.mutate({
+        mutation: DISABLE_LOCATION,
+      });
+      return { shouldSync: false };
+    }
+
+    // Path C: granted + backend true (normal case)
+    if (status === "granted" && backendEnabled) {
+      console.log("Path C: Normal case, will sync");
+      return { shouldSync: true };
+    }
+
+    // Path D/E: anything + backend false (never enabled or disabled)
+    console.log("Path D/E: No action needed");
+    return { shouldSync: false };
+  } catch (error) {
+    console.error("Reconciliation failed:", error);
+    return { shouldSync: false };
+  }
+};
 
 export const useBucketCategories = () => {
   const result = useQuery<GetBucketCategoriesQuery>(GET_BUCKET_CATEGORIES, {
@@ -46,10 +122,7 @@ export const useBucketItems = (selectedCategory?: string | null) => {
   };
 };
 
-export const useHomeData = (
-  neighborhoodId?: string | null,
-  timeFilter?: string | null,
-) => {
+export const useHomeData = (timeFilter?: string | null) => {
   // cache-and-network: last known results render instantly while the network
   // refreshes in the background, keeping home stable after a save mutation.
   const fetchPolicy = "cache-and-network" as const;
@@ -58,12 +131,12 @@ export const useHomeData = (
     variables: {
       offset: 0,
       limit: 5,
-      neighborhoodId: neighborhoodId || undefined,
       timeFilter: timeFilter || undefined,
     },
     fetchPolicy,
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
+    // No skip condition - reconciliation completes in _layout before home mounts
   });
 };
 
@@ -109,9 +182,64 @@ export const useSavedEvents = (offset = 0, limit = 20) => {
   };
 };
 
+// Shared GPS sync logic used by both manual tap and automatic launch sync
+const syncLocationToBackend = async (
+  enableLocationMutation: any,
+  options: { useLastKnown?: boolean } = {},
+) => {
+  let currentLocation: Location.LocationObject | null = null;
+
+  // Try last known position first if requested (faster, works indoors)
+  if (options.useLastKnown) {
+    try {
+      currentLocation = await Location.getLastKnownPositionAsync({
+        maxAge: 60000,
+        requiredAccuracy: 1000,
+      });
+    } catch (e) {
+      console.log("No last known position, fetching fresh");
+    }
+  }
+
+  // Fallback to fresh GPS
+  if (!currentLocation) {
+    currentLocation = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Balanced,
+      maximumAge: 60000,
+    });
+  }
+
+  const [geocode] = await Location.reverseGeocodeAsync({
+    latitude: currentLocation.coords.latitude,
+    longitude: currentLocation.coords.longitude,
+  });
+
+  if (geocode) {
+    const name = [geocode.city, geocode.region || geocode.country]
+      .filter(Boolean)
+      .join(", ");
+
+    if (name) {
+      await enableLocationMutation({
+        variables: {
+          locationName: name,
+          location: [
+            currentLocation.coords.latitude,
+            currentLocation.coords.longitude,
+          ],
+        },
+        refetchQueries: [{ query: GET_HOME }],
+      });
+    }
+  }
+
+  return { currentLocation, locationName: geocode?.city || null };
+};
+
 export const useLocationPermission = () => {
   const [locationPermissionGranted, setLocationPermissionGranted] =
     useState(false);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null,
   );
@@ -128,6 +256,7 @@ export const useLocationPermission = () => {
         return;
       }
 
+      setIsLocationLoading(true);
       try {
         // Check existing permission status first
         const { status: existingStatus } =
@@ -164,40 +293,18 @@ export const useLocationPermission = () => {
           }
         }
 
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation(currentLocation);
-
-        const [geocode] = await Location.reverseGeocodeAsync({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
+        // Use shared sync logic
+        const result = await syncLocationToBackend(enableLocationMutation, {
+          useLastKnown: false, // Manual tap uses fresh GPS
         });
-
-        if (geocode) {
-          const name = [geocode.city, geocode.region || geocode.country]
-            .filter(Boolean)
-            .join(", ");
-          setLocationName(name || null);
-
-          if (name) {
-            await enableLocationMutation({
-              variables: {
-                locationName: name,
-                location: [
-                  currentLocation.coords.latitude,
-                  currentLocation.coords.longitude,
-                ],
-              },
-              refetchQueries: [{ query: GET_HOME }],
-            });
-          }
-        }
+        setLocation(result.currentLocation);
+        setLocationName(result.locationName);
       } catch (error) {
         console.error("Failed to get location:", error);
         setLocationPermissionGranted(false);
-        Alert.alert(
-          "Location Error",
-          "Unable to get your location. Please try again later.",
-        );
+        throw error;
+      } finally {
+        setIsLocationLoading(false);
       }
     },
     [enableLocationMutation],
@@ -205,19 +312,29 @@ export const useLocationPermission = () => {
 
   return {
     locationPermissionGranted,
+    isLocationLoading,
     location,
     locationName,
     toggleLocationPermission,
   };
 };
 
-export const useLocationSync = (user: UserType | null) => {
+export const useLocationSync = (
+  user: UserType | null,
+  shouldSync: boolean,
+) => {
   const [isSynced, setIsSynced] = useState(false);
   const hasRun = useRef(false);
   const [enableLocationMutation] = useMutation(ENABLE_LOCATION);
 
   useEffect(() => {
     if (hasRun.current) return;
+
+    // Wait for reconciliation to determine if we should sync
+    if (!shouldSync) {
+      setIsSynced(true);
+      return;
+    }
 
     // Skip if no user or user hasn't opted into location sharing
     if (!user || !user.profile?.allowLocationSharing) {
@@ -229,55 +346,20 @@ export const useLocationSync = (user: UserType | null) => {
 
     const syncLocation = async () => {
       try {
-        const { status } = await Location.getForegroundPermissionsAsync();
-        let granted = status === "granted";
-
-        if (!granted) {
-          const result = await Location.requestForegroundPermissionsAsync();
-          granted = result.status === "granted";
-        }
-
-        if (!granted) {
-          // Permission denied — use stale backend data
-          setIsSynced(true);
-          return;
-        }
-
-        const currentLocation =
-          (await Location.getLastKnownPositionAsync()) ??
-          (await Location.getCurrentPositionAsync({}));
-        const [geocode] = await Location.reverseGeocodeAsync({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
+        // Use shared sync logic with last known position fallback
+        await syncLocationToBackend(enableLocationMutation, {
+          useLastKnown: true, // Auto sync tries cached position first
         });
-
-        if (geocode) {
-          const name = [geocode.city, geocode.region || geocode.country]
-            .filter(Boolean)
-            .join(", ");
-
-          // Only update if location actually changed
-          if (name && name !== user.profile?.locationName) {
-            await enableLocationMutation({
-              variables: {
-                locationName: name,
-                location: [
-                  currentLocation.coords.latitude,
-                  currentLocation.coords.longitude,
-                ],
-              },
-            });
-          }
-        }
       } catch (error) {
-        console.error("Location sync failed:", error);
+        // Silent fallback to stored location — log only
+        console.error("Location sync failed, using stored location:", error);
       } finally {
         setIsSynced(true);
       }
     };
 
     syncLocation();
-  }, [user, enableLocationMutation]);
+  }, [user, shouldSync, enableLocationMutation]);
 
   return { isSynced };
 };
