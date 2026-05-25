@@ -10,7 +10,7 @@ import {
   CompleteOnboardingMutation,
   CompleteOnboardingMutationVariables,
 } from "graphql/generated/graphql";
-import { useLocationPermission } from "graphql/hooks";
+import { useLocationPermission } from "hooks/useLocation";
 
 interface OnboardingContextType {
   currentStep: number;

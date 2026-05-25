@@ -40,8 +40,28 @@ jest.mock('react-hook-form', () => ({
 
 // Mock Apollo Client
 jest.mock('@apollo/client', () => ({
-  useQuery: jest.fn(),
-  useMutation: jest.fn(),
+  useQuery: jest.fn(() => ({
+    data: null,
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+  })),
+  useMutation: jest.fn(() => [
+    jest.fn().mockResolvedValue({ data: {} }),
+    {
+      data: null,
+      loading: false,
+      error: null,
+    },
+  ]),
+  useApolloClient: jest.fn(() => ({
+    cache: {
+      modify: jest.fn(),
+      identify: jest.fn((obj) => `${obj.__typename}:${obj.id}`),
+    },
+  })),
+  ApolloClient: jest.fn(),
+  InMemoryCache: jest.fn(),
   ApolloProvider: ({ children }) => children,
   gql: (strings, ...values) => {
     let result = '';
@@ -63,18 +83,18 @@ jest.mock('expo-linear-gradient', () => ({
 
 // Mock React Native components
 jest.mock('react-native', () => ({
-  View: ({ children, style, testID }) => 
+  View: ({ children, style, testID }) =>
     require('react').createElement('div', { style, 'data-testid': testID }, children),
-  Text: ({ children, style, testID }) => 
+  Text: ({ children, style, testID }) =>
     require('react').createElement('span', { style, 'data-testid': testID }, children),
-  TouchableOpacity: ({ children, style, testID, onPress }) => 
+  TouchableOpacity: ({ children, style, testID, onPress }) =>
     require('react').createElement('button', { style, 'data-testid': testID, onClick: onPress }, children),
-  Pressable: ({ children, style, testID, onPress, disabled }) => 
-    require('react').createElement('button', { 
-      style, 
-      'data-testid': testID, 
+  Pressable: ({ children, style, testID, onPress, disabled }) =>
+    require('react').createElement('button', {
+      style,
+      'data-testid': testID,
       onClick: disabled ? undefined : onPress,
-      disabled 
+      disabled
     }, children),
   FlatList: ({ data, renderItem, horizontal, contentContainerStyle, showsHorizontalScrollIndicator }) => {
     if (!data) return null;
@@ -82,14 +102,14 @@ jest.mock('react-native', () => ({
       style: { display: 'flex', flexDirection: horizontal ? 'row' : 'column', ...contentContainerStyle },
       'data-horizontal': horizontal,
       'data-shows-scroll-indicator': showsHorizontalScrollIndicator
-    }, data.map((item, index) => 
-      require('react').createElement('div', { key: index }, 
+    }, data.map((item, index) =>
+      require('react').createElement('div', { key: index },
         renderItem ? renderItem({ item, index }) : item
       )
     ));
   },
-  ScrollView: ({ children, style, contentContainerStyle, testID, onScroll, horizontal, showsVerticalScrollIndicator, showsHorizontalScrollIndicator, ...props }) => 
-    require('react').createElement('div', { 
+  ScrollView: ({ children, style, contentContainerStyle, testID, onScroll, horizontal, showsVerticalScrollIndicator, showsHorizontalScrollIndicator, ...props }) =>
+    require('react').createElement('div', {
       style: { ...style, ...contentContainerStyle },
       'data-testid': testID,
       'data-horizontal': horizontal,
@@ -105,6 +125,12 @@ jest.mock('react-native', () => ({
     width: 375,
     height: 667,
   }),
+  Alert: {
+    alert: jest.fn(),
+  },
+  Linking: {
+    openSettings: jest.fn(),
+  },
 }));
 
 // Mock color and typography imports

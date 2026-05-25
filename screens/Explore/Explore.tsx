@@ -26,7 +26,7 @@ import {
   useSavedEvents,
   useSaveEvent,
   useUnsaveEvent,
-} from "graphql/hooks";
+} from "hooks/useEvents";
 import { ExploreCard } from "components/Cards/ExploreCard";
 import type { ExploreCardData } from "components/Cards/ExploreCard";
 import BackIcon from "assets/icons/back.svg";

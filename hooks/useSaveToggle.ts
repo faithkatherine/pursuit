@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 import { useApolloClient } from "@apollo/client";
-import { useSaveEvent, useUnsaveEvent } from "graphql/hooks";
+import { useSaveEvent, useUnsaveEvent } from "hooks/useEvents";
 import { GET_HOME, GET_SAVED_EVENTS } from "graphql/queries";
 
 /**

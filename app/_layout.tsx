@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { Slot, SplashScreen } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
-import { reconcileLocation, useLocationSync } from "graphql/hooks";
+import { reconcileLocation, useLocationSync } from "hooks/useLocation";
 import { useEffect, useState, useCallback } from "react";
 import { SplashScreen as CustomSplashScreen } from "components/SplashScreen";
 import { Loading } from "components/Layout";
@@ -17,7 +17,7 @@ function RootLayoutContent() {
   const { isLoading: authIsLoading, isAuthenticated, user } = useAuth();
   const [isReconciled, setIsReconciled] = useState(false);
   const [shouldSync, setShouldSync] = useState(false);
-  const { isSynced } = useLocationSync(user, shouldSync);
+  useLocationSync(user, shouldSync); // Background sync - fire and forget, no need to track completion
   const [appIsReady, setAppIsReady] = useState(false);
   const [showCustomSplash, setShowCustomSplash] = useState(true);
 

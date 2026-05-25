@@ -26,7 +26,8 @@ import { colors } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
 
-import { useHomeData, useLocationPermission } from "graphql/hooks";
+import { useHomeData } from "hooks/useHome";
+import { useLocationPermission } from "hooks/useLocation";
 import { CTACard } from "components/Cards/CTACard";
 import type { TimeFilter } from "types/time";
 import { TIME_FILTERS, FILTER_LABELS, getHoursUntil } from "utils/timeFilter";

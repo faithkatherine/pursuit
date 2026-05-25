@@ -1,34 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Alert, Linking } from "react-native";
 import * as Location from "expo-location";
-import {
-  useQuery,
-  useMutation,
-  useApolloClient,
-  ApolloClient,
-} from "@apollo/client";
+import { useMutation, ApolloClient } from "@apollo/client";
 import type { NormalizedCacheObject } from "@apollo/client";
-import {
-  GET_BUCKET_CATEGORIES,
-  GET_BUCKET_ITEMS,
-  GET_HOME,
-  GET_EVENTS,
-  GET_SAVED_EVENTS,
-  SAVE_EVENT,
-  UNSAVE_EVENT,
-  ENABLE_LOCATION,
-  DISABLE_LOCATION,
-} from "./queries";
-import {
-  GetBucketCategoriesQuery,
-  GetBucketItemsQuery,
-  GetHomeQuery,
-  GetEventsQuery,
-  GetSavedEventsQuery,
-  SaveEventMutation,
-  UnsaveEventMutation,
-  UserType,
-} from "graphql/generated/graphql";
+import { GET_HOME, ENABLE_LOCATION, DISABLE_LOCATION } from "graphql/queries";
+import { UserType } from "graphql/generated/graphql";
 
 // Module-level session guard for proactive permission prompt
 let hasPromptedThisSession = false;
@@ -70,6 +46,7 @@ export const reconcileLocation = async (
         console.log("Permission denied, disabling backend");
         await client.mutate({
           mutation: DISABLE_LOCATION,
+          refetchQueries: [{ query: GET_HOME }],
         });
         return { shouldSync: false };
       }
@@ -80,6 +57,7 @@ export const reconcileLocation = async (
       console.log("Path B: Permission revoked, disabling backend");
       await client.mutate({
         mutation: DISABLE_LOCATION,
+        refetchQueries: [{ query: GET_HOME }],
       });
       return { shouldSync: false };
     }
@@ -97,89 +75,6 @@ export const reconcileLocation = async (
     console.error("Reconciliation failed:", error);
     return { shouldSync: false };
   }
-};
-
-export const useBucketCategories = () => {
-  const result = useQuery<GetBucketCategoriesQuery>(GET_BUCKET_CATEGORIES, {
-    notifyOnNetworkStatusChange: true,
-  });
-
-  return {
-    ...result,
-    categories: result.data?.getBucketCategories || [],
-  };
-};
-
-export const useBucketItems = (selectedCategory?: string | null) => {
-  const result = useQuery<GetBucketItemsQuery>(GET_BUCKET_ITEMS, {
-    variables: { categoryId: selectedCategory || undefined },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  return {
-    ...result,
-    bucketItems: result.data?.getBucketItems || [],
-  };
-};
-
-export const useHomeData = (timeFilter?: string | null) => {
-  // cache-and-network: last known results render instantly while the network
-  // refreshes in the background, keeping home stable after a save mutation.
-  const fetchPolicy = "cache-and-network" as const;
-
-  return useQuery<GetHomeQuery>(GET_HOME, {
-    variables: {
-      offset: 0,
-      limit: 5,
-      timeFilter: timeFilter || undefined,
-    },
-    fetchPolicy,
-    nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
-    // No skip condition - reconciliation completes in _layout before home mounts
-  });
-};
-
-export const useEvents = (filters?: {
-  search?: string;
-  category?: string[];
-  offset?: number;
-  limit?: number;
-}) => {
-  const result = useQuery<GetEventsQuery>(GET_EVENTS, {
-    variables: {
-      search: filters?.search || undefined,
-      category: filters?.category?.length ? filters.category : undefined,
-      offset: filters?.offset || 0,
-      limit: filters?.limit || 20,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  return {
-    ...result,
-    events: result.data?.events?.events || [],
-  };
-};
-
-export const useSaveEvent = () => {
-  return useMutation<SaveEventMutation>(SAVE_EVENT);
-};
-
-export const useUnsaveEvent = () => {
-  return useMutation<UnsaveEventMutation>(UNSAVE_EVENT);
-};
-
-export const useSavedEvents = (offset = 0, limit = 20) => {
-  const result = useQuery<GetSavedEventsQuery>(GET_SAVED_EVENTS, {
-    variables: { offset, limit },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  return {
-    ...result,
-    savedEvents: result.data?.savedEvents?.events || [],
-  };
 };
 
 // Shared GPS sync logic used by both manual tap and automatic launch sync
@@ -205,7 +100,6 @@ const syncLocationToBackend = async (
   if (!currentLocation) {
     currentLocation = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
-      maximumAge: 60000,
     });
   }
 
@@ -319,10 +213,7 @@ export const useLocationPermission = () => {
   };
 };
 
-export const useLocationSync = (
-  user: UserType | null,
-  shouldSync: boolean,
-) => {
+export const useLocationSync = (user: UserType | null, shouldSync: boolean) => {
   const [isSynced, setIsSynced] = useState(false);
   const hasRun = useRef(false);
   const [enableLocationMutation] = useMutation(ENABLE_LOCATION);
