@@ -10,6 +10,13 @@ import { UserType } from "graphql/generated/graphql";
 let hasPromptedThisSession = false;
 
 /**
+ * Reset session guard on logout to allow new user's location prompt
+ */
+export const resetLocationSession = () => {
+  hasPromptedThisSession = false;
+};
+
+/**
  * Standalone location reconciliation logic - runs in _layout before home mounts
  * Returns shouldSync flag for post-mount background sync
  */
@@ -54,12 +61,42 @@ export const reconcileLocation = async (
 
     // Path B: denied + backend true (user actively revoked)
     if (status === "denied" && backendEnabled) {
-      console.log("Path B: Permission revoked, disabling backend");
-      await client.mutate({
-        mutation: DISABLE_LOCATION,
-        refetchQueries: [{ query: GET_HOME }],
+      console.log("Path B: Permission revoked, prompting user");
+
+      // Show alert - can't request permission directly when denied
+      return new Promise((resolve) => {
+        Alert.alert(
+          "Location Access Required",
+          "You previously enabled location sharing. To continue using this feature, please enable location access in your device settings.",
+          [
+            {
+              text: "Not Now",
+              style: "cancel",
+              onPress: async () => {
+                // User chooses to disable
+                await client.mutate({
+                  mutation: DISABLE_LOCATION,
+                  refetchQueries: [{ query: GET_HOME }],
+                });
+                resolve({ shouldSync: false });
+              },
+            },
+            {
+              text: "Open Settings",
+              onPress: async () => {
+                Linking.openSettings();
+                // Disable backend for now - user can re-enable after granting permission
+                await client.mutate({
+                  mutation: DISABLE_LOCATION,
+                  refetchQueries: [{ query: GET_HOME }],
+                });
+                resolve({ shouldSync: false });
+              },
+            },
+          ],
+          { cancelable: false }
+        );
       });
-      return { shouldSync: false };
     }
 
     // Path C: granted + backend true (normal case)
@@ -187,16 +224,53 @@ export const useLocationPermission = () => {
           }
         }
 
-        // Use shared sync logic
-        const result = await syncLocationToBackend(enableLocationMutation, {
-          useLastKnown: false, // Manual tap uses fresh GPS
-        });
-        setLocation(result.currentLocation);
-        setLocationName(result.locationName);
+        // Try to get location with fallback strategy
+        try {
+          // First try fresh GPS for accuracy
+          const result = await syncLocationToBackend(enableLocationMutation, {
+            useLastKnown: false,
+          });
+          setLocation(result.currentLocation);
+          setLocationName(result.locationName);
+        } catch (gpsError) {
+          console.log("Fresh GPS failed, trying last known position:", gpsError);
+
+          // Fallback to last known position
+          try {
+            const result = await syncLocationToBackend(enableLocationMutation, {
+              useLastKnown: true,
+            });
+            setLocation(result.currentLocation);
+            setLocationName(result.locationName);
+
+            // Inform user we used cached location
+            Alert.alert(
+              "Location Updated",
+              "We used your last known location. For best results, try again outdoors with a clear view of the sky.",
+              [{ text: "OK" }]
+            );
+          } catch (fallbackError) {
+            // Both attempts failed
+            console.error("All location attempts failed:", fallbackError);
+            setLocationPermissionGranted(false);
+
+            Alert.alert(
+              "Unable to Get Location",
+              "Please make sure location services are enabled in your device settings and try again. For best results, go outdoors with a clear view of the sky.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Open Settings",
+                  onPress: () => Linking.openSettings(),
+                },
+              ]
+            );
+            return;
+          }
+        }
       } catch (error) {
-        console.error("Failed to get location:", error);
+        console.error("Failed to enable location:", error);
         setLocationPermissionGranted(false);
-        throw error;
       } finally {
         setIsLocationLoading(false);
       }

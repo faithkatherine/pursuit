@@ -376,6 +376,8 @@ export const ENABLE_LOCATION = gql`
         profile {
           locationName
           allowLocationSharing
+          coordinates
+          hasLocation
         }
       }
     }
@@ -391,7 +393,8 @@ export const DISABLE_LOCATION = gql`
         profile {
           locationName
           allowLocationSharing
-          location
+          coordinates
+          hasLocation
         }
       }
     }

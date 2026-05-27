@@ -6,6 +6,7 @@ import * as Crypto from "expo-crypto";
 import { SIGN_IN, SIGN_UP, GOOGLE_SIGN_IN, GET_USER } from "../graphql/queries";
 import { storeTokens, getTokens, clearAllData } from "../utils/secureStorage";
 import type { UserType } from "../graphql/generated/graphql";
+import { resetLocationSession } from "../hooks/useLocation";
 
 // Type for partial user updates (allows nested partial objects from mutations)
 type PartialUserUpdate = Partial<Omit<UserType, "profile">> & {
@@ -323,6 +324,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       await clearAllData();
       setUser(null);
       setToken(null);
+      // Reset location session guard so next user can be prompted
+      resetLocationSession();
     } catch (error) {
       console.error("Sign out error:", error);
     }
