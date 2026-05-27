@@ -81,10 +81,7 @@ const errorLink = onError(
                   }
 
                   // Call refresh token mutation
-                  const response = await fetch(
-                    process.env.EXPO_PUBLIC_API_URL ||
-                      "http://localhost:8000/graphql/",
-                    {
+                  const response = await fetch(apiUrl, {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",

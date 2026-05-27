@@ -54,6 +54,16 @@ export default function ProtectedLayout() {
           animation: "slide_from_right",
         }}
       />
+      <Stack.Screen
+        name="events/[eventId]"
+        options={{
+          headerShown: false,
+          presentation: "fullScreenModal",
+          animation: "slide_from_bottom",
+          gestureEnabled: true,
+          contentStyle: { backgroundColor: "transparent" },
+        }}
+      />
     </Stack>
   );
 }

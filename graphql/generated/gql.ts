@@ -35,11 +35,13 @@ type Documents = {
     "\n  mutation RefreshAccessToken($refreshToken: String!) {\n    refreshAccessToken(refreshToken: $refreshToken) {\n      ok\n      accessToken\n      refreshToken\n      expiresIn\n    }\n  }\n": typeof types.RefreshAccessTokenDocument,
     "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        locationName\n        allowLocationSharing\n      }\n    }\n  }\n": typeof types.GetUserDocument,
     "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      locationName\n    }\n  }\n": typeof types.GetUserProfileDocument,
+    "\n  query GetEvent($id: ID!) {\n    event(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n    }\n  }\n  \n": typeof types.GetEventDocument,
     "\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": typeof types.GetEventsDocument,
     "\n  query GetSavedEvents($offset: Int, $limit: Int) {\n    savedEvents(offset: $offset, limit: $limit) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": typeof types.GetSavedEventsDocument,
     "\n  mutation SaveEvent($id: ID!) {\n    saveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": typeof types.SaveEventDocument,
     "\n  mutation UnsaveEvent($id: ID!) {\n    unsaveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": typeof types.UnsaveEventDocument,
-    "\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n        }\n      }\n    }\n  }\n": typeof types.EnableLocationDocument,
+    "\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n": typeof types.EnableLocationDocument,
+    "\n  mutation DisableLocation {\n    disableLocation {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n": typeof types.DisableLocationDocument,
     "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n": typeof types.SkipOnboardingDocument,
 };
 const documents: Documents = {
@@ -64,11 +66,13 @@ const documents: Documents = {
     "\n  mutation RefreshAccessToken($refreshToken: String!) {\n    refreshAccessToken(refreshToken: $refreshToken) {\n      ok\n      accessToken\n      refreshToken\n      expiresIn\n    }\n  }\n": types.RefreshAccessTokenDocument,
     "\n  query GetUser {\n    user {\n      id\n      email\n      firstName\n      lastName\n      profilePicture\n      isEmailVerified\n      authProvider\n      profile {\n        isOnboardingCompleted\n        hasSkippedOnboarding\n        bio\n        locationName\n        allowLocationSharing\n      }\n    }\n  }\n": types.GetUserDocument,
     "\n  query GetUserProfile {\n    userProfile {\n      isOnboardingCompleted\n      bio\n      locationName\n    }\n  }\n": types.GetUserProfileDocument,
+    "\n  query GetEvent($id: ID!) {\n    event(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n    }\n  }\n  \n": types.GetEventDocument,
     "\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": types.GetEventsDocument,
     "\n  query GetSavedEvents($offset: Int, $limit: Int) {\n    savedEvents(offset: $offset, limit: $limit) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n": types.GetSavedEventsDocument,
     "\n  mutation SaveEvent($id: ID!) {\n    saveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": types.SaveEventDocument,
     "\n  mutation UnsaveEvent($id: ID!) {\n    unsaveEvent(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n      errors\n    }\n  }\n  \n": types.UnsaveEventDocument,
-    "\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n        }\n      }\n    }\n  }\n": types.EnableLocationDocument,
+    "\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n": types.EnableLocationDocument,
+    "\n  mutation DisableLocation {\n    disableLocation {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n": types.DisableLocationDocument,
     "\n  mutation SkipOnboarding {\n    skipOnboarding {\n      ok\n      user {\n        ...AuthUser\n      }\n    }\n  }\n  \n": types.SkipOnboardingDocument,
 };
 
@@ -173,6 +177,10 @@ export function graphql(source: "\n  query GetUserProfile {\n    userProfile {\n
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n  query GetEvent($id: ID!) {\n    event(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n    }\n  }\n  \n"): (typeof documents)["\n  query GetEvent($id: ID!) {\n    event(id: $id) {\n      ok\n      event {\n        ...EventInfo\n      }\n    }\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n"): (typeof documents)["\n  query GetEvents(\n    $search: String\n    $category: [ID]\n    $offset: Int\n    $limit: Int\n  ) {\n    events(\n      search: $search\n      category: $category\n      offset: $offset\n      limit: $limit\n    ) {\n      ok\n      events {\n        ...EventInfo\n      }\n    }\n  }\n  \n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -189,7 +197,11 @@ export function graphql(source: "\n  mutation UnsaveEvent($id: ID!) {\n    unsav
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n        }\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation EnableLocation($locationName: String!, $location: [Float]!) {\n    enableLocation(locationName: $locationName, location: $location) {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation DisableLocation {\n    disableLocation {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation DisableLocation {\n    disableLocation {\n      ok\n      user {\n        id\n        profile {\n          locationName\n          allowLocationSharing\n          coordinates\n          hasLocation\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

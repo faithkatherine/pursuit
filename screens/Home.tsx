@@ -235,8 +235,7 @@ const Home = () => {
                     date: nextSavedEvent.date,
                   }}
                   onPress={() => {
-                    // Navigate to event detail
-                    router.push(`/event/${nextSavedEvent.id}`);
+                    router.push(`/(protected)/events/${nextSavedEvent.id}`);
                   }}
                 />
               )}
@@ -268,7 +267,9 @@ const Home = () => {
                 >
                   <HeroCard
                     trip={heroCard}
-                    onPress={() => {}}
+                    onPress={() => {
+                      router.push(`/(protected)/events/${heroCard.id}`);
+                    }}
                     isEditorsPick={isEditorsPick}
                   />
                 </View>
@@ -319,7 +320,9 @@ const Home = () => {
                     <RecommendationCard
                       key={rec.id}
                       event={rec as EventInfoFragment}
-                      onPress={() => {}}
+                      onPress={() =>
+                        router.push(`/(protected)/events/${rec.id}`)
+                      }
                       useVariant
                     />
                   ))}
@@ -345,7 +348,9 @@ const Home = () => {
                         <View style={styles.trendingCardWrapper}>
                           <TrendingCard
                             recommendation={event as EventInfoFragment}
-                            onPress={() => {}}
+                            onPress={() =>
+                              router.push(`/(protected)/events/${event.id}`)
+                            }
                           />
                         </View>
                       </View>

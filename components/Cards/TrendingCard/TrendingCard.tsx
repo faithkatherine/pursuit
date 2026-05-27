@@ -1,17 +1,9 @@
 import React from "react";
-import {
-  Text,
-  Image,
-  View,
-  StyleSheet,
-  Pressable,
-  ActivityIndicator,
-} from "react-native";
+import { Text, Image, View, StyleSheet, Pressable } from "react-native";
 import colors, { theme } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
-import { Button } from "components/Buttons/Buttons";
-import HeartIcon from "assets/icons/heart.svg";
+import { SaveButton } from "components/Buttons";
 import { formatEventDate } from "utils/date";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
@@ -31,17 +23,6 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
   );
 
   const categoryName = recommendation.category[0]?.name;
-
-  const saveIcon = saving ? (
-    <ActivityIndicator size="small" color={colors.deluge} />
-  ) : (
-    <HeartIcon
-      width={18}
-      height={18}
-      stroke={colors.deluge}
-      fill={isSaved ? colors.deluge : "none"}
-    />
-  );
 
   return (
     <View style={styles.shadowWrapper}>
@@ -68,18 +49,19 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
             ) : (
               <View />
             )}
-            <Button
-              variant="secondary"
-              icon={saveIcon}
+            <SaveButton
               onPress={handleSave}
+              isSaved={isSaved}
+              loading={saving}
+              size="sm"
+              fillColor={colors.deluge}
+              strokeColor={colors.deluge}
               style={[
                 styles.saveButton,
                 {
                   width: 32,
                   height: 32,
                   borderRadius: radii.lg,
-                  borderWidth: 0,
-                  elevation: 0,
                   backgroundColor: "transparent",
                 },
               ]}

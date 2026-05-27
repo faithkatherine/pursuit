@@ -5,16 +5,15 @@ import {
   View,
   StyleSheet,
   Pressable,
-  ActivityIndicator,
   Dimensions,
 } from "react-native";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
 import { useSaveToggle } from "hooks/useSaveToggle";
-import { Button } from "components/Buttons/Buttons";
-import HeartIcon from "assets/icons/heart.svg";
+import { SaveButton } from "components/Buttons";
 import { formatEventDate } from "utils/date";
+import { getVariant } from "utils/categoryVariants";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -23,89 +22,6 @@ const IMAGE_HEIGHT = CARD_WIDTH * 0.57;
 const CARD_PADDING = CARD_WIDTH * 0.054;
 const SAVE_BUTTON_SIZE = CARD_WIDTH * 0.143;
 const SAVE_BUTTON_OUTER = SAVE_BUTTON_SIZE * 1.5;
-
-// ---------------------------------------------------------------------------
-// Category variant map — keyed by category slug
-// ---------------------------------------------------------------------------
-type CategoryVariant = {
-  cardBackground: string;
-  badgeBackground: string;
-  accentColor: string; // badge text + heart fill
-  isDark: boolean;
-};
-
-const DEFAULT_VARIANT_KEY = "culture-and-arts";
-
-export const categoryVariants: Record<string, CategoryVariant> = {
-  "talks-and-ideas": {
-    cardBackground: colors.parchment,
-    badgeBackground: colors.parchmentDeep,
-    accentColor: colors.leather,
-    isDark: false,
-  },
-  "workshops-and-classes": {
-    cardBackground: colors.linen,
-    badgeBackground: colors.bareBlush,
-    accentColor: colors.tannin,
-    isDark: false,
-  },
-  "concerts-and-nightlife": {
-    cardBackground: colors.midnightBlue,
-    badgeBackground: colors.white,
-    accentColor: colors.black,
-    isDark: true,
-  },
-  "culture-and-arts": {
-    cardBackground: colors.mistLavender,
-    badgeBackground: colors.ube50,
-    accentColor: colors.deluge,
-    isDark: false,
-  },
-  "outdoors-and-active": {
-    cardBackground: colors.sageMist,
-    badgeBackground: colors.sage,
-    accentColor: colors.forest,
-    isDark: false,
-  },
-  "food-and-drink": {
-    cardBackground: colors.peachVeil,
-    badgeBackground: colors.shilo,
-    accentColor: colors.terracotta,
-    isDark: false,
-  },
-  "markets-and-popups": {
-    cardBackground: colors.mustardCream,
-    badgeBackground: colors.mustard,
-    accentColor: colors.goldOlive,
-    isDark: false,
-  },
-  travel: {
-    cardBackground: colors.skyMist,
-    badgeBackground: colors.skyDust,
-    accentColor: colors.deepHorizon,
-    isDark: false,
-  },
-};
-
-function getCategorySlug(event: EventInfoFragment): string | null {
-  const category = event.category;
-  if (!category || category.length === 0) return null;
-  const name = category[0]?.name ?? "";
-  return name
-    .toLowerCase()
-    .replace(/\s*&\s*/g, "-and-") // "Food & Drink" → "food-and-drink"
-    .replace(/\s+/g, "-") // remaining spaces → hyphens
-    .replace(/[^a-z0-9-]/g, "") // strip any other non-alphanumeric chars
-    .replace(/-+/g, "-"); // collapse double hyphens
-}
-
-function getVariant(event: EventInfoFragment): CategoryVariant | null {
-  const slug = getCategorySlug(event);
-  if (!slug) return null;
-  return categoryVariants[slug] ?? categoryVariants[DEFAULT_VARIANT_KEY];
-}
-
-// ---------------------------------------------------------------------------
 
 interface RecommendationCardProps {
   event: EventInfoFragment;
@@ -125,17 +41,6 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const { isSaved, saving, handleSave } = useSaveToggle(
     event.id,
     event.isSaved ?? false,
-  );
-
-  const saveIcon = saving ? (
-    <ActivityIndicator size="small" color={heartColor} />
-  ) : (
-    <HeartIcon
-      width={16}
-      height={16}
-      stroke={heartColor}
-      fill={isSaved ? heartColor : "none"}
-    />
   );
 
   const cardBackground = variant ? variant.cardBackground : colors.deluge;
@@ -168,18 +73,19 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
           },
         ]}
       >
-        <Button
-          variant="secondary"
-          icon={saveIcon}
+        <SaveButton
           onPress={handleSave}
+          isSaved={isSaved}
+          loading={saving}
+          size="sm"
+          fillColor={heartColor}
+          strokeColor={heartColor}
           style={[
             styles.saveButton,
             {
               width: SAVE_BUTTON_SIZE,
               height: SAVE_BUTTON_SIZE,
               borderRadius: SAVE_BUTTON_SIZE / 2,
-              borderWidth: 0,
-              elevation: 0,
               backgroundColor: colors.white,
             },
           ]}
@@ -265,8 +171,6 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     padding: 0,
-    elevation: 0,
-    shadowOpacity: 0,
   },
   imageWrapper: {
     borderRadius: radii.md,

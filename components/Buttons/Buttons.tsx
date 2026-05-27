@@ -18,7 +18,14 @@ interface ButtonProps {
   text?: string;
   loading?: boolean;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "third-party" | "gradient" | "chips";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "third-party"
+    | "gradient"
+    | "chips"
+    | "save"
+    | "back";
   onPress?: () => void;
   disabled?: boolean;
   style?: object;
@@ -27,6 +34,10 @@ interface ButtonProps {
   ghost?: boolean;
   /** chips only */
   selected?: boolean;
+  /** save & back variants only: indicates saved state for save button */
+  isSaved?: boolean;
+  /** save & back variants only: for accessibility or custom styling */
+  size?: "sm" | "md" | "lg";
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -40,6 +51,8 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   ghost,
   selected,
+  isSaved,
+  size = "md",
 }) => {
   switch (variant) {
     case "primary":
@@ -138,6 +151,43 @@ export const Button: React.FC<ButtonProps> = ({
           >
             {text}
           </Text>
+        </Pressable>
+      );
+
+    case "save":
+      return (
+        <Pressable
+          onPress={onPress}
+          disabled={disabled || loading}
+          style={[
+            styles.iconButtonBase,
+            size === "sm" && styles.iconButtonSm,
+            size === "md" && styles.iconButtonMd,
+            size === "lg" && styles.iconButtonLg,
+            style,
+          ]}
+          testID="button-save"
+        >
+          {icon && icon}
+          {loading && <ActivityIndicator size="small" color={colors.white} />}
+        </Pressable>
+      );
+
+    case "back":
+      return (
+        <Pressable
+          onPress={onPress}
+          disabled={disabled}
+          style={[
+            styles.iconButtonBase,
+            size === "sm" && styles.iconButtonSm,
+            size === "md" && styles.iconButtonMd,
+            size === "lg" && styles.iconButtonLg,
+            style,
+          ]}
+          testID="button-back"
+        >
+          {icon && icon}
         </Pressable>
       );
   }
@@ -343,5 +393,23 @@ const styles = StyleSheet.create({
   },
   filterChipTextUnselected: {
     color: colors.thunder,
+  },
+  iconButtonBase: {
+    borderRadius: radii.full,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconButtonSm: {
+    width: 32,
+    height: 32,
+  },
+  iconButtonMd: {
+    width: 40,
+    height: 40,
+  },
+  iconButtonLg: {
+    width: 48,
+    height: 48,
   },
 });

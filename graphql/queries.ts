@@ -307,6 +307,18 @@ export const GET_USER_PROFILE = gql`
 `;
 
 // Events
+export const GET_EVENT = gql`
+  query GetEvent($id: ID!) {
+    event(id: $id) {
+      ok
+      event {
+        ...EventInfo
+      }
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
 export const GET_EVENTS = gql`
   query GetEvents(
     $search: String
