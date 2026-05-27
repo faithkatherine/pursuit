@@ -15,8 +15,9 @@ jest.mock("components/Buttons/Buttons", () => ({
   },
 }));
 
-jest.mock("components/Icons/HeartIcon", () => ({
-  HeartIcon: () => null,
+jest.mock("assets/icons/heart.svg", () => ({
+  __esModule: true,
+  default: () => null,
 }));
 
 jest.mock("utils/date", () => ({

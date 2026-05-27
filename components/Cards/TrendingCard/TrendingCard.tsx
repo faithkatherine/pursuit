@@ -11,7 +11,7 @@ import colors, { theme } from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
 import { Button } from "components/Buttons/Buttons";
-import { HeartIcon } from "components/Icons/HeartIcon";
+import HeartIcon from "assets/icons/heart.svg";
 import { formatEventDate } from "utils/date";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
@@ -35,7 +35,12 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
   const saveIcon = saving ? (
     <ActivityIndicator size="small" color={colors.deluge} />
   ) : (
-    <HeartIcon size={18} color={colors.deluge} filled={isSaved ?? false} />
+    <HeartIcon
+      width={18}
+      height={18}
+      stroke={colors.deluge}
+      fill={isSaved ? colors.deluge : "none"}
+    />
   );
 
   return (

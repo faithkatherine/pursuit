@@ -13,7 +13,7 @@ import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
 import { useSaveToggle } from "hooks/useSaveToggle";
 import { Button } from "components/Buttons/Buttons";
-import { HeartIcon } from "components/Icons/HeartIcon";
+import HeartIcon from "assets/icons/heart.svg";
 import { formatEventDate } from "utils/date";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 
@@ -130,7 +130,12 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const saveIcon = saving ? (
     <ActivityIndicator size="small" color={heartColor} />
   ) : (
-    <HeartIcon size={16} color={heartColor} filled={isSaved ?? false} />
+    <HeartIcon
+      width={16}
+      height={16}
+      stroke={heartColor}
+      fill={isSaved ? heartColor : "none"}
+    />
   );
 
   const cardBackground = variant ? variant.cardBackground : colors.deluge;

@@ -17,7 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { Layout, Loading, Error } from "components/Layout";
 import { Button } from "components/Buttons";
-import { HeartIcon } from "components/Icons/HeartIcon";
+import HeartIcon from "assets/icons/heart.svg";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
@@ -423,9 +423,10 @@ export const Explore = () => {
                         <ActivityIndicator size="small" color={colors.deluge} />
                       ) : (
                         <HeartIcon
-                          size={22}
-                          color={colors.deluge}
-                          filled={isCurrentSaved}
+                          width={22}
+                          height={22}
+                          stroke={colors.deluge}
+                          fill={isCurrentSaved ? colors.deluge : "none"}
                         />
                       )
                     }
