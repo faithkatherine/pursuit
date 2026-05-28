@@ -55,7 +55,6 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
               loading={saving}
               size="sm"
               fillColor={colors.deluge}
-              strokeColor={colors.deluge}
               style={[
                 styles.saveButton,
                 {

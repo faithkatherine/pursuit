@@ -79,7 +79,6 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
           loading={saving}
           size="sm"
           fillColor={heartColor}
-          strokeColor={heartColor}
           style={[
             styles.saveButton,
             {

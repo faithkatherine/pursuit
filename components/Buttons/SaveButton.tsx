@@ -11,7 +11,6 @@ interface SaveButtonProps {
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
   fillColor?: string;
-  strokeColor?: string;
   style?: object;
 }
 
@@ -22,7 +21,6 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
   disabled = false,
   size = "md",
   fillColor = colors.careysPink,
-  strokeColor = colors.white,
   style,
 }) => {
   return (
@@ -39,8 +37,7 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
             width={size === "sm" ? 16 : size === "md" ? 20 : 24}
             height={size === "sm" ? 16 : size === "md" ? 20 : 24}
             fill={isSaved ? fillColor : "transparent"}
-            stroke={strokeColor}
-            strokeWidth={2}
+            color={fillColor}
           />
         )
       }
