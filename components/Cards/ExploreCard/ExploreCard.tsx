@@ -38,6 +38,17 @@ interface ExploreCardProps {
 export const ExploreCard: React.FC<ExploreCardProps> = ({ event, onPress }) => {
   const categoryName = event.category?.[0]?.name;
 
+  const shortDate = formatEventDate(event.date, {
+    month: "short",
+    day: "numeric",
+  });
+  const shortDateText =
+    typeof shortDate === "string" ? shortDate : shortDate.formattedDate;
+
+  const fullDate = formatEventDate(event.date);
+  const fullDateText =
+    typeof fullDate === "string" ? fullDate : fullDate.formattedDate;
+
   return (
     <Pressable onPress={onPress} testID="explore-card" style={styles.card}>
       {/* Background image or placeholder */}
@@ -63,9 +74,7 @@ export const ExploreCard: React.FC<ExploreCardProps> = ({ event, onPress }) => {
           </View>
         )}
         <View style={styles.dateBadge}>
-          <Text style={styles.dateBadgeText}>
-            {formatEventDate(event.date, { month: "short", day: "numeric" })}
-          </Text>
+          <Text style={styles.dateBadgeText}>{shortDateText}</Text>
         </View>
       </View>
 
@@ -92,7 +101,7 @@ export const ExploreCard: React.FC<ExploreCardProps> = ({ event, onPress }) => {
 
         {/* Meta row */}
         <View style={styles.metaRow}>
-          <Text style={styles.dateText}>{formatEventDate(event.date)}</Text>
+          <Text style={styles.dateText}>{fullDateText}</Text>
           {event.isFree && (
             <View style={styles.freeBadge}>
               <Text style={styles.freeBadgeText}>Free</Text>

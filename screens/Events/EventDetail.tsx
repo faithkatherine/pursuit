@@ -8,11 +8,9 @@ import {
   Pressable,
   BackHandler,
   Linking,
-  Dimensions,
-  useWindowDimensions,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useQuery } from "@apollo/client";
 
@@ -22,19 +20,25 @@ import { EventType } from "graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
 
 import { Loading, Error } from "components/Layout";
-import { SaveButton, BackButton } from "components/Buttons";
+import { BackButton, SaveButton, CTAButton } from "components/Buttons";
+import { StatTile } from "components/Tiles";
+import { Badge } from "components/Badge";
+import { SavedIndicator } from "components/SavedIndicator";
+import { PriceDisplay } from "components/PriceDisplay";
 
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing, radii, layoutSpacing } from "themes/tokens/spacing";
+import { spacing, radii } from "themes/tokens/spacing";
 
 import { getVariant } from "utils/categoryVariants";
+import { formatEventDate, calculateEventDuration } from "utils/date";
+import { getScarcityBadge, getTicketButtonText } from "utils/eventHelpers";
 
-import StarIcon from "assets/icons/star.svg";
-import { formatEventDate } from "utils/date";
+import DateIcon from "assets/icons/date.svg";
+import LocationIcon from "assets/icons/location.svg";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const HERO_HEIGHT = 400;
+const CONTROLS_BAND_HEIGHT = 120;
+const BADGE_HEIGHT = 80;
 
 interface EventDetailProps {
   eventId: string;
@@ -44,8 +48,6 @@ interface EventDetailProps {
 export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [showFullDescription, setShowFullDescription] = useState(false);
-  const Width = useWindowDimensions().width - layoutSpacing.cardPadding * 2; // Full width minus horizontal padding
 
   const { data, loading, error } = useQuery<GetEventQuery>(GET_EVENT, {
     variables: { id: eventId },
@@ -59,7 +61,8 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
     event?.isSaved || false,
   );
 
-  // Android back button handling
+  const hasTicket = event?.hasConfirmedTicket || false;
+
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -84,54 +87,173 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
   }
 
   const variant = getVariant(event);
-  const categoryColor = variant?.cardBackground || colors.deluge;
-  const accentColor = variant?.accentColor || colors.roseFog;
 
-  const formatDate = formatEventDate(event.date);
-
-  const truncateText = (text: string, maxLength: number = 150) => {
-    if (text.length <= maxLength || showFullDescription) return text;
-    return text.substring(0, maxLength) + "...";
+  // Variant defaults
+  const v = variant || {
+    // Original properties
+    cardBackground: colors.mistLavender,
+    badgeBackground: `${colors.mistLavender}95`,
+    accentColor: colors.deluge,
+    isDark: false,
+    // EventDetail properties
+    colorBandBg: colors.mistLavender,
+    backButtonBg: "rgba(255, 255, 255, 0.85)",
+    backButtonIcon: colors.deluge,
+    titleContainerBg: `${colors.deluge}14`,
+    titleTextColor: colors.thunder,
+    badgeTextColor: colors.deluge,
+    accentForeground: colors.deluge,
+    statTileBg: `${colors.deluge}14`,
+    statTileLabelColor: colors.aluminium,
+    statTileValueColor: colors.thunder,
+    curatorNoteBg: `${colors.deluge}14`,
+    curatorNoteBorder: colors.deluge,
+    ctaBarBg: colors.mistLavender,
+    ctaForeground: colors.deluge,
+    ctaButtonBg: colors.deluge,
+    ctaButtonText: colors.white,
   };
 
-  const isExternal = event.source === "external";
-  const isFree = event.isFree;
+  const formattedDateTime = formatEventDate(event.date) as {
+    formattedDate: string;
+    formattedTime: string;
+  };
+  const formattedEndDateTime = event.endDate
+    ? (formatEventDate(event.endDate) as {
+        formattedDate: string;
+        formattedTime: string;
+      })
+    : null;
 
-  const handleMoreInfo = () => {
-    const link = "https://example.com";
+  const eventDuration = calculateEventDuration(event.date, event.endDate);
+  const scarcityBadge = getScarcityBadge(event.availableTickets);
+  const isSoldOut = event.availableTickets === 0;
+  const isFree = event.isFree || event.price === 0;
+
+  // Parse gallery images from JSON string
+  const galleryImages =
+    event.hasGallery && event.galleryImages
+      ? (() => {
+          try {
+            return typeof event.galleryImages === "string"
+              ? JSON.parse(event.galleryImages)
+              : event.galleryImages;
+          } catch (e) {
+            console.error("Failed to parse gallery images:", e);
+            return [];
+          }
+        })()
+      : [];
+
+  const handleActionPress = () => {
+    if (hasTicket) {
+      router.push(`/(protected)/events/${eventId}/confirmation`);
+    } else {
+      if (isSaved) {
+        Alert.alert("Remove from saved events?", "", [
+          { text: "Cancel", style: "cancel" },
+          { text: "Remove", style: "destructive", onPress: handleSave },
+        ]);
+      } else {
+        handleSave();
+      }
+    }
+  };
+
+  const handleBuyTicket = () => {
+    if (isSoldOut) return;
+    router.push(`/(protected)/events/${eventId}/checkout`);
+  };
+
+  const handleMoreDetails = () => {
+    const link = event.moreDetailsUrl || "https://example.com";
     if (link) {
       Linking.openURL(link);
     }
   };
 
-  const handleBook = () => {
-    router.push(`/(protected)/events/${eventId}/checkout`);
+  const handleShare = () => {
+    Alert.alert("Share", "Share functionality coming soon");
+  };
+
+  const handleViewTicket = () => {
+    router.push(`/(protected)/events/${eventId}/confirmation`);
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: categoryColor, paddingTop: insets.top },
-      ]}
-    >
-      <View style={[styles.header]}>
-        <View style={styles.controls}>
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.colorBand,
+          { backgroundColor: v.colorBandBg, paddingTop: insets.top },
+        ]}
+      >
+        <View style={styles.headerControls}>
           <BackButton
             onPress={onClose || (() => router.back())}
             size="md"
-            iconColor={categoryColor}
-            style={{ backgroundColor: accentColor }}
+            iconColor={v.backButtonIcon}
+            style={{ backgroundColor: v.backButtonBg }}
           />
-          <SaveButton
-            onPress={handleSave}
-            isSaved={isSaved}
-            loading={saving}
-            size="md"
-            fillColor={categoryColor}
-            style={{ backgroundColor: accentColor }}
-          />
+          {hasTicket ? (
+            <Pressable
+              onPress={handleActionPress}
+              disabled={saving}
+              style={[
+                styles.actionButton,
+                { backgroundColor: v.backButtonBg },
+              ]}
+            >
+              {/* TODO: Replace with proper ticket icon when available */}
+              <Text
+                style={{ color: v.backButtonIcon, fontSize: 20 }}
+              >
+                🎫
+              </Text>
+            </Pressable>
+          ) : (
+            <SaveButton
+              onPress={handleActionPress}
+              isSaved={isSaved}
+              loading={saving}
+              size="md"
+              fillColor={v.backButtonIcon}
+              style={{ backgroundColor: v.backButtonBg }}
+            />
+          )}
         </View>
+      </View>
+      <View
+        style={[
+          styles.eventNameContainer,
+          { backgroundColor: v.titleContainerBg },
+        ]}
+      >
+        <View style={styles.badgesContainer}>
+          <Badge
+            text={(event.category?.[0]?.name || "Event").toUpperCase()}
+            backgroundColor={v.badgeBackground}
+            textColor={v.badgeTextColor}
+          />
+          {scarcityBadge && (
+            <Badge
+              text={scarcityBadge.text}
+              backgroundColor={scarcityBadge.color}
+            />
+          )}
+          {isFree ? (
+            <Badge text="Free" backgroundColor={v.badgeBackground} />
+          ) : (
+            hasTicket && (
+              <Badge text="Booked" backgroundColor={v.badgeBackground} />
+            )
+          )}
+        </View>
+        <Text
+          style={[styles.eventTitle, { color: v.titleTextColor }]}
+        >
+          {event.name}
+        </Text>
       </View>
 
       <ScrollView
@@ -142,40 +264,318 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.content}>
-          <View style={styles.eventImageContainer}>
-            {/* Image with gradient overlay */}
-            <View style={styles.imageSection}>
-              <LinearGradient
-                colors={["rgba(0,0,0,0.6)", "rgba(0,0,0,0)", "rgba(0,0,0,0.8)"]}
-                locations={[0, 0.3, 1]}
-                style={styles.heroImageWrapper}
-              >
-                {event.image ? (
-                  <Image
-                    source={{ uri: event.image }}
-                    style={styles.heroImage}
-                  />
-                ) : (
-                  <View
+        <View style={styles.metadataStrip}>
+          <View style={styles.metadataColumn}>
+            <DateIcon
+              width={20}
+              height={20}
+              color={v.accentForeground}
+            />
+            <View style={styles.metadataText}>
+              {formattedEndDateTime && eventDuration ? (
+                <>
+                  <Text
                     style={[
-                      styles.heroImage,
-                      { backgroundColor: categoryColor },
+                      styles.metadataPrimary,
+                      { color: colors.thunder },
                     ]}
-                  />
-                )}
-              </LinearGradient>
+                  >
+                    {formattedDateTime.formattedDate} –{" "}
+                    {formattedEndDateTime.formattedDate}
+                  </Text>
+                  {formattedDateTime.formattedTime && (
+                    <Text
+                      style={[
+                        styles.metadataSecondary,
+                        { color: colors.graniteGray },
+                      ]}
+                    >
+                      From {formattedDateTime.formattedTime}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Text
+                    style={[
+                      styles.metadataPrimary,
+                      { color: colors.thunder },
+                    ]}
+                  >
+                    {formattedDateTime.formattedDate}
+                  </Text>
+                  {formattedDateTime.formattedTime && (
+                    <Text
+                      style={[
+                        styles.metadataSecondary,
+                        { color: colors.graniteGray },
+                      ]}
+                    >
+                      {formattedDateTime.formattedTime}
+                    </Text>
+                  )}
+                </>
+              )}
             </View>
+          </View>
 
-            {/* Title Band - Bottom section */}
-            <View
-              style={[styles.titleBand, { backgroundColor: categoryColor }]}
-            >
-              <Text style={styles.eventTitle}>{event.name}</Text>
+          <View style={styles.metadataDivider} />
+
+          <View style={styles.metadataColumn}>
+            <LocationIcon
+              width={20}
+              height={20}
+              color={v.accentForeground}
+            />
+            <View style={styles.metadataText}>
+              <Text
+                style={[
+                  styles.metadataPrimary,
+                  { color: colors.thunder },
+                ]}
+              >
+                {event.locationName}
+              </Text>
             </View>
           </View>
         </View>
+        {event.ticketingEnabled && (
+          <View style={styles.statStrip}>
+            <StatTile
+              label="Going"
+              value={event.goingCount || "—"}
+              backgroundColor={v.statTileBg}
+              labelColor={v.statTileLabelColor}
+              valueColor={v.statTileValueColor}
+              testID="stat-tile-going"
+            />
+
+            <StatTile
+              label="Entry"
+              value={
+                isSoldOut
+                  ? "Sold out"
+                  : isFree
+                    ? "Free"
+                    : `KES ${event.price?.toLocaleString()}`
+              }
+              backgroundColor={v.statTileBg}
+              labelColor={v.statTileLabelColor}
+              valueColor={v.statTileValueColor}
+              testID="stat-tile-entry"
+            />
+
+            <StatTile
+              label="Spots"
+              value={
+                event.availableTickets === 0
+                  ? "Sold out"
+                  : event.availableTickets === null ||
+                      event.availableTickets === undefined
+                    ? "—"
+                    : event.availableTickets <= 5
+                      ? `${event.availableTickets} left`
+                      : `${event.availableTickets} spots`
+              }
+              backgroundColor={v.statTileBg}
+              labelColor={v.statTileLabelColor}
+              valueColor={v.statTileValueColor}
+              testID="stat-tile-spots"
+            />
+          </View>
+        )}
+
+        {/* Curator Note (conditional) */}
+        {event.isEditorsPick && event.curatorNote && (
+          <View
+            style={[
+              styles.curatorNote,
+              {
+                borderLeftColor: v.curatorNoteBorder,
+                backgroundColor: v.curatorNoteBg,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.curatorLabel,
+                { color: colors.thunder },
+              ]}
+            >
+              PURSUIT SAYS
+            </Text>
+            <Text
+              style={[
+                styles.curatorText,
+                { color: colors.thunder },
+              ]}
+            >
+              {event.curatorNote}
+            </Text>
+            {event.curatorName && (
+              <Text
+                style={[
+                  styles.curatorAttribution,
+                  { color: colors.graniteGray },
+                ]}
+              >
+                — {event.curatorName}
+              </Text>
+            )}
+          </View>
+        )}
+
+        <View style={styles.descriptionSection}>
+          <Text
+            style={[
+              styles.descriptionText,
+              { color: colors.thunder },
+            ]}
+          >
+            {event.description}
+          </Text>
+        </View>
+
+        {event.hasGallery && galleryImages.length > 0 && (
+          <View style={styles.gallerySection}>
+            <Text
+              style={[
+                styles.gallerySectionLabel,
+                { color: colors.graniteGray },
+              ]}
+            >
+              GALLERY
+            </Text>
+            <Pressable
+              style={styles.galleryStrip}
+              onPress={() => {
+                // TODO: Implement full-screen gallery viewer
+                Alert.alert(
+                  "Gallery",
+                  "Full-screen gallery viewer coming soon",
+                );
+              }}
+            >
+              {galleryImages
+                .slice(0, 3)
+                .map((imageUrl: string, index: number) => (
+                  <View key={index} style={styles.galleryThumbnail}>
+                    {index === 2 && galleryImages.length > 3 ? (
+                      <View style={styles.galleryOverlay}>
+                        <Image
+                          source={{ uri: imageUrl }}
+                          style={styles.thumbnailImage}
+                        />
+                        <View style={styles.galleryOverlayContent}>
+                          <Text style={styles.galleryOverlayText}>
+                            +{galleryImages.length - 2}
+                          </Text>
+                        </View>
+                      </View>
+                    ) : (
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.thumbnailImage}
+                      />
+                    )}
+                  </View>
+                ))}
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
+
+      <View
+        style={[
+          styles.ctaBar,
+          {
+            backgroundColor: v.ctaBarBg,
+            borderTopColor: `${v.ctaForeground}26`,
+            paddingBottom: insets.bottom + spacing.base,
+          },
+        ]}
+      >
+        {hasTicket ? (
+          <View style={styles.ctaContentRow}>
+            <CTAButton
+              variant="outlined"
+              onPress={handleShare}
+              borderColor={v.ctaForeground}
+              textColor={v.ctaForeground}
+            >
+              Share
+            </CTAButton>
+            <CTAButton
+              variant="primary"
+              onPress={handleViewTicket}
+              backgroundColor={v.ctaButtonBg}
+              textColor={v.ctaButtonText}
+              flex={2}
+            >
+              View ticket
+            </CTAButton>
+          </View>
+        ) : event.ticketingEnabled ? (
+          <View style={styles.ctaContentRow}>
+            <PriceDisplay
+              price={event.price}
+              isFree={event.isFree || false}
+              color={v.ctaForeground}
+            />
+            <CTAButton
+              variant="primary"
+              onPress={handleBuyTicket}
+              disabled={isSoldOut}
+              backgroundColor={isSoldOut ? colors.graniteGray : v.ctaButtonBg}
+              textColor={v.ctaButtonText}
+              flex={2}
+            >
+              {getTicketButtonText(isSoldOut, event.isFree, event.price)}
+            </CTAButton>
+          </View>
+        ) : event.moreDetailsUrl ? (
+          <View style={styles.ctaContent}>
+            <CTAButton
+              variant="primary"
+              onPress={handleMoreDetails}
+              backgroundColor={v.ctaButtonBg}
+              textColor={v.ctaButtonText}
+              fullWidth
+            >
+              More details
+            </CTAButton>
+            {isSaved && (
+              <SavedIndicator
+                iconSize={12}
+                iconColor={v.ctaForeground}
+              />
+            )}
+          </View>
+        ) : (
+          <View style={styles.ctaContent}>
+            {isSaved ? (
+              <SavedIndicator
+                iconSize={16}
+                iconColor={v.ctaForeground}
+                showBackground
+                backgroundColor={v.curatorNoteBg}
+                textColor={v.ctaForeground}
+              />
+            ) : (
+              <CTAButton
+                variant="outlined"
+                onPress={handleSave}
+                disabled={saving}
+                borderColor={v.ctaForeground}
+                textColor={v.ctaForeground}
+                fullWidth
+              >
+                Save to plans
+              </CTAButton>
+            )}
+          </View>
+        )}
+      </View>
     </View>
   );
 };
@@ -185,215 +585,185 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
-  header: {
-    flexDirection: "row",
+  colorBand: {
+    height: CONTROLS_BAND_HEIGHT,
     paddingHorizontal: spacing.base,
-    paddingBottom: spacing.base,
+    paddingTop: spacing.base,
     justifyContent: "space-between",
-    alignItems: "flex-start",
   },
-  controls: {
-    flex: 1,
+  headerControls: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  actionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  eventNameContainer: {
+    minHeight: BADGE_HEIGHT,
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.base,
+  },
+  badgesContainer: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    flexWrap: "wrap",
+  },
+  eventTitle: {
+    ...typography.h2,
+    fontSize: 22,
+    fontWeight: fontWeights.medium,
+    lineHeight: 28,
+    color: colors.white,
   },
   scrollView: {
     flex: 1,
     backgroundColor: colors.white,
-    borderTopRightRadius: radii["2xl"],
-    borderTopLeftRadius: radii["2xl"],
   },
   scrollContent: {
     flexGrow: 1,
-  },
-  content: {
     paddingHorizontal: spacing.base,
-    paddingTop: spacing.base,
+    paddingTop: spacing.lg,
+    gap: spacing.lg,
   },
-  eventImageContainer: {
-    flexDirection: "column",
-    width: "100%",
-    aspectRatio: 3 / 4,
-    overflow: "hidden",
-    borderRadius: radii.lg,
-    backgroundColor: colors.white,
+  metadataStrip: {
+    flexDirection: "row",
+    gap: spacing.base,
   },
-  imageSection: {
+  metadataColumn: {
     flex: 1,
-    width: "100%",
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  metadataText: {
+    flex: 1,
+    gap: 2,
+  },
+  metadataPrimary: {
+    ...typography.body,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
+    lineHeight: 18,
+  },
+  metadataSecondary: {
+    ...typography.body,
+    fontSize: fontSizes.xs,
+    lineHeight: 16,
+  },
+  metadataDivider: {
+    width: 1,
+    backgroundColor: colors.aluminium,
+  },
+  statStrip: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  curatorNote: {
+    minHeight: 80,
+    borderLeftWidth: 6,
+    borderRadius: radii.md,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.sm,
+    paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  curatorLabel: {
+    ...typography.body,
+    fontSize: 18,
+    fontWeight: fontWeights.semibold,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    lineHeight: 18,
+  },
+  curatorText: {
+    ...typography.body,
+    fontSize: 13,
+    lineHeight: 19.5,
+    fontStyle: "italic",
+  },
+  curatorAttribution: {
+    ...typography.body,
+    fontSize: 11,
+    fontStyle: "italic",
+  },
+  descriptionSection: {
+    gap: spacing.xs,
+  },
+  descriptionText: {
+    ...typography.body,
+    fontSize: 16,
+    lineHeight: 22.4,
+  },
+  gallerySection: {
+    gap: spacing.sm,
+  },
+  gallerySectionLabel: {
+    ...typography.body,
+    fontSize: 18,
+    fontWeight: fontWeights.semibold,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    lineHeight: 24,
+  },
+  galleryStrip: {
+    flexDirection: "row",
+    gap: 6,
+  },
+  galleryThumbnail: {
+    flex: 1,
+    height: 100,
+    borderRadius: radii.md,
     overflow: "hidden",
   },
-  heroImageWrapper: {
-    flex: 1,
-    width: "100%",
-  },
-  heroImage: {
+  thumbnailImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-  titleBand: {
-    paddingHorizontal: spacing.base,
-    paddingVertical: spacing.md,
-    borderBottomLeftRadius: radii.lg,
-    borderBottomRightRadius: radii.lg,
+  galleryOverlay: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
   },
-  eventTitle: {
-    ...typography.h3,
-    fontSize: fontSizes.lg,
+  galleryOverlayContent: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  galleryOverlayText: {
+    ...typography.body,
+    fontSize: fontSizes.base,
     fontWeight: fontWeights.semibold,
     color: colors.white,
   },
-  detailsContainer: {
-    padding: spacing.xl,
-  },
-  curatorNoteContainer: {
-    marginBottom: spacing.xl,
-    paddingHorizontal: spacing.sm,
-  },
-  curatorNote: {
-    fontFamily: "Georgia",
-    fontStyle: "italic",
-    fontSize: fontSizes.base,
-    lineHeight: 24,
-    color: colors.thunder,
-    marginBottom: spacing.xs,
-  },
-  curatorAttribution: {
-    ...typography.bodySmall,
-    color: colors.aluminium,
-    textAlign: "right",
-  },
-  metadataGrid: {
-    flexDirection: "row",
-    marginBottom: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  metadataItem: {
-    flex: 1,
-  },
-  metadataLabel: {
-    ...typography.label,
-    fontSize: fontSizes.sm,
-    color: colors.thunder,
-    marginBottom: spacing.xs,
-  },
-  metadataValue: {
-    ...typography.bodySmall,
-    fontSize: fontSizes.sm,
-    color: colors.leather,
-  },
-  verticalDivider: {
-    width: 1,
-    backgroundColor: colors.silverSand,
-    marginHorizontal: spacing.base,
-  },
-  attendeesContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  attendeeAvatars: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: radii.full,
-    borderWidth: 2,
-    borderColor: colors.white,
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-  ratingValue: {
-    ...typography.bodySmall,
-    fontSize: fontSizes.base,
-    fontWeight: fontWeights.semibold,
-    color: colors.thunder,
-  },
-  aboutSection: {
-    marginTop: spacing.base,
-  },
-  aboutTitle: {
-    ...typography.h4,
-    fontSize: fontSizes.xl,
-    color: colors.thunder,
-    marginBottom: spacing.md,
-  },
-  aboutText: {
+  galleryDescription: {
     ...typography.body,
-    fontSize: fontSizes.sm,
-    color: colors.leather,
-    lineHeight: 22,
-  },
-  readMoreText: {
-    ...typography.label,
-    fontSize: fontSizes.sm,
-    color: colors.deluge,
-    marginTop: spacing.sm,
-  },
-  scarcityContainer: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.roseFog,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.sm,
-    alignSelf: "flex-start",
-  },
-  scarcityText: {
-    ...typography.caption,
-    fontWeight: fontWeights.semibold,
-    color: colors.thunder,
+    fontSize: 11,
+    lineHeight: 16.5,
   },
   ctaBar: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: colors.white,
-    borderTopWidth: 1,
-    borderTopColor: colors.silverSand,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.base,
     paddingTop: spacing.base,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
+    borderTopWidth: 0.5,
   },
-  fullWidthButton: {
-    backgroundColor: colors.deluge,
-    paddingVertical: spacing.base,
-    borderRadius: radii.md,
-    alignItems: "center",
-    justifyContent: "center",
+  ctaContent: {
+    gap: spacing.xs,
   },
-  fullWidthButtonText: {
-    ...typography.button,
-    color: colors.white,
-  },
-  ticketedBar: {
+  ctaContentRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-  },
-  priceText: {
-    ...typography.h3,
-    fontSize: fontSizes["2xl"],
-    color: colors.thunder,
-  },
-  bookButton: {
-    backgroundColor: colors.deluge,
-    paddingHorizontal: spacing["3xl"],
-    paddingVertical: spacing.base,
-    borderRadius: radii.md,
-  },
-  bookButtonText: {
-    ...typography.button,
-    color: colors.white,
+    gap: spacing.sm,
   },
 });

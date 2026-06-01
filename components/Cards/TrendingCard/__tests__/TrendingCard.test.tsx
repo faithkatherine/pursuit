@@ -21,7 +21,10 @@ jest.mock("assets/icons/heart.svg", () => ({
 }));
 
 jest.mock("utils/date", () => ({
-  formatEventDate: (date: string) => date,
+  formatEventDate: (date: string) => ({
+    formattedDate: date,
+    formattedTime: "12:00 PM",
+  }),
 }));
 
 const baseEvent: EventInfoFragment = {

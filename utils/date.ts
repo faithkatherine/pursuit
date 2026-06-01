@@ -11,8 +11,35 @@ export function formatEventDate(
     day: "numeric",
     year: "numeric",
   },
-): string {
+): { formattedDate: string; formattedTime: string } | string {
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
-  return date.toLocaleDateString("en-US", options);
+  return {
+    formattedDate: date.toLocaleDateString("en-US", options),
+    formattedTime: date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+}
+
+/**
+ * Calculate the duration between two dates in days.
+ * Returns null if the duration is 1 day or less.
+ *
+ * @param startDate – Start date string
+ * @param endDate – End date string
+ * @returns Duration string (e.g., "2 days") or null
+ */
+export function calculateEventDuration(
+  startDate: string,
+  endDate?: string | null,
+): number | null {
+  if (!endDate) return null;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const days = Math.ceil(
+    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return days > 1 ? days : null;
 }

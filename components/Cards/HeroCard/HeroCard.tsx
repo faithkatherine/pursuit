@@ -52,13 +52,26 @@ function getNightCount(startDate: string, endDate: string): number | null {
 }
 
 function formatDateRange(startDate: string, endDate: string): string {
-  const start = formatEventDate(startDate, { month: "short", day: "numeric" });
-  const end = formatEventDate(endDate, {
+  const startFormatted = formatEventDate(startDate, {
+    month: "short",
+    day: "numeric",
+  });
+  const startText =
+    typeof startFormatted === "string"
+      ? startFormatted
+      : startFormatted.formattedDate;
+
+  const endFormatted = formatEventDate(endDate, {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-  return `${start} \u2013 ${end}`;
+  const endText =
+    typeof endFormatted === "string"
+      ? endFormatted
+      : endFormatted.formattedDate;
+
+  return `${startText} \u2013 ${endText}`;
 }
 
 export const HeroCard: React.FC<HeroCardProps> = ({
@@ -102,7 +115,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
       {/* Badge — only shown for Editor's Pick */}
       {isEditorsPick && (
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>EDITOR\u2019S PICK</Text>
+          <Text style={styles.badgeText}>EDITOR'S PICK</Text>
         </View>
       )}
 

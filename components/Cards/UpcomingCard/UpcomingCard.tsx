@@ -38,6 +38,12 @@ export const UpcomingCard: React.FC<UpcomingCardProps> = ({
 }) => {
   const { day, month } = getDateParts(event.date);
 
+  const formattedDate = formatEventDate(event.date);
+  const dateRangeText =
+    typeof formattedDate === "string"
+      ? formattedDate
+      : formattedDate.formattedDate;
+
   return (
     <Pressable
       onPress={onPress}
@@ -66,7 +72,7 @@ export const UpcomingCard: React.FC<UpcomingCardProps> = ({
           {event.name}
         </Text>
         <Text style={styles.dateRange} numberOfLines={1}>
-          {formatEventDate(event.date)}
+          {dateRangeText}
         </Text>
       </LinearGradient>
     </Pressable>

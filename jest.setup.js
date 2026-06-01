@@ -81,57 +81,23 @@ jest.mock('expo-linear-gradient', () => ({
     require('react').createElement('div', { style }, children),
 }));
 
-// Mock React Native components
-jest.mock('react-native', () => ({
-  View: ({ children, style, testID }) =>
-    require('react').createElement('div', { style, 'data-testid': testID }, children),
-  Text: ({ children, style, testID }) =>
-    require('react').createElement('span', { style, 'data-testid': testID }, children),
-  TouchableOpacity: ({ children, style, testID, onPress }) =>
-    require('react').createElement('button', { style, 'data-testid': testID, onClick: onPress }, children),
-  Pressable: ({ children, style, testID, onPress, disabled }) =>
-    require('react').createElement('button', {
-      style,
-      'data-testid': testID,
-      onClick: disabled ? undefined : onPress,
-      disabled
-    }, children),
-  FlatList: ({ data, renderItem, horizontal, contentContainerStyle, showsHorizontalScrollIndicator }) => {
-    if (!data) return null;
-    return require('react').createElement('div', {
-      style: { display: 'flex', flexDirection: horizontal ? 'row' : 'column', ...contentContainerStyle },
-      'data-horizontal': horizontal,
-      'data-shows-scroll-indicator': showsHorizontalScrollIndicator
-    }, data.map((item, index) =>
-      require('react').createElement('div', { key: index },
-        renderItem ? renderItem({ item, index }) : item
-      )
-    ));
-  },
-  ScrollView: ({ children, style, contentContainerStyle, testID, onScroll, horizontal, showsVerticalScrollIndicator, showsHorizontalScrollIndicator, ...props }) =>
-    require('react').createElement('div', {
-      style: { ...style, ...contentContainerStyle },
-      'data-testid': testID,
-      'data-horizontal': horizontal,
-      'data-shows-vertical-scroll': showsVerticalScrollIndicator,
-      'data-shows-horizontal-scroll': showsHorizontalScrollIndicator,
-      onScroll,
-      ...props
-    }, children),
-  StyleSheet: {
-    create: (styles) => styles,
-  },
-  useWindowDimensions: () => ({
-    width: 375,
-    height: 667,
-  }),
-  Alert: {
-    alert: jest.fn(),
-  },
-  Linking: {
-    openSettings: jest.fn(),
-  },
-}));
+// Use the actual react-native preset, just extend it with custom mocks
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  return {
+    ...RN,
+    Alert: {
+      alert: jest.fn(),
+    },
+    BackHandler: {
+      addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+    },
+    Linking: {
+      openSettings: jest.fn(),
+      openURL: jest.fn(),
+    },
+  };
+});
 
 // Mock color and typography imports
 jest.mock('themes/tokens/colors', () => ({
@@ -185,7 +151,11 @@ jest.mock('themes/tokens/colors', () => ({
 jest.mock('themes/tokens/typography', () => ({
   typography: {
     h1: { fontFamily: 'Work Sans', fontWeight: 'bold' },
+    h2: { fontFamily: 'Work Sans', fontWeight: 'bold' },
+    h3: { fontFamily: 'Work Sans', fontWeight: '600', fontSize: 24 },
+    h4: { fontFamily: 'Work Sans', fontWeight: '600' },
     body: { fontFamily: 'Work Sans' },
+    caption: { fontFamily: 'Work Sans' },
   },
   fontSizes: {
     xs: 12,
@@ -193,6 +163,40 @@ jest.mock('themes/tokens/typography', () => ({
     base: 16,
     lg: 18,
     xl: 20,
+    '2xl': 24,
+  },
+  fontWeights: {
+    light: '300',
+    regular: '400',
+    medium: '500',
+    semibold: '600',
+    bold: 'bold',
+    heavy: '800',
+  },
+  default: {
+    h1: { fontFamily: 'Work Sans', fontWeight: 'bold' },
+    h2: { fontFamily: 'Work Sans', fontWeight: 'bold' },
+    h3: { fontFamily: 'Work Sans', fontWeight: '600', fontSize: 24 },
+    h4: { fontFamily: 'Work Sans', fontWeight: '600' },
+    body: { fontFamily: 'Work Sans' },
+    caption: { fontFamily: 'Work Sans' },
+  },
+}));
+
+jest.mock('themes/tokens/spacing', () => ({
+  spacing: {
+    xs: 4,
+    sm: 8,
+    base: 16,
+    md: 12,
+    lg: 24,
+    xl: 32,
+  },
+  radii: {
+    sm: 4,
+    md: 8,
+    lg: 12,
+    xl: 16,
   },
 }));
 

@@ -67,8 +67,18 @@ export const EVENT_FRAGMENT = gql`
     date
     endDate
     locationName
+    moreDetailsUrl
+    price
+    ticketingEnabled
+    availableTickets
+    goingCount
+    hasGallery
+    galleryImages
+    galleryDescription
+    seriesName
     isFree
     isSaved
+    hasConfirmedTicket
     isEditorsPick
     reason
     source

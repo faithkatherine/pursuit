@@ -24,6 +24,16 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
 
   const categoryName = recommendation.category[0]?.name;
 
+  const formattedDate = formatEventDate(recommendation.date, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+  const dateText =
+    typeof formattedDate === "string"
+      ? formattedDate
+      : formattedDate.formattedDate;
+
   return (
     <View style={styles.shadowWrapper}>
       <Pressable
@@ -71,13 +81,7 @@ export const TrendingCard: React.FC<TrendingCardProps> = ({
             {recommendation.name}
           </Text>
 
-          <Text style={styles.date}>
-            {formatEventDate(recommendation.date, {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            })}
-          </Text>
+          <Text style={styles.date}>{dateText}</Text>
 
           <View style={styles.bottomRow}>
             <Text style={styles.location} numberOfLines={1}>

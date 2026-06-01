@@ -43,6 +43,12 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
     event.isSaved ?? false,
   );
 
+  const formattedDate = formatEventDate(event.date);
+  const dateText =
+    typeof formattedDate === "string"
+      ? formattedDate
+      : formattedDate.formattedDate;
+
   const cardBackground = variant ? variant.cardBackground : colors.deluge;
   const titleColor = variant
     ? variant.isDark
@@ -124,9 +130,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
         {/* Date badge - bottom right corner */}
         <View style={styles.dateBadge}>
           <Text style={styles.dateBadgeLabel}>Date</Text>
-          <Text style={styles.dateBadgeValue}>
-            {formatEventDate(event.date)}
-          </Text>
+          <Text style={styles.dateBadgeValue}>{dateText}</Text>
         </View>
       </View>
 

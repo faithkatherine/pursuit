@@ -96,9 +96,8 @@ const Home = () => {
     (t): t is NonNullable<typeof t> => t != null,
   );
 
-  // Hero card priority: trip within ~30 days → editor's pick → first recommendation
-  const heroTrip = activeTrip as HeroCardData | null;
-
+  // Hero card priority: editor's pick → first recommendation
+  // Trips and saved events are now handled by CTA cards
   const heroEditorsPick = editorsPick
     ? {
         id: editorsPick.id,
@@ -127,8 +126,8 @@ const Home = () => {
       }
     : null;
 
-  const heroCard = heroTrip ?? heroEditorsPick ?? heroRecommendationAsCard;
-  const isEditorsPick = !heroTrip && !!editorsPick;
+  const heroCard = heroEditorsPick ?? heroRecommendationAsCard;
+  const isEditorsPick = !!editorsPick;
 
   const remainingRecommendations = validRecommendations.slice(0, 8);
 

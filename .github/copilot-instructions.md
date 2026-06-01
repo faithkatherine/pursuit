@@ -263,6 +263,34 @@ const cardBg = variant ? variant.cardBackground : colors.deluge;
 
 ## Component patterns
 
+### SVG Icon usage
+
+All SVG icons in `assets/icons/` use `currentColor` for dynamic color control:
+
+```typescript
+// ✅ CORRECT: Pass color prop to control icon color
+<DateIcon width={24} height={24} color={colors.thunder} />
+<LocationIcon width={24} height={24} color={colors.deluge} />
+
+// ❌ NEVER hardcode colors in SVG files (#000, #fff, etc.)
+// ✅ ALWAYS use currentColor in SVG files
+```
+
+**SVG file pattern:**
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-width="2" d="..." />
+  <rect fill="currentColor" ... />
+</svg>
+```
+
+**React Native usage:**
+
+- Import: `import IconName from "assets/icons/name.svg"`
+- Props: `width`, `height`, `color` (or `fill` for filled icons)
+- Size guideline: 24×24 for UI elements, 40×40 for large decorative
+
 ### Card components
 
 All event cards follow a consistent structure:
