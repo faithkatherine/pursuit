@@ -9,6 +9,7 @@ import {
   Animated,
   PanResponder,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -46,6 +47,7 @@ type EventItem = ExploreCardData;
 
 export const Explore = () => {
   const router = useRouter();
+  const isWeb = Platform.OS === "web";
   const insets = useSafeAreaInsets();
   const [insightsHeight, setInsightsHeight] = useState(200);
   const { section } = useLocalSearchParams<{ section?: string }>();
@@ -194,6 +196,21 @@ export const Explore = () => {
   });
 
   const renderCards = () => {
+    if (isWeb) {
+      return (
+        <View style={styles.webGrid}>
+          {displayEvents.map((event) => (
+            <View key={event.id} style={styles.webGridItem}>
+              <ExploreCard
+                event={event}
+                onPress={() => router.push(`/(protected)/events/${event.id}`)}
+              />
+            </View>
+          ))}
+        </View>
+      );
+    }
+
     if (currentIndex >= displayEvents.length) {
       return (
         <View style={styles.emptyContainer}>
@@ -330,7 +347,7 @@ export const Explore = () => {
               />
 
               {/* Search + filter */}
-              <View style={styles.searchRow}>
+              <View style={[styles.searchRow, isWeb && styles.webSearchRow]}>
                 <View style={styles.searchContainer}>
                   <Text style={styles.searchIcon}>🔍</Text>
                   <TextInput
@@ -377,9 +394,9 @@ export const Explore = () => {
               </Text>
             </View>
           ) : (
-            <View style={styles.stackContainer}>
+            <View style={[styles.stackContainer, isWeb && styles.webStackContainer]}>
               <View style={styles.cardArea}>{renderCards()}</View>
-              {currentIndex < displayEvents.length && (
+              {!isWeb && currentIndex < displayEvents.length && (
                 <View style={styles.actionBar}>
                   {/* Undo — go back */}
                   <Button
@@ -527,6 +544,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 10,
   },
+  webSearchRow: {
+    width: "100%",
+    maxWidth: 1200,
+    marginHorizontal: "auto",
+    paddingHorizontal: 32,
+    paddingBottom: 20,
+  },
   searchContainer: {
     flex: 1,
     flexDirection: "row",
@@ -559,12 +583,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
   },
+  webStackContainer: {
+    width: "100%",
+    maxWidth: 1200,
+    marginHorizontal: "auto",
+    paddingHorizontal: 32,
+    paddingTop: 28,
+    paddingBottom: 48,
+  },
   cardArea: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "stretch",
     marginBottom: 20,
+  },
+  webGrid: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 20,
+  },
+  webGridItem: {
+    width: "31%",
+    minWidth: 280,
+    maxWidth: 360,
   },
   cardWrapper: {
     position: "absolute",

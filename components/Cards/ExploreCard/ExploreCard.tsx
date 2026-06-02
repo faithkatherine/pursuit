@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   Dimensions,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "themes/tokens/colors";
@@ -16,8 +17,9 @@ import LocationIcon from "assets/icons/location.svg";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CARD_HORIZONTAL_PADDING = 32;
-const CARD_WIDTH = SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2;
-const CARD_HEIGHT = SCREEN_HEIGHT * 0.62;
+const CARD_WIDTH =
+  Platform.OS === "web" ? 360 : SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2;
+const CARD_HEIGHT = Platform.OS === "web" ? 460 : SCREEN_HEIGHT * 0.62;
 
 export interface ExploreCardData {
   id: string;
@@ -118,7 +120,8 @@ export const EXPLORE_CARD_HEIGHT = CARD_HEIGHT;
 
 const styles = StyleSheet.create({
   card: {
-    width: CARD_WIDTH,
+    width: Platform.OS === "web" ? "100%" : CARD_WIDTH,
+    maxWidth: CARD_WIDTH,
     height: CARD_HEIGHT,
     borderRadius: radii["2xl"],
     overflow: "hidden",

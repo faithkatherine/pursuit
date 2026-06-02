@@ -6,6 +6,7 @@ import {
   Animated,
   useWindowDimensions,
   Pressable,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -39,6 +40,7 @@ import { TIME_FILTERS, FILTER_LABELS, getHoursUntil } from "utils/timeFilter";
 const Home = () => {
   const router = useRouter();
   const { height: screenHeight } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [insightsHeight, setInsightsHeight] = useState(200);
@@ -81,6 +83,8 @@ const Home = () => {
     homeData.greetingPrompt ?? "Ready for your next adventure?";
 
   const handleLocationEnable = async () => {
+    if (isWeb) return;
+
     try {
       await toggleLocationPermission(true);
       await refetch();
@@ -191,8 +195,10 @@ const Home = () => {
                 greeting={greetingText}
                 subtitle={subtitleText}
                 cityName={cityName ?? undefined}
-                allowLocationSharing={allowLocationSharing ?? false}
-                isLocationLoading={isLocationLoading}
+                allowLocationSharing={
+                  isWeb ? false : (allowLocationSharing ?? false)
+                }
+                isLocationLoading={isWeb ? false : isLocationLoading}
                 onChipPress={() => {
                   // TODO: Implement neighborhood filter
                 }}
@@ -278,7 +284,11 @@ const Home = () => {
         </View>
 
         <View
-          style={[styles.sectionContainer, { paddingVertical: sectionSpacing }]}
+          style={[
+            styles.sectionContainer,
+            isWeb && styles.webSectionContainer,
+            { paddingVertical: sectionSpacing },
+          ]}
         >
           {isFilterEmpty ? (
             /* Empty filter state */
@@ -299,11 +309,10 @@ const Home = () => {
             </View>
           ) : (
             <>
-              {/* Recommendations — horizontal scroll using RecommendationCard */}
+              {/* Recommendations */}
               {remainingRecommendations.length > 0 && (
-                <Carousel
-                  gap={16}
-                  header={
+                isWeb ? (
+                  <View style={styles.webRecommendationsSection}>
                     <SectionHeader
                       title="Made for your week"
                       buttonText="View All"
@@ -314,18 +323,47 @@ const Home = () => {
                         })
                       }
                     />
-                  }
-                  items={remainingRecommendations.map((rec) => (
-                    <RecommendationCard
-                      key={rec.id}
-                      event={rec as EventInfoFragment}
-                      onPress={() =>
-                        router.push(`/(protected)/events/${rec.id}`)
-                      }
-                      useVariant
-                    />
-                  ))}
-                />
+                    <View style={styles.webRecommendationsGrid}>
+                      {remainingRecommendations.map((rec) => (
+                        <View key={rec.id} style={styles.webRecommendationItem}>
+                          <RecommendationCard
+                            event={rec as EventInfoFragment}
+                            onPress={() =>
+                              router.push(`/(protected)/events/${rec.id}`)
+                            }
+                            useVariant
+                          />
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ) : (
+                  <Carousel
+                    gap={16}
+                    header={
+                      <SectionHeader
+                        title="Made for your week"
+                        buttonText="View All"
+                        onButtonPress={() =>
+                          router.push({
+                            pathname: "/explore",
+                            params: { section: "recommendations" },
+                          })
+                        }
+                      />
+                    }
+                    items={remainingRecommendations.map((rec) => (
+                      <RecommendationCard
+                        key={rec.id}
+                        event={rec as EventInfoFragment}
+                        onPress={() =>
+                          router.push(`/(protected)/events/${rec.id}`)
+                        }
+                        useVariant
+                      />
+                    ))}
+                  />
+                )
               )}
 
               {/* Trending — vertical list using TrendingCard with rank */}
@@ -341,7 +379,12 @@ const Home = () => {
                       })
                     }
                   />
-                  <View style={styles.trendingSection}>
+                  <View
+                    style={[
+                      styles.trendingSection,
+                      isWeb && styles.webTrendingSection,
+                    ]}
+                  >
                     {displayTrending.map((event, index) => (
                       <View key={event.id} style={styles.trendingRow}>
                         <View style={styles.trendingCardWrapper}>
@@ -381,6 +424,25 @@ const styles = StyleSheet.create({
   sectionContainer: {
     paddingVertical: 8,
   },
+  webSectionContainer: {
+    width: "100%",
+    maxWidth: 1280,
+    marginHorizontal: "auto",
+  },
+  webRecommendationsSection: {
+    marginVertical: 12,
+  },
+  webRecommendationsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 20,
+    paddingTop: 16,
+  },
+  webRecommendationItem: {
+    width: "31%",
+    minWidth: 280,
+    maxWidth: 360,
+  },
   // Time filter chips
   filterRow: {
     flexDirection: "row",
@@ -392,6 +454,9 @@ const styles = StyleSheet.create({
   trendingSection: {
     paddingHorizontal: 20,
     gap: 12,
+  },
+  webTrendingSection: {
+    paddingHorizontal: 0,
   },
   trendingRow: {
     flexDirection: "row",

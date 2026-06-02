@@ -7,6 +7,7 @@ import {
   Animated,
   Easing,
   useWindowDimensions,
+  Platform,
 } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,9 +24,12 @@ const GetStarted = () => {
   const router = useRouter();
   const { isAuthenticated, needsOnboarding } = useAuth();
   const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
   const insets = useSafeAreaInsets();
   const containerMargin = 27;
-  const imageContainerWidth = width - containerMargin * 2;
+  const imageContainerWidth = isWeb
+    ? Math.min(width - containerMargin * 2, 720)
+    : width - containerMargin * 2;
 
   const imageKeys = [
     "get-started-1",
@@ -116,7 +120,13 @@ const GetStarted = () => {
 
   return (
     <Layout shouldShowTopInset={false}>
-      <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
+      <View
+        style={[
+          styles.container,
+          isWeb && styles.webContainer,
+          { paddingTop: insets.top + 20 },
+        ]}
+      >
         <View style={[styles.imageContainer, { width: imageContainerWidth }]}>
           {imageKeys.map((imageKey, index) => (
             <Animated.View
@@ -167,6 +177,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 27,
     gap: 20,
+  },
+  webContainer: {
+    width: "100%",
+    maxWidth: 1200,
+    marginHorizontal: "auto",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    paddingBottom: 40,
   },
   imageContainer: {
     height: 400,

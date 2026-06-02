@@ -9,6 +9,9 @@ import {
   BackHandler,
   Linking,
   Alert,
+  Platform,
+  useWindowDimensions,
+  type ViewStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -39,6 +42,9 @@ import LocationIcon from "assets/icons/location.svg";
 
 const CONTROLS_BAND_HEIGHT = 120;
 const BADGE_HEIGHT = 80;
+const EVENT_DESKTOP_BREAKPOINT = 1024;
+const EVENT_WEB_MAX_WIDTH = 1280;
+const stickyPosition = "sticky" as ViewStyle["position"];
 
 interface EventDetailProps {
   eventId: string;
@@ -48,6 +54,9 @@ interface EventDetailProps {
 export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const isWeb = Platform.OS === "web";
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = isWeb && width > EVENT_DESKTOP_BREAKPOINT;
 
   const { data, loading, error } = useQuery<GetEventQuery>(GET_EVENT, {
     variables: { id: eventId },
@@ -64,6 +73,8 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
   const hasTicket = event?.hasConfirmedTicket || false;
 
   useEffect(() => {
+    if (isWeb) return;
+
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -76,7 +87,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
     );
 
     return () => backHandler.remove();
-  }, [onClose]);
+  }, [onClose, isWeb]);
 
   if (loading) {
     return <Loading />;
@@ -180,12 +191,333 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
     router.push(`/(protected)/events/${eventId}/confirmation`);
   };
 
+  if (isDesktopWeb) {
+    const webPaddingHorizontal = width < 1200 ? 40 : 80;
+
+    return (
+      <View style={styles.webDesktopPage}>
+        <ScrollView
+          style={styles.webDesktopScroll}
+          contentContainerStyle={[
+            styles.webDesktopContent,
+            { paddingHorizontal: webPaddingHorizontal },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.webDesktopGrid}>
+            <View style={styles.webMainColumn}>
+              <View style={styles.webHeroMedia}>
+                {event.image ? (
+                  <Image
+                    source={{ uri: event.image }}
+                    style={styles.webHeroImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.webHeroFallback,
+                      { backgroundColor: v.colorBandBg },
+                    ]}
+                  />
+                )}
+                <View style={styles.webHeroControls}>
+                  <BackButton
+                    onPress={onClose || (() => router.back())}
+                    size="md"
+                    iconColor={v.backButtonIcon}
+                    style={{ backgroundColor: v.backButtonBg }}
+                  />
+                </View>
+              </View>
+
+              <View
+                style={[
+                  styles.webTitleBlock,
+                  { backgroundColor: v.titleContainerBg },
+                ]}
+              >
+                <View style={styles.badgesContainer}>
+                  <Badge
+                    text={(event.category?.[0]?.name || "Event").toUpperCase()}
+                    backgroundColor={v.badgeBackground}
+                    textColor={v.badgeTextColor}
+                  />
+                  {scarcityBadge && (
+                    <Badge
+                      text={scarcityBadge.text}
+                      backgroundColor={scarcityBadge.color}
+                    />
+                  )}
+                  {isFree ? (
+                    <Badge text="Free" backgroundColor={v.badgeBackground} />
+                  ) : (
+                    hasTicket && (
+                      <Badge text="Booked" backgroundColor={v.badgeBackground} />
+                    )
+                  )}
+                </View>
+                <Text style={[styles.webEventTitle, { color: v.titleTextColor }]}>
+                  {event.name}
+                </Text>
+              </View>
+
+              <View style={styles.metadataStrip}>
+                <View style={styles.metadataColumn}>
+                  <DateIcon width={20} height={20} color={v.accentForeground} />
+                  <View style={styles.metadataText}>
+                    <Text
+                      style={[styles.metadataPrimary, { color: colors.thunder }]}
+                    >
+                      {formattedEndDateTime && eventDuration
+                        ? `${formattedDateTime.formattedDate} – ${formattedEndDateTime.formattedDate}`
+                        : formattedDateTime.formattedDate}
+                    </Text>
+                    {formattedDateTime.formattedTime && (
+                      <Text
+                        style={[
+                          styles.metadataSecondary,
+                          { color: colors.graniteGray },
+                        ]}
+                      >
+                        {formattedEndDateTime && eventDuration
+                          ? `From ${formattedDateTime.formattedTime}`
+                          : formattedDateTime.formattedTime}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                <View style={styles.metadataDivider} />
+
+                <View style={styles.metadataColumn}>
+                  <LocationIcon
+                    width={20}
+                    height={20}
+                    color={v.accentForeground}
+                  />
+                  <View style={styles.metadataText}>
+                    <Text
+                      style={[styles.metadataPrimary, { color: colors.thunder }]}
+                    >
+                      {event.locationName}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {event.ticketingEnabled && (
+                <View style={styles.statStrip}>
+                  <StatTile
+                    label="Going"
+                    value={event.goingCount || "—"}
+                    backgroundColor={v.statTileBg}
+                    labelColor={v.statTileLabelColor}
+                    valueColor={v.statTileValueColor}
+                    testID="stat-tile-going"
+                  />
+                  <StatTile
+                    label="Entry"
+                    value={
+                      isSoldOut
+                        ? "Sold out"
+                        : isFree
+                          ? "Free"
+                          : `KES ${event.price?.toLocaleString()}`
+                    }
+                    backgroundColor={v.statTileBg}
+                    labelColor={v.statTileLabelColor}
+                    valueColor={v.statTileValueColor}
+                    testID="stat-tile-entry"
+                  />
+                  <StatTile
+                    label="Spots"
+                    value={
+                      event.availableTickets === 0
+                        ? "Sold out"
+                        : event.availableTickets === null ||
+                            event.availableTickets === undefined
+                          ? "—"
+                          : event.availableTickets <= 5
+                            ? `${event.availableTickets} left`
+                            : `${event.availableTickets} spots`
+                    }
+                    backgroundColor={v.statTileBg}
+                    labelColor={v.statTileLabelColor}
+                    valueColor={v.statTileValueColor}
+                    testID="stat-tile-spots"
+                  />
+                </View>
+              )}
+
+              {event.isEditorsPick && event.curatorNote && (
+                <View
+                  style={[
+                    styles.curatorNote,
+                    {
+                      borderLeftColor: v.curatorNoteBorder,
+                      backgroundColor: v.curatorNoteBg,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.curatorLabel, { color: colors.thunder }]}>
+                    PURSUIT SAYS
+                  </Text>
+                  <Text style={[styles.curatorText, { color: colors.thunder }]}>
+                    {event.curatorNote}
+                  </Text>
+                  {event.curatorName && (
+                    <Text
+                      style={[
+                        styles.curatorAttribution,
+                        { color: colors.graniteGray },
+                      ]}
+                    >
+                      — {event.curatorName}
+                    </Text>
+                  )}
+                </View>
+              )}
+
+              <View style={styles.descriptionSection}>
+                <Text style={[styles.descriptionText, { color: colors.thunder }]}>
+                  {event.description}
+                </Text>
+              </View>
+
+              {event.hasGallery && galleryImages.length > 0 && (
+                <View style={styles.gallerySection}>
+                  <Text
+                    style={[
+                      styles.gallerySectionLabel,
+                      { color: colors.graniteGray },
+                    ]}
+                  >
+                    GALLERY
+                  </Text>
+                  <Pressable
+                    style={styles.galleryStrip}
+                    onPress={() => {
+                      Alert.alert(
+                        "Gallery",
+                        "Full-screen gallery viewer coming soon",
+                      );
+                    }}
+                  >
+                    {galleryImages
+                      .slice(0, 3)
+                      .map((imageUrl: string, index: number) => (
+                        <View key={index} style={styles.galleryThumbnail}>
+                          {index === 2 && galleryImages.length > 3 ? (
+                            <View style={styles.galleryOverlay}>
+                              <Image
+                                source={{ uri: imageUrl }}
+                                style={styles.thumbnailImage}
+                              />
+                              <View style={styles.galleryOverlayContent}>
+                                <Text style={styles.galleryOverlayText}>
+                                  +{galleryImages.length - 2}
+                                </Text>
+                              </View>
+                            </View>
+                          ) : (
+                            <Image
+                              source={{ uri: imageUrl }}
+                              style={styles.thumbnailImage}
+                            />
+                          )}
+                        </View>
+                      ))}
+                  </Pressable>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.webAsideColumn}>
+              <View style={styles.webBookingPanel}>
+                {hasTicket ? (
+                  <>
+                    <Text style={styles.webPanelEyebrow}>Ticket</Text>
+                    <Text style={styles.webPanelTitle}>You're booked</Text>
+                    <CTAButton
+                      variant="primary"
+                      onPress={handleViewTicket}
+                      backgroundColor={v.ctaButtonBg}
+                      textColor={v.ctaButtonText}
+                      fullWidth
+                    >
+                      View ticket
+                    </CTAButton>
+                  </>
+                ) : event.ticketingEnabled ? (
+                  <>
+                    <PriceDisplay
+                      price={event.price}
+                      isFree={event.isFree || false}
+                      color={v.ctaForeground}
+                    />
+                    <CTAButton
+                      variant="primary"
+                      onPress={handleBuyTicket}
+                      disabled={isSoldOut}
+                      backgroundColor={
+                        isSoldOut ? colors.graniteGray : v.ctaButtonBg
+                      }
+                      textColor={v.ctaButtonText}
+                      fullWidth
+                    >
+                      {getTicketButtonText(isSoldOut, event.isFree, event.price)}
+                    </CTAButton>
+                  </>
+                ) : event.moreDetailsUrl ? (
+                  <CTAButton
+                    variant="primary"
+                    onPress={handleMoreDetails}
+                    backgroundColor={v.ctaButtonBg}
+                    textColor={v.ctaButtonText}
+                    fullWidth
+                  >
+                    More details
+                  </CTAButton>
+                ) : null}
+
+                {isSaved ? (
+                  <SavedIndicator
+                    iconSize={16}
+                    iconColor={v.ctaForeground}
+                    showBackground
+                    backgroundColor={v.curatorNoteBg}
+                    textColor={v.ctaForeground}
+                  />
+                ) : (
+                  <CTAButton
+                    variant="outlined"
+                    onPress={handleSave}
+                    disabled={saving}
+                    borderColor={v.ctaForeground}
+                    textColor={v.ctaForeground}
+                    fullWidth
+                  >
+                    Save to plans
+                  </CTAButton>
+                )}
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isWeb && styles.webContainer]}>
       <View
         style={[
           styles.colorBand,
-          { backgroundColor: v.colorBandBg, paddingTop: insets.top },
+          {
+            backgroundColor: v.colorBandBg,
+            paddingTop: isWeb ? spacing.base : insets.top,
+          },
         ]}
       >
         <View style={styles.headerControls}>
@@ -260,7 +592,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: 100 + insets.bottom },
+          { paddingBottom: 100 + (isWeb ? 0 : insets.bottom) },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -491,7 +823,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
           {
             backgroundColor: v.ctaBarBg,
             borderTopColor: `${v.ctaForeground}26`,
-            paddingBottom: insets.bottom + spacing.base,
+            paddingBottom: (isWeb ? 0 : insets.bottom) + spacing.base,
           },
         ]}
       >
@@ -584,6 +916,95 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  webContainer: {
+    width: "100%",
+    maxWidth: 800,
+    marginHorizontal: "auto",
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: colors.silverSand,
+  },
+  webDesktopPage: {
+    flex: 1,
+    backgroundColor: "#fcf9f6",
+  },
+  webDesktopScroll: {
+    flex: 1,
+  },
+  webDesktopContent: {
+    width: "100%",
+    maxWidth: EVENT_WEB_MAX_WIDTH,
+    marginHorizontal: "auto",
+    paddingTop: 32,
+    paddingBottom: 64,
+  },
+  webDesktopGrid: {
+    flexDirection: "row",
+    gap: 40,
+    alignItems: "flex-start",
+  },
+  webMainColumn: {
+    flex: 8,
+    gap: spacing.lg,
+  },
+  webAsideColumn: {
+    flex: 4,
+  },
+  webHeroMedia: {
+    minHeight: 420,
+    borderRadius: 24,
+    overflow: "hidden",
+    backgroundColor: "#f6f3f0",
+    position: "relative",
+  },
+  webHeroImage: {
+    width: "100%",
+    height: 420,
+  },
+  webHeroFallback: {
+    width: "100%",
+    height: 420,
+  },
+  webHeroControls: {
+    position: "absolute",
+    top: 24,
+    left: 24,
+    right: 24,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  webTitleBlock: {
+    gap: spacing.sm,
+    borderRadius: 24,
+    padding: 24,
+  },
+  webEventTitle: {
+    ...typography.h1,
+    fontSize: 40,
+    fontWeight: fontWeights.bold,
+    lineHeight: 48,
+  },
+  webBookingPanel: {
+    position: stickyPosition,
+    top: 96,
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    padding: 32,
+    gap: 18,
+    shadowColor: "#665382",
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.1,
+    shadowRadius: 50,
+  },
+  webPanelEyebrow: {
+    ...typography.caption,
+    color: "#4a454e",
+    textTransform: "uppercase",
+  },
+  webPanelTitle: {
+    ...typography.h3,
+    color: colors.thunder,
   },
   colorBand: {
     height: CONTROLS_BAND_HEIGHT,

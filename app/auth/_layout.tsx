@@ -1,12 +1,13 @@
 import { Stack, Redirect } from "expo-router";
 import { useAuth } from "providers/AuthProvider";
 import { useEffect, useState } from "react";
+import { Platform } from "react-native";
 import { getHasSeenGetStarted } from "utils/secureStorage";
 import { Loading } from "components/Layout";
-import e from "express";
 
 export default function AuthLayout() {
   const { isAuthenticated, needsOnboarding } = useAuth();
+  const isWeb = Platform.OS === "web";
   const [hasSeenGetStarted, setHasSeenGetStarted] = useState<boolean | null>(
     null
   );
@@ -34,7 +35,7 @@ export default function AuthLayout() {
   }
 
   // Redirect first-time users to get-started
-  if (!hasSeenGetStarted) {
+  if (!isWeb && !hasSeenGetStarted) {
     return <Redirect href="/get-started" />;
   }
 

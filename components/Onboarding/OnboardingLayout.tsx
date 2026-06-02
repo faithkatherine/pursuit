@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { Platform, View, StyleSheet } from "react-native";
 import colors from "themes/tokens/colors";
 import spacing from "themes/tokens/spacing";
 import { OnboardingFooter } from "./OnboardingFooter";
@@ -32,17 +32,21 @@ export const OnboardingLayout = ({
   onNextPress,
   onSkipAllPress,
 }: OnboardingLayoutProps) => {
+  const isWeb = Platform.OS === "web";
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isWeb && styles.webContainer]}>
       <OnboardingHeader
         showBackButton={showBackButton}
         onBackPress={onBackPress}
         onSkipPress={onSkipPress}
       />
 
-      <View style={styles.content}>{children}</View>
+      <View style={[styles.content, isWeb && styles.webContent]}>
+        {children}
+      </View>
 
-      <View style={styles.footerSection}>
+      <View style={[styles.footerSection, isWeb && styles.webFooterSection]}>
         <OnboardingProgressMarkers
           currentStep={currentStep}
           totalSteps={totalSteps}
@@ -65,13 +69,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  webContainer: {
+    width: "100%",
+    maxWidth: 900,
+    marginHorizontal: "auto",
+  },
   content: {
     flex: 1,
     padding: spacing.md,
   },
+  webContent: {
+    paddingHorizontal: 32,
+  },
   footerSection: {
     gap: spacing.md,
     paddingBottom: spacing.xs,
+  },
+  webFooterSection: {
+    paddingBottom: spacing.xl,
   },
 });
 

@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
 import { reconcileLocation, useLocationSync } from "hooks/useLocation";
 import { useEffect, useState, useCallback } from "react";
+import { Platform } from "react-native";
 import { SplashScreen as CustomSplashScreen } from "components/SplashScreen";
 import { Loading } from "components/Layout";
 
@@ -15,14 +16,21 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayoutContent() {
   const { isLoading: authIsLoading, isAuthenticated, user } = useAuth();
-  const [isReconciled, setIsReconciled] = useState(false);
+  const isWeb = Platform.OS === "web";
+  const [isReconciled, setIsReconciled] = useState(isWeb);
   const [shouldSync, setShouldSync] = useState(false);
-  useLocationSync(user, shouldSync); // Background sync - fire and forget, no need to track completion
+  useLocationSync(isWeb ? null : user, shouldSync); // Background sync - fire and forget, no need to track completion
   const [appIsReady, setAppIsReady] = useState(false);
   const [showCustomSplash, setShowCustomSplash] = useState(true);
 
   // Run location reconciliation after user profile is available
   useEffect(() => {
+    if (isWeb) {
+      setIsReconciled(true);
+      setShouldSync(false);
+      return;
+    }
+
     if (!user || !user.profile || isReconciled) return;
 
     console.log("🔄 Starting reconciliation for:", user.email);
@@ -31,14 +39,16 @@ function RootLayoutContent() {
       setShouldSync(result.shouldSync);
       setIsReconciled(true);
     });
-  }, [user, isReconciled]);
+  }, [user, isReconciled, isWeb]);
 
   useEffect(() => {
     async function prepare() {
       try {
         // Load any resources or data here
         // For now, we'll just mark the app as ready
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        if (!isWeb) {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
       } catch (e) {
         console.warn(e);
       } finally {
@@ -67,7 +77,7 @@ function RootLayoutContent() {
   }, [appIsReady, onLayoutRootView]);
 
   // Show custom splash while app resources are loading
-  if (!appIsReady || showCustomSplash) {
+  if (!appIsReady || (!isWeb && showCustomSplash)) {
     return <CustomSplashScreen onFinish={handleCustomSplashFinish} />;
   }
 

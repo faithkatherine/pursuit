@@ -44,7 +44,7 @@ export const InterestSelection: React.FC = () => {
         <PurpleRadialGradient width={width} height={height} />
       }
     >
-      <View style={styles.container}>
+      <View style={[styles.container, Platform.OS === "web" && styles.webContainer]}>
         <OnboardingHeader
           showBackButton={true}
           onBackPress={prevStep}
@@ -60,7 +60,12 @@ export const InterestSelection: React.FC = () => {
         </View>
 
         {/* Glassmorphism sheet with interests and footer */}
-        <View style={styles.modalContainer}>
+        <View
+          style={[
+            styles.modalContainer,
+            Platform.OS === "web" && styles.webModalContainer,
+          ]}
+        >
           <View style={styles.glassOverlay} />
           <BlurView
             intensity={Platform.OS === "ios" ? 50 : 90}
@@ -144,6 +149,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  webContainer: {
+    width: "100%",
+    maxWidth: 1000,
+    marginHorizontal: "auto",
+  },
   headerSection: {
     alignItems: "center",
     paddingTop: 24,
@@ -182,6 +192,13 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 16,
     marginBottom: -50, // Extend beyond the Layout padding to reach bottom of screen
+  },
+  webModalContainer: {
+    marginHorizontal: 32,
+    marginBottom: 32,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: "hidden",
   },
   glassOverlay: {
     ...StyleSheet.absoluteFillObject,

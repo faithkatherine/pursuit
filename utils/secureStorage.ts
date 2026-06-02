@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
 /**
  * Secure storage utility for storing sensitive data like tokens
@@ -13,6 +14,10 @@ const KEYS = {
   HAS_SEEN_GET_STARTED: "has_seen_get_started",
 } as const;
 
+const isWeb = Platform.OS === "web";
+const hasLocalStorage =
+  typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+
 /**
  * Store a value securely
  */
@@ -21,6 +26,13 @@ export const setSecureItem = async (
   value: string
 ): Promise<void> => {
   try {
+    if (isWeb) {
+      if (hasLocalStorage) {
+        window.localStorage.setItem(key, value);
+      }
+      return;
+    }
+
     await SecureStore.setItemAsync(key, value);
   } catch (error) {
     console.error(`Error storing ${key}:`, error);
@@ -33,6 +45,10 @@ export const setSecureItem = async (
  */
 export const getSecureItem = async (key: string): Promise<string | null> => {
   try {
+    if (isWeb) {
+      return hasLocalStorage ? window.localStorage.getItem(key) : null;
+    }
+
     return await SecureStore.getItemAsync(key);
   } catch (error) {
     console.error(`Error retrieving ${key}:`, error);
@@ -45,6 +61,13 @@ export const getSecureItem = async (key: string): Promise<string | null> => {
  */
 export const deleteSecureItem = async (key: string): Promise<void> => {
   try {
+    if (isWeb) {
+      if (hasLocalStorage) {
+        window.localStorage.removeItem(key);
+      }
+      return;
+    }
+
     await SecureStore.deleteItemAsync(key);
   } catch (error) {
     console.error(`Error deleting ${key}:`, error);

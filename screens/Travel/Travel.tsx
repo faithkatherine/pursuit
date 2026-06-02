@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { Layout } from "components/Layout";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
@@ -8,7 +8,12 @@ import BeginJourneyIcon from "assets/icons/begin_journey.svg";
 const Travel = () => {
   return (
     <Layout backgroundColor={colors.white}>
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          Platform.OS === "web" && styles.webContainer,
+        ]}
+      >
         <BeginJourneyIcon width={200} height={200} />
         <Text style={styles.title}>Plan Your Next Adventure</Text>
         <Text style={styles.description}>
@@ -30,6 +35,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 40,
     gap: 16,
+  },
+  webContainer: {
+    width: "100%",
+    maxWidth: 760,
+    marginHorizontal: "auto",
   },
   title: {
     fontFamily: typography.h2.fontFamily,

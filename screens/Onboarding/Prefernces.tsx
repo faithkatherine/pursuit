@@ -1,4 +1,10 @@
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { OnboardingLayout } from "components/Onboarding/OnboardingLayout";
 import { useOnboarding } from "providers/OnboardingProvider";
 import { Layout } from "components/Layout";
@@ -43,7 +49,12 @@ export const Prefernces = () => {
         onNextPress={nextStep}
         onSkipPress={nextStep}
       >
-        <View style={styles.container}>
+        <View
+          style={[
+            styles.container,
+            Platform.OS === "web" && styles.webContainer,
+          ]}
+        >
           <ScheduleEventsIcon width="100%" height={illustrationHeight} />
           <View style={styles.switchContainer}>
             <SwitchCard
@@ -82,6 +93,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 27,
     justifyContent: "center",
     gap: 16,
+  },
+  webContainer: {
+    width: "100%",
+    maxWidth: 560,
+    marginHorizontal: "auto",
   },
   switchContainer: {
     width: "100%",

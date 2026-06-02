@@ -2,7 +2,7 @@ import { useRouter, useSegments } from "expo-router";
 import React, { createContext } from "react";
 import { useAuth } from "./AuthProvider";
 import * as Notifications from "expo-notifications";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { useMutation } from "@apollo/client";
 import { SKIP_ONBOARDING, COMPLETE_ONBOARDING } from "graphql/queries";
 import {
@@ -63,13 +63,14 @@ export const useOnboarding = () => {
 const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
+  const isWeb = Platform.OS === "web";
   const totalSteps = steps.length;
   const { user, updateUser } = useAuth();
   const {
     locationPermissionGranted,
     location,
     locationName,
-    toggleLocationPermission,
+    toggleLocationPermission: toggleNativeLocationPermission,
   } = useLocationPermission();
   const [emailPermissionGranted, setEmailPermissionGranted] =
     React.useState<boolean>(false);
@@ -137,6 +138,11 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const toggleNotificationPermission = async (enabled: boolean) => {
+    if (isWeb) {
+      setNotificationPermissionGranted(false);
+      return;
+    }
+
     setNotificationPermissionGranted(enabled);
     if (enabled) {
       try {
@@ -157,6 +163,12 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toggleEmailPermission = (enabled: boolean) => {
     setEmailPermissionGranted(enabled);
+  };
+
+  const toggleLocationPermission = (enabled: boolean) => {
+    if (isWeb) return;
+
+    toggleNativeLocationPermission(enabled);
   };
 
   const nextStep = async () => {
@@ -184,8 +196,8 @@ const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await completeOnboardingMutation({
         variables: {
           allowLocationSharing: locationPermissionGranted,
-          locationName,
-          location: location?.coords
+          locationName: isWeb ? null : locationName,
+          location: !isWeb && location?.coords
             ? [location.coords.latitude, location.coords.longitude]
             : null,
           allowEmailNotifications: emailPermissionGranted,

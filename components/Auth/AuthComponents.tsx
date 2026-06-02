@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Pressable,
+  Platform,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -41,6 +42,7 @@ export const AuthLayout = React.forwardRef<
 >(({ children, heroTitle, heroSubtitle }, ref) => {
   const shakeViewRef = useRef<ShakeAnimatedViewRef>(null);
   const insets = useSafeAreaInsets();
+  const isWeb = Platform.OS === "web";
 
   React.useImperativeHandle(ref, () => ({
     shake: () => shakeViewRef.current?.shake(),
@@ -76,17 +78,23 @@ export const AuthLayout = React.forwardRef<
         <ScrollView
           contentContainerStyle={[
             styles.scrollContainer,
+            isWeb && styles.webScrollContainer,
             { paddingTop: insets.top + 20 },
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.envelopeContainer}>
+          <View
+            style={[
+              styles.envelopeContainer,
+              isWeb && styles.webEnvelopeContainer,
+            ]}
+          >
             <Svg
               width="100%"
               height={100}
               viewBox="0 0 400 100"
               preserveAspectRatio="none"
-              style={styles.flapSvg}
+              style={[styles.flapSvg, isWeb && styles.webFlapSvg]}
             >
               <Path
                 d="M 0 100 C 0 92, 5 88, 15 82 L 190 3 C 195 0, 205 0, 210 3 L 385 82 C 395 88, 400 92, 400 100"
@@ -96,7 +104,13 @@ export const AuthLayout = React.forwardRef<
               />
             </Svg>
 
-            <ShakeAnimatedView ref={shakeViewRef} style={styles.formContainer}>
+            <ShakeAnimatedView
+              ref={shakeViewRef}
+              style={[
+                styles.formContainer,
+                isWeb ? styles.webFormContainer : {},
+              ]}
+            >
               <View style={styles.form}>
                 <View style={styles.heroContainer}>
                   <Text style={styles.heroTitle}>{heroTitle}</Text>
@@ -283,6 +297,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-end",
   },
+  webScrollContainer: {
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
 
   heroContainer: {
     alignItems: "flex-start",
@@ -310,9 +329,15 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  webEnvelopeContainer: {
+    maxWidth: 480,
+  },
   flapSvg: {
     width: "100%",
     height: 80,
+  },
+  webFlapSvg: {
+    display: "none",
   },
 
   formContainer: {
@@ -324,6 +349,15 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 32,
     width: "100%",
+  },
+  webFormContainer: {
+    borderTopLeftRadius: radii["3xl"],
+    borderTopRightRadius: radii["3xl"],
+    padding: 32,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.16,
+    shadowRadius: 40,
   },
   form: {
     display: "flex",

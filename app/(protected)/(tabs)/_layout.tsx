@@ -6,6 +6,7 @@ import ProfileIcon from "assets/icons/travel_explore.svg";
 import { StyleSheet, Platform } from "react-native";
 import colors from "themes/tokens/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 const TabLayout = () => {
   const insets = useSafeAreaInsets();
 

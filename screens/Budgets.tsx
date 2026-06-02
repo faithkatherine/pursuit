@@ -6,6 +6,7 @@ import {
   ScrollView,
   useWindowDimensions,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
 import { useQuery } from "@apollo/client";
@@ -16,7 +17,10 @@ import { GET_BUCKET_ITEMS } from "../graphql/queries";
 
 const Budgets = () => {
   const { width } = useWindowDimensions();
-  const chartWidth = width - 48; // More padding for cleaner look
+  const isWeb = Platform.OS === "web";
+  const chartWidth = isWeb
+    ? Math.min(width - 96, 720)
+    : width - 48; // More padding for cleaner look
 
   // Fetch bucket items using GraphQL
   const { data: bucketData, loading, error } = useQuery(GET_BUCKET_ITEMS);
@@ -104,7 +108,11 @@ const Budgets = () => {
 
   return (
     <Layout>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={isWeb && styles.webContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Budget</Text>
@@ -238,6 +246,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8F9FA",
+  },
+  webContent: {
+    width: "100%",
+    maxWidth: 900,
+    marginHorizontal: "auto",
+    paddingHorizontal: 32,
+    paddingBottom: 48,
   },
   header: {
     paddingHorizontal: 24,

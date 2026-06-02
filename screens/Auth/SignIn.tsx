@@ -1,5 +1,12 @@
 import { useForm, Controller } from "react-hook-form";
-import { TouchableOpacity, Alert, Text, View, StyleSheet } from "react-native";
+import {
+  TouchableOpacity,
+  Alert,
+  Text,
+  View,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import { useState, useRef } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "providers/AuthProvider";
@@ -46,7 +53,9 @@ export const SignIn = () => {
     try {
       const success = await signIn(data.email, data.password);
       if (success) {
-        // Navigation will be handled by the auth state change in the root layout
+        if (Platform.OS === "web") {
+          router.replace("/(protected)/(tabs)/");
+        }
       } else {
         shakeError();
       }

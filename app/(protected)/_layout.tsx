@@ -1,11 +1,12 @@
 import { Stack, Redirect, useSegments } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Platform } from "react-native";
 import { useAuth } from "providers/AuthProvider";
 import { Loading } from "components/Layout";
 
 export default function ProtectedLayout() {
   const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
   const segments = useSegments();
+  const isWeb = Platform.OS === "web";
 
   if (isLoading) {
     return <Loading />;
@@ -58,14 +59,12 @@ export default function ProtectedLayout() {
         name="events/[eventId]"
         options={{
           headerShown: false,
-          presentation: "fullScreenModal",
-          animation: "slide_from_bottom",
-          gestureEnabled: true,
-          contentStyle: { backgroundColor: "transparent" },
+          presentation: isWeb ? "card" : "fullScreenModal",
+          animation: isWeb ? "none" : "slide_from_bottom",
+          gestureEnabled: !isWeb,
+          contentStyle: { backgroundColor: isWeb ? "#FFFFFF" : "transparent" },
         }}
       />
     </Stack>
   );
 }
-
-const styles = StyleSheet.create({});

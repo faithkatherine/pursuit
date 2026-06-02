@@ -10,6 +10,10 @@ module.exports = {
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
+    web: {
+      bundler: "metro",
+      output: "single",
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.pursuit.app",

@@ -72,7 +72,7 @@ export const WeatherAnimation: React.FC<WeatherAnimationProps> = ({
   size = 60,
   style,
 }) => {
-  if (!isLottieAvailable) {
+  if (Platform.OS === "web" || !isLottieAvailable) {
     return <EmojiFallback iconCode={iconCode} size={size} style={style} />;
   }
 

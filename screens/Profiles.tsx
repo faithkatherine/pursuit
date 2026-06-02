@@ -8,6 +8,7 @@ import {
   Image,
   Switch,
   Alert,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@apollo/client";
@@ -22,6 +23,7 @@ const Profiles = () => {
   if (!context) throw new Error("Profiles must be used within an AuthProvider");
 
   const { user, signOut } = context;
+  const isWeb = Platform.OS === "web";
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
@@ -95,7 +97,11 @@ const Profiles = () => {
 
   return (
     <Layout>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={isWeb && styles.webContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Profile Header */}
         <LinearGradient
           colors={[colors.deluge, colors.delugeLight]}
@@ -294,6 +300,13 @@ const Profiles = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  webContent: {
+    width: "100%",
+    maxWidth: 900,
+    marginHorizontal: "auto",
+    paddingHorizontal: 32,
+    paddingBottom: 48,
   },
   profileHeader: {
     alignItems: "center",

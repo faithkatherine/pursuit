@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   Dimensions,
+  Platform,
 } from "react-native";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
@@ -17,7 +18,7 @@ import { getVariant } from "utils/categoryVariants";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH * 0.7;
+const CARD_WIDTH = Platform.OS === "web" ? 360 : SCREEN_WIDTH * 0.7;
 const IMAGE_HEIGHT = CARD_WIDTH * 0.57;
 const CARD_PADDING = CARD_WIDTH * 0.054;
 const SAVE_BUTTON_SIZE = CARD_WIDTH * 0.143;
@@ -158,7 +159,8 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
+    width: Platform.OS === "web" ? "100%" : CARD_WIDTH,
+    maxWidth: CARD_WIDTH,
     borderRadius: radii.lg,
     backgroundColor: colors.deluge,
     overflow: "visible",
