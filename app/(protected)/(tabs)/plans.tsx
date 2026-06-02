@@ -1,3 +1,3 @@
-import Budgets from "screens/Budgets";
+import Travel from "screens/Travel";
 
-export default Budgets;
+export default Travel;

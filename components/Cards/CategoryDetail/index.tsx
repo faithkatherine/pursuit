@@ -1,1 +1,0 @@
-export { CategoryDetail } from "./CategoryDetail";

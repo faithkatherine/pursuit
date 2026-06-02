@@ -33,9 +33,7 @@ function RootLayoutContent() {
 
     if (!user || !user.profile || isReconciled) return;
 
-    console.log("🔄 Starting reconciliation for:", user.email);
     reconcileLocation(user, client).then((result) => {
-      console.log("✅ Reconciliation complete:", result);
       setShouldSync(result.shouldSync);
       setIsReconciled(true);
     });
@@ -89,11 +87,8 @@ function RootLayoutContent() {
   // Gate router on reconciliation completion
   // This ensures backend state is correct before home mounts and fires getHome
   if (isAuthenticated && !isReconciled) {
-    console.log("⏳ Blocking home - waiting for reconciliation");
     return <Loading />;
   }
-
-  console.log("✅ Rendering home - reconciliation complete");
   return <Slot />;
 }
 

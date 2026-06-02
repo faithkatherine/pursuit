@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   shadowWrapper: {
     borderRadius: radii.md,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   categoryBadge: {
-    backgroundColor: colors.delugeLight,
+    backgroundColor: "rgba(124, 92, 156, 0.1)",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radii.sm,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.caption.fontFamily,
     fontSize: fontSizes.xs,
     fontWeight: fontWeights.medium,
-    color: colors.white,
+    color: colors.black,
   },
   saveButton: {
     padding: 0,

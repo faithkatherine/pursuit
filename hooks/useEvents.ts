@@ -15,6 +15,9 @@ import {
 export const useEvents = (filters?: {
   search?: string;
   category?: string[];
+  latitude?: number;
+  longitude?: number;
+  radiusKm?: number;
   offset?: number;
   limit?: number;
 }) => {
@@ -22,6 +25,9 @@ export const useEvents = (filters?: {
     variables: {
       search: filters?.search || undefined,
       category: filters?.category?.length ? filters.category : undefined,
+      latitude: filters?.latitude,
+      longitude: filters?.longitude,
+      radiusKm: filters?.radiusKm,
       offset: filters?.offset || 0,
       limit: filters?.limit || 20,
     },

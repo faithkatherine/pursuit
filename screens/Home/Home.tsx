@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   Pressable,
   Platform,
+  ScrollView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -205,7 +206,6 @@ const Home = () => {
                 onLocationEnablePress={handleLocationEnable}
               />
 
-              {/* Trip CTA — always shown */}
               <CTACard
                 type="trip"
                 tripData={
@@ -220,16 +220,13 @@ const Home = () => {
                 }
                 onPress={() => {
                   if (activeTrip) {
-                    // Navigate to trip detail
                     router.push(`/trip/${activeTrip.id}`);
                   } else {
-                    // Navigate to plan a trip
                     router.push("/travel");
                   }
                 }}
               />
 
-              {/* Saved Event CTA — conditional */}
               {nextSavedEvent && (
                 <CTACard
                   type="saved-event"
@@ -245,8 +242,12 @@ const Home = () => {
                 />
               )}
 
-              {/* Time filter chips */}
-              <View style={styles.filterRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterRowContent}
+                style={styles.filterRow}
+              >
                 {TIME_FILTERS.map((filter) => {
                   const selected = timeFilter === filter.key;
                   return (
@@ -261,7 +262,12 @@ const Home = () => {
                     />
                   );
                 })}
-              </View>
+                <Button
+                  variant="chips"
+                  text="Reset"
+                  onPress={() => setTimeFilter(null)}
+                />
+              </ScrollView>
 
               {heroCard && (
                 <View
@@ -291,7 +297,6 @@ const Home = () => {
           ]}
         >
           {isFilterEmpty ? (
-            /* Empty filter state */
             <View style={styles.emptyState}>
               <ScheduleIcon width={40} height={40} fill={colors.aluminium} />
               <Text style={styles.emptyStateTitle}>
@@ -309,9 +314,8 @@ const Home = () => {
             </View>
           ) : (
             <>
-              {/* Recommendations */}
-              {remainingRecommendations.length > 0 && (
-                isWeb ? (
+              {remainingRecommendations.length > 0 &&
+                (isWeb ? (
                   <View style={styles.webRecommendationsSection}>
                     <SectionHeader
                       title="Made for your week"
@@ -363,8 +367,7 @@ const Home = () => {
                       />
                     ))}
                   />
-                )
-              )}
+                ))}
 
               {/* Trending — vertical list using TrendingCard with rank */}
               {displayTrending.length > 0 && (
@@ -445,10 +448,12 @@ const styles = StyleSheet.create({
   },
   // Time filter chips
   filterRow: {
+    paddingBottom: 20,
+  },
+  filterRowContent: {
     flexDirection: "row",
     gap: 8,
     paddingHorizontal: 20,
-    paddingBottom: 20,
   },
   // Trending
   trendingSection: {

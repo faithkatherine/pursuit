@@ -48,6 +48,18 @@ export const colors = {
   skyMist: "rgb(224, 232, 240)",
   skyDust: "rgb(168, 196, 216)",
   deepHorizon: "rgb(42, 74, 107)",
+  // Explore screen tokens (Material Design 3 naming)
+  primary: "rgb(102, 83, 130)", // Similar to deluge but distinct
+  background: "rgb(252, 249, 246)",
+  onSurface: "rgb(28, 28, 26)",
+  onSurfaceVariant: "rgb(74, 69, 78)",
+  surfaceContainerLow: "rgb(246, 243, 240)",
+  surfaceContainer: "rgb(240, 237, 234)",
+  surfaceContainerHighest: "rgb(229, 226, 223)",
+  outlineVariant: "rgb(203, 196, 207)",
+  primaryFixed: "rgb(236, 220, 255)",
+  tertiary: "rgb(145, 70, 58)",
+  success: "rgb(45, 106, 79)",
 } as const;
 
 // Semantic color names for easier usage

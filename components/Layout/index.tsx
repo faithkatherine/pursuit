@@ -6,3 +6,4 @@ export { Layout } from "./Layout";
 export { Loading } from "./Loading";
 export { Error } from "./Error";
 export { SectionHeader } from "./SectionHeader";
+export { MasonryGrid } from "./MasonryGrid";

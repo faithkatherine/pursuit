@@ -9,7 +9,7 @@ interface SectionHeaderProps {
   title: string;
   buttonText?: string;
   onButtonPress?: () => void;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "chips";
   isLoading?: boolean;
   loadingText?: string;
 }
@@ -18,7 +18,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   title,
   buttonText,
   onButtonPress,
-  variant = "secondary",
+  variant = "chips",
   isLoading = false,
   loadingText = "Updating...",
 }) => {

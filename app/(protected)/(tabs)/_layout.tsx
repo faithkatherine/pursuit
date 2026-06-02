@@ -1,8 +1,8 @@
 import { Tabs } from "expo-router";
 import DiscoverIcon from "assets/icons/begin_journey.svg";
 import PlansIcon from "assets/icons/plans.svg";
-import GroupIcon from "assets/icons/group_chat.svg";
-import ProfileIcon from "assets/icons/travel_explore.svg";
+import ExploreIcon from "assets/icons/schedule_events.svg";
+import ProfileIcon from "assets/icons/processing_events.svg";
 import { StyleSheet, Platform } from "react-native";
 import colors from "themes/tokens/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -37,6 +37,16 @@ const TabLayout = () => {
           tabBarLabel: "Discover",
         }}
       />
+
+      <Tabs.Screen
+        name="explore"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <ExploreIcon fill={color} width={24} height={24} />
+          ),
+          tabBarLabel: "Explore",
+        }}
+      />
       <Tabs.Screen
         name="plans"
         options={{
@@ -44,15 +54,6 @@ const TabLayout = () => {
             <PlansIcon fill={color} width={24} height={24} />
           ),
           tabBarLabel: "Plans",
-        }}
-      />
-      <Tabs.Screen
-        name="group_plans"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <GroupIcon fill={color} width={24} height={24} />
-          ),
-          tabBarLabel: "Group Plans",
         }}
       />
 

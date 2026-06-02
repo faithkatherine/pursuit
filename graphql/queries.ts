@@ -323,12 +323,18 @@ export const GET_EVENTS = gql`
   query GetEvents(
     $search: String
     $category: [ID]
+    $latitude: Float
+    $longitude: Float
+    $radiusKm: Float
     $offset: Int
     $limit: Int
   ) {
     events(
       search: $search
       category: $category
+      latitude: $latitude
+      longitude: $longitude
+      radiusKm: $radiusKm
       offset: $offset
       limit: $limit
     ) {

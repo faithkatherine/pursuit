@@ -1,304 +1,193 @@
-import React, { useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  Dimensions,
-  Animated,
-  PanResponder,
-  ActivityIndicator,
-  Platform,
-} from "react-native";
+import React, { useState, useMemo } from "react";
+import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { useRouter } from "expo-router";
+import MapView, { Marker, type MapPressEvent, type Region } from "react-native-maps";
 import Svg, { Path } from "react-native-svg";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 
-import { Layout, Loading, Error } from "components/Layout";
+import { Layout, Error, MasonryGrid } from "components/Layout";
 import { Button } from "components/Buttons";
-import HeartIcon from "assets/icons/heart.svg";
-import { colors, theme } from "themes/tokens/colors";
-import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import { BaseModal } from "components/Modals";
+import { EventExploreCard } from "components/Cards/EventExploreCard";
+import { colors } from "themes/tokens/colors";
+import { useEvents } from "hooks/useEvents";
 import {
-  useEvents,
-  useSavedEvents,
-  useSaveEvent,
-  useUnsaveEvent,
-} from "hooks/useEvents";
-import { ExploreCard } from "components/Cards/ExploreCard";
-import type { ExploreCardData } from "components/Cards/ExploreCard";
-import BackIcon from "assets/icons/back.svg";
-import { BackNavigationHeader } from "components/Layout/BackNavigationHeader";
+  filterByCategory,
+  filterBySpecificDate,
+  isFeaturedEvent,
+} from "utils/eventFilters";
+import {
+  isSameDay,
+  formatDateLabel,
+  getMonthTitle,
+  getCalendarDays,
+} from "utils/calendar";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
-const SWIPE_OUT_DURATION = 300;
+// Import icons from assets
+import LocationIcon from "assets/icons/location.svg";
+import CloseIcon from "assets/icons/close.svg";
+import DateIcon from "assets/icons/date.svg";
 
-const SECTION_TITLES: Record<string, string> = {
-  recommendations: "Recommendations",
-  upcoming: "Upcoming Events",
-  trending: "Trending",
+// Map configuration
+const DEFAULT_MAP_REGION: Region = {
+  latitude: -1.2921,
+  longitude: 36.8219,
+  latitudeDelta: 0.18,
+  longitudeDelta: 0.18,
 };
+const MAP_FILTER_RADIUS_KM = 10;
 
-type EventItem = ExploreCardData;
+// Filter categories
+const CATEGORIES = [
+  "All",
+  "Concerts & Nightlife",
+  "Outdoors & Active",
+  "Arts & Culture",
+  "Food & Drink",
+  "Markets",
+  "Wellness",
+  "Talks & Workshops",
+];
+
+// Search icon (only one not in assets)
+const SearchIcon = () => (
+  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+      fill={colors.aluminium}
+    />
+  </Svg>
+);
+
+const SearchOffIcon = () => (
+  <Svg width={40} height={40} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+      fill={colors.aluminium}
+    />
+    <Path d="M2 2L22 22" stroke={colors.aluminium} strokeWidth={2} />
+  </Svg>
+);
 
 export const Explore = () => {
   const router = useRouter();
-  const isWeb = Platform.OS === "web";
-  const insets = useSafeAreaInsets();
-  const [insightsHeight, setInsightsHeight] = useState(200);
-  const { section } = useLocalSearchParams<{ section?: string }>();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const currentIndexRef = useRef(0);
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const fadeStart = insightsHeight - insets.top;
-  const statusBarOpacity = scrollY.interpolate({
-    inputRange: [0, fadeStart * 0.6, fadeStart],
-    outputRange: [0, 0, 1],
-    extrapolate: "clamp",
+
+  // Filter state
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [locationFilter, setLocationFilter] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  // Draft state for modals
+  const [draftDate, setDraftDate] = useState<Date | null>(null);
+  const [draftLocation, setDraftLocation] = useState<typeof locationFilter>(null);
+
+  // Modal state
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+
+  // Calendar state
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [mapRegion, setMapRegion] = useState<Region>(DEFAULT_MAP_REGION);
+
+  // Fetch events with location filter
+  const { events, loading, error } = useEvents({
+    latitude: locationFilter?.latitude,
+    longitude: locationFilter?.longitude,
+    radiusKm: locationFilter ? MAP_FILTER_RADIUS_KM : undefined,
   });
 
-  const title = (section && SECTION_TITLES[section]) || "Explore";
-  const isUpcoming = section === "upcoming";
+  // Compute filter labels
+  const dateFilterLabel = selectedDate ? formatDateLabel(selectedDate) : "Any date";
+  const locationFilterLabel = locationFilter ? "Map area" : "All areas";
 
-  const {
-    events,
-    loading: eventsLoading,
-    error: eventsError,
-  } = useEvents({ search: searchQuery || undefined });
+  // Generate calendar
+  const calendarDays = useMemo(
+    () => getCalendarDays(calendarMonth),
+    [calendarMonth],
+  );
+  const calendarTitle = getMonthTitle(calendarMonth);
 
-  const {
-    savedEvents,
-    loading: savedLoading,
-    error: savedError,
-  } = useSavedEvents();
+  // Apply filters
+  const filteredEvents = useMemo(() => {
+    if (!events) return [];
+    let filtered = filterByCategory(events, selectedCategory);
+    filtered = filterBySpecificDate(filtered, selectedDate);
+    return filtered;
+  }, [events, selectedCategory, selectedDate]);
 
-  const loading = isUpcoming ? savedLoading : eventsLoading;
-  const error = isUpcoming ? savedError : eventsError;
-  const displayEvents: EventItem[] =
-    (isUpcoming ? (savedEvents as EventItem[]) : events) || [];
-
-  // --- Save logic ---
-  const [saveEvent] = useSaveEvent();
-  const [unsaveEvent] = useUnsaveEvent();
-  const [savedMap, setSavedMap] = useState<Record<string, boolean>>({});
-  const [saving, setSaving] = useState(false);
-
-  const currentEvent =
-    currentIndex < displayEvents.length ? displayEvents[currentIndex] : null;
-
-  const isCurrentSaved = currentEvent
-    ? (savedMap[currentEvent.id] ?? currentEvent.isSaved ?? false)
-    : false;
-
-  const handleSave = useCallback(async () => {
-    if (!currentEvent || saving) return;
-    setSaving(true);
-    try {
-      if (isCurrentSaved) {
-        await unsaveEvent({ variables: { id: currentEvent.id } });
-        setSavedMap((prev) => ({ ...prev, [currentEvent.id]: false }));
-      } else {
-        await saveEvent({ variables: { id: currentEvent.id } });
-        setSavedMap((prev) => ({ ...prev, [currentEvent.id]: true }));
-      }
-    } catch {
-      // silent
-    } finally {
-      setSaving(false);
-    }
-  }, [currentEvent, isCurrentSaved, saving, saveEvent, unsaveEvent]);
-
-  // --- Swipe animation ---
-  const position = useRef(new Animated.ValueXY()).current;
-
-  const resetPosition = useCallback(() => {
-    Animated.spring(position, {
-      toValue: { x: 0, y: 0 },
-      useNativeDriver: false,
-      friction: 5,
-    }).start();
-  }, [position]);
-
-  const swipeCard = useCallback(
-    (direction: "left" | "right") => {
-      // Swipe left → next card, swipe right → previous card
-      if (direction === "right" && currentIndexRef.current <= 0) {
-        resetPosition();
-        return;
-      }
-
-      const toX =
-        direction === "left" ? -SCREEN_WIDTH - 100 : SCREEN_WIDTH + 100;
-      Animated.timing(position, {
-        toValue: { x: toX, y: 0 },
-        duration: SWIPE_OUT_DURATION,
-        useNativeDriver: false,
-      }).start(() => {
-        position.setValue({ x: 0, y: 0 });
-        setCurrentIndex((prev) => {
-          const next = direction === "left" ? prev + 1 : Math.max(0, prev - 1);
-          currentIndexRef.current = next;
-          return next;
-        });
-      });
-    },
-    [position, resetPosition],
+  // Mark featured events
+  const eventsWithFeatured = useMemo(
+    () =>
+      filteredEvents.map((event, index) => ({
+        ...event,
+        isFeatured: isFeaturedEvent(event, index),
+      })),
+    [filteredEvents],
   );
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 10,
-      onMoveShouldSetPanResponderCapture: (_, gesture) =>
-        Math.abs(gesture.dx) > 10,
-      onPanResponderMove: (_, gesture) => {
-        position.setValue({ x: gesture.dx, y: 0 });
-      },
-      onPanResponderRelease: (_, gesture) => {
-        if (gesture.dx < -SWIPE_THRESHOLD) {
-          swipeCard("left");
-        } else if (gesture.dx > SWIPE_THRESHOLD) {
-          swipeCard("right");
-        } else {
-          resetPosition();
-        }
-      },
-    }),
-  ).current;
+  const hasActiveFilters =
+    selectedCategory !== "All" || selectedDate !== null || locationFilter !== null;
 
-  // Interpolated styles for top card
-  const cardRotate = position.x.interpolate({
-    inputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
-    outputRange: ["-6deg", "0deg", "6deg"],
-  });
+  // Handlers
+  const clearFilters = () => {
+    setSelectedCategory("All");
+    setSelectedDate(null);
+    setLocationFilter(null);
+  };
 
-  const cardOpacity = position.x.interpolate({
-    inputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
-    outputRange: [0.7, 1, 0.7],
-  });
+  const openDateModal = () => {
+    setDraftDate(selectedDate);
+    setCalendarMonth(selectedDate || new Date());
+    setShowDateModal(true);
+  };
 
-  // Next card scales up as the top card is swiped away
-  const nextCardScale = position.x.interpolate({
-    inputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
-    outputRange: [1, 0.96, 1],
-    extrapolate: "clamp",
-  });
+  const applyDateFilter = () => {
+    setSelectedDate(draftDate);
+    setShowDateModal(false);
+  };
 
-  const nextCardOpacity = position.x.interpolate({
-    inputRange: [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
-    outputRange: [1, 0.85, 1],
-    extrapolate: "clamp",
-  });
+  const resetDateFilter = () => {
+    setSelectedDate(null);
+    setShowDateModal(false);
+  };
 
-  const renderCards = () => {
-    if (isWeb) {
-      return (
-        <View style={styles.webGrid}>
-          {displayEvents.map((event) => (
-            <View key={event.id} style={styles.webGridItem}>
-              <ExploreCard
-                event={event}
-                onPress={() => router.push(`/(protected)/events/${event.id}`)}
-              />
-            </View>
-          ))}
-        </View>
-      );
+  const openLocationModal = () => {
+    setDraftLocation(locationFilter);
+    if (locationFilter) {
+      setMapRegion({
+        ...DEFAULT_MAP_REGION,
+        ...locationFilter,
+      });
     }
+    setShowLocationModal(true);
+  };
 
-    if (currentIndex >= displayEvents.length) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No more events</Text>
-          <Text style={styles.emptySubtext}>Check back soon for more</Text>
-          <Pressable
-            style={styles.resetButton}
-            onPress={() => {
-              setCurrentIndex(0);
-              currentIndexRef.current = 0;
-            }}
-          >
-            <Text style={styles.resetButtonText}>Start over</Text>
-          </Pressable>
-        </View>
-      );
-    }
+  const applyLocationFilter = () => {
+    setLocationFilter(draftLocation);
+    setShowLocationModal(false);
+  };
 
-    // Render up to 3 stacked cards (bottom to top)
-    const visibleCards = displayEvents
-      .slice(currentIndex, currentIndex + 3)
-      .reverse();
+  const resetLocationFilter = () => {
+    setLocationFilter(null);
+    setShowLocationModal(false);
+  };
 
-    return visibleCards.map((event, reverseIdx) => {
-      const stackIndex = visibleCards.length - 1 - reverseIdx;
-      const isTop = stackIndex === 0;
+  const handleMapPress = (event: MapPressEvent) => {
+    const coordinate = event.nativeEvent.coordinate;
+    setDraftLocation(coordinate);
+    setMapRegion((current) => ({
+      ...current,
+      ...coordinate,
+    }));
+  };
 
-      if (isTop) {
-        return (
-          <Animated.View
-            key={event.id}
-            style={[
-              styles.cardWrapper,
-              {
-                transform: [{ translateX: position.x }, { rotate: cardRotate }],
-                opacity: cardOpacity,
-              },
-            ]}
-            {...panResponder.panHandlers}
-          >
-            <ExploreCard event={event} onPress={() => {}} />
-          </Animated.View>
-        );
-      }
-
-      // Second card — peeks out behind, reacts to drag
-      if (stackIndex === 1) {
-        return (
-          <Animated.View
-            key={event.id}
-            style={[
-              styles.cardWrapper,
-              {
-                transform: [
-                  { scale: nextCardScale },
-                  { translateY: -18 },
-                  { translateX: 6 },
-                  { rotate: "2deg" },
-                ],
-                opacity: nextCardOpacity,
-              },
-            ]}
-          >
-            <ExploreCard event={event} onPress={() => {}} />
-          </Animated.View>
-        );
-      }
-
-      // Third card — peeks out further
-      return (
-        <View
-          key={event.id}
-          style={[
-            styles.cardWrapper,
-            {
-              transform: [
-                { scale: 0.92 },
-                { translateY: -34 },
-                { translateX: 12 },
-                { rotate: "4deg" },
-              ],
-              opacity: 0.6,
-            },
-          ]}
-        >
-          <ExploreCard event={event} onPress={() => {}} />
-        </View>
-      );
+  const shiftMonth = (direction: number) => {
+    setCalendarMonth((current) => {
+      const next = new Date(current);
+      next.setMonth(current.getMonth() + direction);
+      return next;
     });
   };
 
@@ -307,355 +196,487 @@ export const Explore = () => {
   }
 
   return (
-    <Layout backgroundColor={colors.white} shouldShowTopInset={false}>
-      <Animated.View
-        style={[
-          styles.statusBarFill,
-          { height: insets.top, opacity: statusBarOpacity },
-        ]}
-      />
-      <Animated.ScrollView
-        scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true },
-        )}
-      >
-        <View onLayout={(e) => setInsightsHeight(e.nativeEvent.layout.height)}>
-          {/* Horizontal: purple (left) → pink (right) */}
-          <LinearGradient
-            colors={[colors.deluge, colors.roseFog]}
-            locations={[0, 1]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
-            {/* Vertical: transparent at top → white at bottom (extended for seamless fade) */}
-            <LinearGradient
-              colors={[
-                "transparent",
-                "transparent",
-                "rgba(255,255,255,0.5)",
-                colors.white,
-              ]}
-              locations={[0, 0.6, 0.85, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-            >
-              <BackNavigationHeader
-                title={title}
-                onBackPress={() => router.back()}
-              />
+    <Layout backgroundColor={colors.ghostWhite} shouldShowTopInset={true}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Search bar */}
+        <Pressable
+          style={styles.searchBar}
+          onPress={() => router.push("/search" as any)}
+        >
+          <SearchIcon />
+          <Text style={styles.searchPlaceholder}>
+            Search events, venues, neighbourhoods...
+          </Text>
+        </Pressable>
 
-              {/* Search + filter */}
-              <View style={[styles.searchRow, isWeb && styles.webSearchRow]}>
-                <View style={styles.searchContainer}>
-                  <Text style={styles.searchIcon}>🔍</Text>
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search events..."
-                    value={searchQuery}
-                    onChangeText={(text) => {
-                      setSearchQuery(text);
-                      setCurrentIndex(0);
-                      currentIndexRef.current = 0;
-                    }}
-                    placeholderTextColor={theme.text.secondary}
-                  />
-                </View>
+        {/* Category filter chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryContent}
+          style={styles.categoryScroll}
+        >
+          {CATEGORIES.map((category) => (
+            <Button
+              key={category}
+              variant="chips"
+              text={category.toUpperCase()}
+              selected={selectedCategory === category}
+              onPress={() => setSelectedCategory(category)}
+            />
+          ))}
+        </ScrollView>
+
+        {/* Date + Location filters */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterContent}
+          style={styles.filterScroll}
+        >
+          <Pressable
+            style={[
+              styles.filterChip,
+              selectedDate && styles.filterChipActive,
+            ]}
+            onPress={openDateModal}
+          >
+            <DateIcon width={16} height={16} fill={selectedDate ? colors.deluge : colors.black} />
+            <Text
+              style={[
+                styles.filterChipText,
+                selectedDate && styles.filterChipTextActive,
+              ]}
+            >
+              {dateFilterLabel}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.filterChip,
+              locationFilter && styles.filterChipActive,
+            ]}
+            onPress={openLocationModal}
+          >
+            <LocationIcon width={16} height={16} fill={locationFilter ? colors.deluge : colors.black} />
+            <Text
+              style={[
+                styles.filterChipText,
+                locationFilter && styles.filterChipTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              {locationFilterLabel}
+            </Text>
+          </Pressable>
+        </ScrollView>
+
+        {/* Content */}
+        {loading ? (
+          <MasonryGrid>
+            {[...Array(6)].map((_, i) => (
+              <View
+                key={i}
+                style={[styles.skeleton, { height: i % 3 === 0 ? 300 : 240 }]}
+              />
+            ))}
+          </MasonryGrid>
+        ) : eventsWithFeatured.length === 0 ? (
+          <View style={styles.emptyState}>
+            <SearchOffIcon />
+            <Text style={styles.emptyTitle}>Nothing here yet</Text>
+            <Text style={styles.emptyBody}>Try a different category or date</Text>
+            {hasActiveFilters && (
+              <Button
+                variant="primary"
+                text="Clear filters"
+                onPress={clearFilters}
+                style={styles.clearButton}
+              />
+            )}
+          </View>
+        ) : (
+          <MasonryGrid>
+            {eventsWithFeatured.map((event) => (
+              <EventExploreCard
+                key={event.id}
+                event={event}
+                isFeatured={event.isFeatured}
+                onPress={() => router.push(`/(protected)/events/${event.id}`)}
+              />
+            ))}
+          </MasonryGrid>
+        )}
+      </ScrollView>
+
+      {/* Date picker modal */}
+      <BaseModal
+        visible={showDateModal}
+        variant="bottomSheet"
+        animationType="slide"
+        shouldShowCloseIcon={false}
+        onClose={() => setShowDateModal(false)}
+      >
+        <View style={styles.sheet}>
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>Select Date</Text>
+            <Pressable style={styles.closeButton} onPress={() => setShowDateModal(false)}>
+              <CloseIcon width={20} height={20} fill={colors.onSurface} />
+            </Pressable>
+          </View>
+
+          <View style={styles.calendar}>
+            {/* Month navigation */}
+            <View style={styles.calendarHeader}>
+              <Text style={styles.calendarTitle}>{calendarTitle}</Text>
+              <View style={styles.calendarNav}>
                 <Pressable
-                  style={styles.filterButton}
-                  onPress={() => {
-                    /* TODO: open filter sheet */
-                  }}
+                  style={styles.navButton}
+                  onPress={() => shiftMonth(-1)}
                 >
-                  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                    <Path
-                      d="M3 6h18M7 12h10M10 18h4"
-                      stroke={theme.text.primary}
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                    />
-                  </Svg>
+                  <Text style={styles.navText}>‹</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.navButton}
+                  onPress={() => shiftMonth(1)}
+                >
+                  <Text style={styles.navText}>›</Text>
                 </Pressable>
               </View>
-            </LinearGradient>
-          </LinearGradient>
+            </View>
 
-          {/* Cards stack */}
-          {loading ? (
-            <Loading />
-          ) : displayEvents.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No events found</Text>
-              <Text style={styles.emptySubtext}>
-                {searchQuery
-                  ? "Try a different search term"
-                  : "Check back soon for new events"}
+            {/* Weekday headers */}
+            <View style={styles.weekdays}>
+              {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+                <Text key={`${day}-${i}`} style={styles.weekday}>
+                  {day}
+                </Text>
+              ))}
+            </View>
+
+            {/* Calendar grid */}
+            <View style={styles.calendarGrid}>
+              {calendarDays.map((date, i) => {
+                const selected = date && draftDate ? isSameDay(date, draftDate) : false;
+                return (
+                  <Pressable
+                    key={date?.toISOString() ?? `empty-${i}`}
+                    style={[styles.day, selected && styles.daySelected]}
+                    disabled={!date}
+                    onPress={() => date && setDraftDate(date)}
+                  >
+                    <Text style={[styles.dayText, selected && styles.dayTextSelected]}>
+                      {date?.getDate() ?? ""}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.sheetFooter}>
+            <Button
+              variant="secondary"
+              text="Reset"
+              onPress={resetDateFilter}
+              style={styles.footerButton}
+            />
+            <Button
+              variant="primary"
+              text="Apply"
+              onPress={applyDateFilter}
+              style={styles.footerButton}
+            />
+          </View>
+        </View>
+      </BaseModal>
+
+      {/* Location picker modal */}
+      <BaseModal
+        visible={showLocationModal}
+        variant="bottomSheet"
+        animationType="slide"
+        shouldShowCloseIcon={false}
+        onClose={() => setShowLocationModal(false)}
+      >
+        <View style={styles.sheet}>
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>Select Location</Text>
+            <Pressable style={styles.closeButton} onPress={() => setShowLocationModal(false)}>
+              <CloseIcon width={20} height={20} fill={colors.onSurface} />
+            </Pressable>
+          </View>
+
+          <View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              initialRegion={mapRegion}
+              region={mapRegion}
+              onPress={handleMapPress}
+              onRegionChangeComplete={setMapRegion}
+            >
+              {draftLocation && (
+                <Marker
+                  coordinate={draftLocation}
+                  title="Selected area"
+                  description={`Events within ${MAP_FILTER_RADIUS_KM} km`}
+                />
+              )}
+            </MapView>
+            <View style={styles.mapHint}>
+              <LocationIcon width={16} height={16} fill={colors.onSurfaceVariant} />
+              <Text style={styles.mapHintText}>
+                Tap the map to filter nearby events
               </Text>
             </View>
-          ) : (
-            <View style={[styles.stackContainer, isWeb && styles.webStackContainer]}>
-              <View style={styles.cardArea}>{renderCards()}</View>
-              {!isWeb && currentIndex < displayEvents.length && (
-                <View style={styles.actionBar}>
-                  {/* Undo — go back */}
-                  <Button
-                    variant="secondary"
-                    icon={
-                      <Svg
-                        width={20}
-                        height={20}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <Path
-                          d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"
-                          fill={
-                            currentIndex > 0 ? colors.thunder : colors.aluminium
-                          }
-                        />
-                      </Svg>
-                    }
-                    onPress={() => {
-                      if (currentIndex > 0) swipeCard("right");
-                    }}
-                    disabled={currentIndex <= 0}
-                    style={[
-                      styles.actionButtonStyle,
-                      {
-                        width: 52,
-                        height: 52,
-                        borderRadius: radii.full,
-                        borderWidth: 1.5,
-                        backgroundColor: colors.white,
-                      },
-                    ]}
-                  />
+          </View>
 
-                  {/* Save / favorite */}
-                  <Button
-                    variant="secondary"
-                    icon={
-                      saving ? (
-                        <ActivityIndicator size="small" color={colors.deluge} />
-                      ) : (
-                        <HeartIcon
-                          width={22}
-                          height={22}
-                          stroke={colors.deluge}
-                          fill={isCurrentSaved ? colors.deluge : "none"}
-                        />
-                      )
-                    }
-                    onPress={handleSave}
-                    style={[
-                      styles.actionButtonStyle,
-                      {
-                        width: 60,
-                        height: 60,
-                        borderRadius: radii.full,
-                        borderWidth: 1.5,
-                        backgroundColor: colors.white,
-                      },
-                    ]}
-                  />
-
-                  {/* Forward — next card */}
-                  <Button
-                    variant="secondary"
-                    icon={
-                      <Svg
-                        width={18}
-                        height={18}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <Path
-                          d="M13.025 1l-2.847 2.828 6.176 6.176H0v3.992h16.354l-6.176 6.176L13.025 23 24 12z"
-                          fill={colors.white}
-                        />
-                      </Svg>
-                    }
-                    onPress={() => swipeCard("left")}
-                    style={[
-                      styles.actionButtonStyle,
-                      {
-                        width: 52,
-                        height: 52,
-                        borderRadius: radii.full,
-                        borderWidth: 0,
-                        elevation: 0,
-                        backgroundColor: colors.deluge,
-                      },
-                    ]}
-                  />
-                </View>
-              )}
-            </View>
-          )}
+          <View style={styles.sheetFooter}>
+            <Button
+              variant="secondary"
+              text="Reset"
+              onPress={resetLocationFilter}
+              style={styles.footerButton}
+            />
+            <Button
+              variant="primary"
+              text="Apply"
+              onPress={applyLocationFilter}
+              style={styles.footerButton}
+            />
+          </View>
         </View>
-      </Animated.ScrollView>
+      </BaseModal>
     </Layout>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  statusBarFill: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.deluge,
-    zIndex: 1,
-  },
-  header: {
+  searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.xl,
-    backgroundColor: "#F5F5F5",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    flex: 1,
-    fontFamily: typography.h3.fontFamily,
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
-    color: theme.text.primary,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 12,
+    backgroundColor: colors.surfaceContainer,
+    borderRadius: 24,
+    height: 48,
+    paddingHorizontal: 16,
+    marginHorizontal: 20,
+    marginTop: 12,
     gap: 10,
   },
-  webSearchRow: {
-    width: "100%",
-    maxWidth: 1200,
-    marginHorizontal: "auto",
-    paddingHorizontal: 32,
-    paddingBottom: 20,
+  searchPlaceholder: {
+    fontFamily: "Manrope",
+    fontSize: 14,
+    color: colors.aluminium,
   },
-  searchContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: radii.md,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  categoryScroll: {
+    marginTop: 16,
   },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: theme.text.primary,
-    fontFamily: typography.body.fontFamily,
-  },
-  filterButton: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.md,
-    backgroundColor: "#F5F5F5",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stackContainer: {
-    flex: 1,
-    alignItems: "center",
+  categoryContent: {
     paddingHorizontal: 20,
-  },
-  webStackContainer: {
-    width: "100%",
-    maxWidth: 1200,
-    marginHorizontal: "auto",
-    paddingHorizontal: 32,
-    paddingTop: 28,
-    paddingBottom: 48,
-  },
-  cardArea: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "stretch",
-    marginBottom: 20,
-  },
-  webGrid: {
-    width: "100%",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 20,
-  },
-  webGridItem: {
-    width: "31%",
-    minWidth: 280,
-    maxWidth: 360,
-  },
-  cardWrapper: {
-    position: "absolute",
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     gap: 8,
   },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: fontWeights.semibold,
-    color: theme.text.primary,
-    fontFamily: typography.h4.fontFamily,
+  filterScroll: {
+    marginTop: 12,
   },
-  emptySubtext: {
-    fontSize: 14,
-    color: theme.text.secondary,
-    fontFamily: typography.body.fontFamily,
+  filterContent: {
+    paddingHorizontal: 20,
+    gap: 10,
   },
-  resetButton: {
-    marginTop: 16,
-    backgroundColor: colors.deluge,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: radii.xl,
-  },
-  resetButtonText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.semibold,
-    color: colors.white,
-  },
-  actionBar: {
+  filterChip: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 24,
-    paddingBottom: 32,
+    height: 36,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    gap: 6,
   },
-  actionButtonStyle: {
-    padding: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+  filterChipActive: {
+    borderColor: colors.deluge,
+    backgroundColor: colors.ube50,
+  },
+  filterChipText: {
+    fontFamily: "Manrope",
+    fontSize: 13,
+    color: colors.black,
+  },
+  filterChipTextActive: {
+    color: colors.deluge,
+  },
+  skeleton: {
+    backgroundColor: colors.surfaceContainerHighest,
+    borderRadius: 16,
+    opacity: 0.6,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  emptyTitle: {
+    fontFamily: "PlusJakartaSans-Bold",
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.black,
+    marginTop: 16,
+  },
+  emptyBody: {
+    fontFamily: "Manrope",
+    fontSize: 14,
+    color: colors.aluminium,
+    textAlign: "center",
+    marginTop: 8,
+  },
+  clearButton: {
+    marginTop: 20,
+  },
+  sheet: {
+    maxHeight: 620,
+  },
+  sheetHeader: {
+    minHeight: 56,
+    paddingHorizontal: 24,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.outlineVariant,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  sheetTitle: {
+    fontFamily: "PlusJakartaSans-Bold",
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.onSurface,
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surfaceContainerLow,
+  },
+  calendar: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+  },
+  calendarHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  calendarTitle: {
+    fontFamily: "PlusJakartaSans-Bold",
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.onSurface,
+  },
+  calendarNav: {
+    flexDirection: "row",
+    gap: 14,
+  },
+  navButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navText: {
+    fontFamily: "PlusJakartaSans-Bold",
+    fontSize: 28,
+    color: colors.deluge,
+    lineHeight: 30,
+  },
+  weekdays: {
+    flexDirection: "row",
+    marginBottom: 6,
+  },
+  weekday: {
+    flex: 1,
+    textAlign: "center",
+    fontFamily: "PlusJakartaSans-Bold",
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.onSurfaceVariant,
+  },
+  calendarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  day: {
+    width: `${100 / 7}%`,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+  },
+  daySelected: {
+    backgroundColor: colors.deluge,
+  },
+  dayText: {
+    fontFamily: "Plus Jakarta Sans",
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.onSurface,
+  },
+  dayTextSelected: {
+    fontWeight: "700",
+    color: colors.white,
+  },
+  mapContainer: {
+    minHeight: 300,
+    marginHorizontal: 24,
+    marginVertical: 20,
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  mapHint: {
+    position: "absolute",
+    left: 14,
+    right: 14,
+    bottom: 14,
+    minHeight: 38,
+    paddingHorizontal: 12,
+    borderRadius: 19,
+    backgroundColor: colors.white,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  mapHintText: {
+    fontFamily: "Plus Jakarta Sans",
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.onSurfaceVariant,
+    flexShrink: 1,
+  },
+  sheetFooter: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: colors.outlineVariant,
+    flexDirection: "row",
+    gap: 12,
+  },
+  footerButton: {
+    flex: 1,
   },
 });
 
