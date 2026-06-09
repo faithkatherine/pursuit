@@ -9,31 +9,26 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-
 import DiscoverIcon from "assets/icons/begin_journey.svg";
 import PlansIcon from "assets/icons/plans.svg";
 import GroupIcon from "assets/icons/group_chat.svg";
 import ProfileIcon from "assets/icons/travel_explore.svg";
-import colors from "themes/tokens/colors";
-
 const PHONE_WEB_BREAKPOINT = 768;
 const TABLET_WEB_BREAKPOINT = 1200;
-const WEB_CONTENT_MAX_WIDTH = 1280;
-const WEB_NAV_HEIGHT = 80;
+const WEB_CONTENT_MAX_WIDTH = 1200;
+const WEB_NAV_HEIGHT = 64;
 const stickyPosition = "sticky" as ViewStyle["position"];
 
 const getWebPadding = (width: number) => {
   if (width < PHONE_WEB_BREAKPOINT) return 20;
-  if (width < TABLET_WEB_BREAKPOINT) return 40;
-  return 80;
+  return 24;
 };
 
 const getDesktopLabel = (routeName: string, fallback: string) => {
   if (routeName === "index") return "Discover";
   if (routeName === "plans") return "Plans";
-  if (routeName === "group_plans") return "Inbox";
-  if (routeName === "profile") return "Me";
+  if (routeName === "explore") return "Group";
+  if (routeName === "profile") return "Profile";
   return fallback;
 };
 
@@ -44,7 +39,7 @@ const DesktopTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) =>
   return (
     <View style={styles.webNavShell}>
       <View style={[styles.webNavInner, { paddingHorizontal: horizontalPadding }]}>
-        <Text style={styles.webBrand}>Pursuit</Text>
+        <Text style={styles.webBrand}>PURSUIT</Text>
         <View style={styles.webNavLinks}>
           {state.routes.map((route, index) => {
             const options = descriptors[route.key]?.options;
@@ -81,8 +76,11 @@ const DesktopTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) =>
           })}
         </View>
         <View style={styles.webNavActions}>
-          <Pressable style={styles.webIconButton} accessibilityLabel="Search">
-            <Ionicons name="search" size={20} color={WEB_COLORS.primary} />
+          <Pressable style={styles.webSearchPill} accessibilityLabel="Search Pursuit">
+            <Text style={styles.webSearchIcon}>🔍</Text>
+            {width >= TABLET_WEB_BREAKPOINT && (
+              <Text style={styles.webSearchText}>Search events, venues...</Text>
+            )}
           </Pressable>
           <Pressable style={styles.webAvatar} accessibilityLabel="Profile">
             <Text style={styles.webAvatarText}>F</Text>
@@ -114,12 +112,12 @@ const TabScreens = () => (
       }}
     />
     <Tabs.Screen
-      name="group_plans"
+      name="explore"
       options={{
         tabBarIcon: ({ color }) => (
           <GroupIcon fill={color} width={24} height={24} />
         ),
-        tabBarLabel: "Group Plans",
+        tabBarLabel: "Group",
       }}
     />
     <Tabs.Screen
@@ -138,7 +136,6 @@ const WebTabLayout = () => {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isPhoneWeb = width < PHONE_WEB_BREAKPOINT;
-  const horizontalPadding = getWebPadding(width);
 
   if (isPhoneWeb) {
     return (
@@ -149,8 +146,8 @@ const WebTabLayout = () => {
             ...styles.tabBarStyle,
             paddingBottom: insets.bottom + 20,
           },
-          tabBarActiveTintColor: colors.lightBlue,
-          tabBarInactiveTintColor: colors.graniteGray,
+          tabBarActiveTintColor: PURSUIT.purple,
+          tabBarInactiveTintColor: PURSUIT.textMuted,
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: "500",
@@ -170,13 +167,10 @@ const WebTabLayout = () => {
         sceneStyle: {
           ...styles.webScene,
           paddingTop: WEB_NAV_HEIGHT,
-          maxWidth: WEB_CONTENT_MAX_WIDTH,
-          marginHorizontal: "auto",
-          paddingHorizontal: horizontalPadding,
           width: "100%",
         },
-        tabBarActiveTintColor: colors.lightBlue,
-        tabBarInactiveTintColor: colors.graniteGray,
+        tabBarActiveTintColor: PURSUIT.purple,
+        tabBarInactiveTintColor: PURSUIT.textMuted,
       }}
     >
       <TabScreens />
@@ -184,107 +178,120 @@ const WebTabLayout = () => {
   );
 };
 
-const WEB_COLORS = {
-  primary: "#665382",
-  background: "#fcf9f6",
-  surfaceLow: "#f6f3f0",
-  onSurfaceVariant: "#4a454e",
-  outlineVariant: "#cbc4cf",
+const PURSUIT = {
+  purple: "#7C5C9C",
+  warmBg: "#FCF9F6",
+  textPrimary: "#1A1A2E",
+  textMuted: "#8A7F7A",
+  border: "#E0D5CC",
+  white: "#FFFFFF",
 };
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: colors.white,
+    backgroundColor: PURSUIT.white,
     borderTopWidth: 0,
     paddingTop: 5,
     elevation: 0,
   },
   webScene: {
-    backgroundColor: WEB_COLORS.background,
+    backgroundColor: PURSUIT.warmBg,
   },
   webNavShell: {
     position: stickyPosition,
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 20,
+    zIndex: 100,
     height: WEB_NAV_HEIGHT,
-    backgroundColor: WEB_COLORS.background,
+    width: "100%",
+    backgroundColor: PURSUIT.white,
     borderBottomWidth: 1,
-    borderBottomColor: WEB_COLORS.outlineVariant,
-    shadowColor: WEB_COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
+    borderBottomColor: PURSUIT.border,
   },
   webNavInner: {
     width: "100%",
     maxWidth: WEB_CONTENT_MAX_WIDTH,
     marginHorizontal: "auto",
-    minHeight: WEB_NAV_HEIGHT,
+    height: WEB_NAV_HEIGHT,
     flexDirection: "row",
     alignItems: "center",
-    gap: 36,
+    gap: 28,
   },
   webBrand: {
-    fontFamily: "Plus Jakarta Sans",
-    fontSize: 24,
-    fontWeight: "700",
-    color: WEB_COLORS.primary,
-    letterSpacing: -0.5,
+    fontFamily: "Work Sans",
+    fontSize: 18,
+    fontWeight: "800",
+    color: PURSUIT.purple,
+    letterSpacing: 3,
   },
   webNavLinks: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 28,
+    justifyContent: "center",
+    gap: 8,
     flex: 1,
   },
   webNavLink: {
-    minHeight: WEB_NAV_HEIGHT,
-    paddingHorizontal: 2,
-    paddingTop: 30,
-    borderBottomWidth: 2,
-    borderBottomColor: "transparent",
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   webNavLinkActive: {
-    borderBottomColor: WEB_COLORS.primary,
+    backgroundColor: PURSUIT.purple,
   },
   webNavLinkText: {
-    fontFamily: "Manrope",
-    fontSize: 15,
-    fontWeight: "500",
-    color: WEB_COLORS.onSurfaceVariant,
+    fontFamily: "Work Sans",
+    fontSize: 14,
+    fontWeight: "600",
+    color: PURSUIT.textPrimary,
   },
   webNavLinkTextActive: {
-    color: WEB_COLORS.primary,
-    fontWeight: "700",
+    color: PURSUIT.white,
   },
   webNavActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 12,
   },
-  webIconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  webSearchPill: {
+    minWidth: 40,
+    height: 36,
+    paddingHorizontal: 16,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: WEB_COLORS.surfaceLow,
+    flexDirection: "row",
+    gap: 8,
+    backgroundColor: PURSUIT.white,
+    borderWidth: 1,
+    borderColor: PURSUIT.border,
+  },
+  webSearchIcon: {
+    fontFamily: "Work Sans",
+    fontSize: 13,
+    color: PURSUIT.textMuted,
+    lineHeight: 20,
+  },
+  webSearchText: {
+    fontFamily: "Work Sans",
+    fontSize: 13,
+    fontWeight: "400",
+    color: PURSUIT.textMuted,
   },
   webAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: WEB_COLORS.primary,
+    backgroundColor: PURSUIT.purple,
   },
   webAvatarText: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "Work Sans",
     fontSize: 14,
     fontWeight: "700",
-    color: colors.white,
+    color: PURSUIT.white,
   },
 });
 
