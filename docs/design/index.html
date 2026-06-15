@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pursuit — Web Design System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #FCF9F6;
+      color: #1A1A2E;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+    }
+
+    .wordmark {
+      font-family: 'Georgia', serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #7C5C9C;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 12px;
+      line-height: 1.1;
+    }
+
+    .tagline {
+      font-size: 17px;
+      color: #6B7280;
+      font-style: italic;
+      margin-bottom: 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 860px;
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 28px 24px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(124, 92, 156, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .card-tag {
+      font-size: 10px;
+      font-family: 'Arial', sans-serif;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #7C5C9C;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 8px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.5;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .arrow {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #7C5C9C;
+      font-family: 'Arial', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .footer {
+      margin-top: 64px;
+      font-size: 12px;
+      color: #9CA3AF;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #7C5C9C;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wordmark">Pursuit</div>
+  <h1>Web Design System</h1>
+  <p class="tagline">Nairobi's event discovery platform — design reference</p>
+
+  <div class="grid">
+    <a class="card" href="Pursuit%20Home.html">
+      <div class="card-tag">Screen</div>
+      <div class="card-title">Home — Discover</div>
+      <div class="card-desc">Unified discovery feed with editorial picks, category filters, and personalised greeting.</div>
+      <span class="arrow">View screen →</span>
+    </a>
+
+    <a class="card" href="Pursuit%20Web%20Designs.html">
+      <div class="card-tag">Design System</div>
+      <div class="card-title">Web Designs</div>
+      <div class="card-desc">Full component library and screen designs across the six core flows.</div>
+      <span class="arrow">View designs →</span>
+    </a>
+
+    <a class="card" href="Pursuit%20Web%20Playbook.html">
+      <div class="card-tag">Reference</div>
+      <div class="card-title">Web Playbook</div>
+      <div class="card-desc">Design tokens, typography, colour system, and layout guidelines.</div>
+      <span class="arrow">View playbook →</span>
+    </a>
+
+    <a class="card" href="Pursuit%20Buttons.html">
+      <div class="card-tag">Components</div>
+      <div class="card-title">Buttons & UI</div>
+      <div class="card-desc">Interactive component states, button variants, and input patterns.</div>
+      <span class="arrow">View components →</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    Built by <a href="https://faithkatherine.github.io/Portfolio" target="_blank">Faith Catherine Otieno</a>
+    &nbsp;·&nbsp; Pursuit HQ, Nairobi
+  </div>
+
+</body>
+</html>
