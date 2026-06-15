@@ -1,3 +1,6 @@
+const googleMapsApiKey =
+  process.env.GOOGLE_MAPS_API_KEY || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
 module.exports = {
   expo: {
     name: "pursuit",
@@ -33,6 +36,11 @@ module.exports = {
       edgeToEdgeEnabled: true,
       package: "com.pursuit.app",
       permissions: ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      config: {
+        googleMaps: {
+          apiKey: googleMapsApiKey,
+        },
+      },
       intentFilters: [
         {
           action: "VIEW",

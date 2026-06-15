@@ -60,6 +60,17 @@ export const colors = {
   primaryFixed: "rgb(236, 220, 255)",
   tertiary: "rgb(145, 70, 58)",
   success: "rgb(45, 106, 79)",
+  pursuitPurple: "#7C5C9C",
+  pursuitRose: "#E8B5B0",
+  pursuitSage: "#B8C9A8",
+  pursuitWarmBg: "#FCF9F6",
+  pursuitMist: "#EDE8F5",
+  pursuitPaleRose: "rgba(232,181,176,0.18)",
+  pursuitRoseBand: "#F5EDE8",
+  pursuitPlansBg: "#F8F5F2",
+  pursuitTextPrimary: "#1A1A2E",
+  pursuitTextMuted: "#8A7F7A",
+  pursuitBorder: "#E0D5CC",
 } as const;
 
 // Semantic color names for easier usage

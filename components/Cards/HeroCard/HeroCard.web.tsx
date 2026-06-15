@@ -2,6 +2,29 @@ import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { formatEventDate } from "utils/date";
+import { colors } from "themes/tokens/colors";
+import { webTypography } from "themes/tokens/typography";
+
+// ─── Layout constants ──────────────────────────────────────────────────────
+const MAX_CONTENT_WIDTH = 1200;
+const CONTENT_PADDING_H = 24;
+const BREAKPOINT_TABLET = 768;
+const BREAKPOINT_DESKTOP = 1024;
+const HERO_HEIGHT = 390;
+const CARD_RADIUS = 12;
+const OVERLAY_PADDING = 24;
+const CONTENT_GAP = 16;
+const BADGE_RADIUS = 999;
+const BADGE_PADDING_H = 12;
+const BADGE_PADDING_V = 6;
+const BADGE_FONT_SIZE = 12;
+const DATE_FONT_SIZE = 13;
+const TITLE_FONT_SIZE = 28;
+const TITLE_LINE_HEIGHT = 35;
+const LOCATION_FONT_SIZE = 14;
+const CTA_PADDING_H = 16;
+const CTA_PADDING_V = 9;
+// ──────────────────────────────────────────────────────────────────────────
 
 export interface HeroCardData {
   id: string;
@@ -20,12 +43,6 @@ interface HeroCardProps {
   onPress: () => void;
   isEditorsPick?: boolean;
 }
-
-const PURSUIT = {
-  purple: "#7C5C9C",
-  mist: "#EDE8F5",
-  white: "#FFFFFF",
-};
 
 const formatDate = (date: string): string => {
   const formatted = formatEventDate(date, {
@@ -46,7 +63,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
       <Image source={{ uri: trip.coverImage }} style={styles.image} resizeMode="cover" />
     ) : (
       <LinearGradient
-        colors={[PURSUIT.purple, "#E8B5B0"]}
+        colors={[colors.pursuitPurple, colors.pursuitRose]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.image}
@@ -82,10 +99,10 @@ export const HeroCard: React.FC<HeroCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: 420,
-    borderRadius: 16,
+    height: HERO_HEIGHT,
+    borderRadius: CARD_RADIUS,
     overflow: "hidden",
-    backgroundColor: PURSUIT.mist,
+    backgroundColor: colors.pursuitMist,
   },
   image: {
     width: "100%",
@@ -94,62 +111,62 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "space-between",
-    padding: 20,
+    padding: OVERLAY_PADDING,
   },
   topRow: {
     flexDirection: "row",
   },
   badge: {
     overflow: "hidden",
-    borderRadius: 999,
+    borderRadius: BADGE_RADIUS,
     backgroundColor: "rgba(255,255,255,0.9)",
-    color: PURSUIT.purple,
-    fontFamily: "Work Sans",
-    fontSize: 12,
-    fontWeight: "600",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    color: colors.pursuitPurple,
+    fontFamily: webTypography.label.fontFamily,
+    fontSize: BADGE_FONT_SIZE,
+    fontWeight: webTypography.label.fontWeight,
+    paddingHorizontal: BADGE_PADDING_H,
+    paddingVertical: BADGE_PADDING_V,
   },
   bottomRow: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
-    gap: 16,
+    gap: CONTENT_GAP,
   },
   copy: {
     flex: 1,
     minWidth: 0,
   },
   date: {
-    fontFamily: "Work Sans",
-    fontSize: 13,
-    fontWeight: "600",
+    fontFamily: webTypography.label.fontFamily,
+    fontSize: DATE_FONT_SIZE,
+    fontWeight: webTypography.label.fontWeight,
     color: "rgba(255,255,255,0.78)",
-    marginBottom: 6,
+    marginBottom: BADGE_PADDING_V,
   },
   title: {
-    fontFamily: "Poppins",
-    fontSize: 24,
-    fontWeight: "700",
-    lineHeight: 31,
-    color: PURSUIT.white,
+    fontFamily: webTypography.heading.fontFamily,
+    fontSize: TITLE_FONT_SIZE,
+    fontWeight: webTypography.heading.fontWeight,
+    lineHeight: TITLE_LINE_HEIGHT,
+    color: colors.white,
   },
   location: {
-    marginTop: 6,
-    fontFamily: "Work Sans",
-    fontSize: 14,
+    marginTop: BADGE_PADDING_V,
+    fontFamily: webTypography.body.fontFamily,
+    fontSize: LOCATION_FONT_SIZE,
     color: "rgba(255,255,255,0.78)",
   },
   cta: {
-    borderRadius: 999,
-    backgroundColor: PURSUIT.white,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
+    borderRadius: BADGE_RADIUS,
+    backgroundColor: colors.white,
+    paddingHorizontal: CTA_PADDING_H,
+    paddingVertical: CTA_PADDING_V,
   },
   ctaText: {
-    fontFamily: "Work Sans",
-    fontSize: 13,
-    fontWeight: "600",
-    color: PURSUIT.purple,
+    fontFamily: webTypography.label.fontFamily,
+    fontSize: DATE_FONT_SIZE,
+    fontWeight: webTypography.label.fontWeight,
+    color: colors.pursuitPurple,
   },
 });

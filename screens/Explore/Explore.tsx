@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from "react-native";
 import { useRouter } from "expo-router";
 import MapView, { Marker, type MapPressEvent, type Region } from "react-native-maps";
 import Svg, { Path } from "react-native-svg";
@@ -72,6 +72,7 @@ export const Explore = () => {
   const router = useRouter();
 
   // Filter state
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [locationFilter, setLocationFilter] = useState<{
@@ -93,6 +94,7 @@ export const Explore = () => {
 
   // Fetch events with location filter
   const { events, loading, error } = useEvents({
+    search: searchQuery.trim() || undefined,
     latitude: locationFilter?.latitude,
     longitude: locationFilter?.longitude,
     radiusKm: locationFilter ? MAP_FILTER_RADIUS_KM : undefined,
@@ -109,7 +111,7 @@ export const Explore = () => {
   );
   const calendarTitle = getMonthTitle(calendarMonth);
 
-  // Apply filters
+  // Apply filters (search is handled by backend query)
   const filteredEvents = useMemo(() => {
     if (!events) return [];
     let filtered = filterByCategory(events, selectedCategory);
@@ -128,10 +130,14 @@ export const Explore = () => {
   );
 
   const hasActiveFilters =
-    selectedCategory !== "All" || selectedDate !== null || locationFilter !== null;
+    searchQuery.trim() !== "" ||
+    selectedCategory !== "All" ||
+    selectedDate !== null ||
+    locationFilter !== null;
 
   // Handlers
   const clearFilters = () => {
+    setSearchQuery("");
     setSelectedCategory("All");
     setSelectedDate(null);
     setLocationFilter(null);
@@ -199,15 +205,19 @@ export const Explore = () => {
     <Layout backgroundColor={colors.ghostWhite} shouldShowTopInset={true}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Search bar */}
-        <Pressable
-          style={styles.searchBar}
-          onPress={() => router.push("/search" as any)}
-        >
+        <View style={styles.searchBar}>
           <SearchIcon />
-          <Text style={styles.searchPlaceholder}>
-            Search events, venues, neighbourhoods...
-          </Text>
-        </Pressable>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search events, venues, neighbourhoods..."
+            placeholderTextColor={colors.aluminium}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
 
         {/* Category filter chips */}
         <ScrollView
@@ -464,10 +474,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
     gap: 10,
   },
-  searchPlaceholder: {
+  searchInput: {
+    flex: 1,
     fontFamily: "Manrope",
     fontSize: 14,
-    color: colors.aluminium,
+    color: colors.onSurface,
+    height: "100%",
   },
   categoryScroll: {
     marginTop: 16,

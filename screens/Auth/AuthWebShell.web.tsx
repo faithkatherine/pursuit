@@ -1,14 +1,28 @@
 import { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "themes/tokens/colors";
+import { webTypography } from "themes/tokens/typography";
 
-const PURSUIT = {
-  purple: "#7C5C9C",
-  rose: "#E8B5B0",
-  textPrimary: "#1A1A2E",
-  textMuted: "#8A7F7A",
-  white: "#FFFFFF",
-};
+// ─── Layout constants ──────────────────────────────────────────────────────
+const CONTENT_PADDING_H = 24;
+const FULL_VIEWPORT_HEIGHT = "100vh" as never;
+const PANEL_WIDTH = "50%";
+const LEFT_PANEL_PADDING = 56;
+const RIGHT_PANEL_PADDING = 40;
+const BRAND_TOP = 40;
+const FORM_MAX_WIDTH = 380;
+const EDITORIAL_MAX_WIDTH = 520;
+const BRAND_SIZE = 18;
+const FORM_BRAND_SIZE = 16;
+const WORDMARK_TRACKING = 3;
+const EDITORIAL_TITLE_SIZE = 48;
+const EDITORIAL_TITLE_LINE_HEIGHT = 56;
+const EDITORIAL_SUBTITLE_SIZE = 17;
+const EDITORIAL_SUBTITLE_LINE_HEIGHT = 26;
+const PANEL_TITLE_SIZE = 30;
+const STACK_GAP = 16;
+// ──────────────────────────────────────────────────────────────────────────
 
 interface AuthWebShellProps {
   title: string;
@@ -25,7 +39,7 @@ export const AuthWebShell = ({
 }: AuthWebShellProps) => (
   <View style={styles.page}>
     <LinearGradient
-      colors={[PURSUIT.purple, PURSUIT.rose]}
+      colors={[colors.pursuitPurple, colors.pursuitRose]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.leftPanel}
@@ -50,72 +64,72 @@ export const AuthWebShell = ({
 const styles = StyleSheet.create({
   page: {
     width: "100%",
-    minHeight: "100vh" as never,
+    minHeight: FULL_VIEWPORT_HEIGHT,
     flexDirection: "row",
-    backgroundColor: PURSUIT.white,
+    backgroundColor: colors.white,
   },
   leftPanel: {
-    width: "50%",
-    minHeight: "100vh" as never,
+    width: PANEL_WIDTH,
+    minHeight: FULL_VIEWPORT_HEIGHT,
     justifyContent: "center",
-    padding: 56,
+    padding: LEFT_PANEL_PADDING,
   },
   rightPanel: {
-    width: "50%",
-    minHeight: "100vh" as never,
+    width: PANEL_WIDTH,
+    minHeight: FULL_VIEWPORT_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: PURSUIT.white,
-    padding: 40,
+    backgroundColor: colors.white,
+    padding: RIGHT_PANEL_PADDING,
   },
   brand: {
     position: "absolute",
-    top: 40,
-    left: 56,
-    fontFamily: "Work Sans",
-    fontSize: 18,
-    fontWeight: "800",
-    letterSpacing: 3,
-    color: PURSUIT.white,
+    top: BRAND_TOP,
+    left: LEFT_PANEL_PADDING,
+    fontFamily: webTypography.wordmark.fontFamily,
+    fontSize: BRAND_SIZE,
+    fontWeight: webTypography.wordmark.fontWeight,
+    letterSpacing: WORDMARK_TRACKING,
+    color: colors.white,
   },
   editorialCopy: {
-    maxWidth: 520,
+    maxWidth: EDITORIAL_MAX_WIDTH,
   },
   editorialTitle: {
-    fontFamily: "Poppins",
-    fontSize: 48,
-    fontWeight: "700",
-    lineHeight: 56,
-    color: PURSUIT.white,
+    fontFamily: webTypography.heading.fontFamily,
+    fontSize: EDITORIAL_TITLE_SIZE,
+    fontWeight: webTypography.heading.fontWeight,
+    lineHeight: EDITORIAL_TITLE_LINE_HEIGHT,
+    color: colors.white,
   },
   editorialSubtitle: {
-    marginTop: 16,
-    fontFamily: "Work Sans",
-    fontSize: 17,
-    fontWeight: "400",
-    lineHeight: 26,
+    marginTop: STACK_GAP,
+    fontFamily: webTypography.body.fontFamily,
+    fontSize: EDITORIAL_SUBTITLE_SIZE,
+    fontWeight: webTypography.body.fontWeight,
+    lineHeight: EDITORIAL_SUBTITLE_LINE_HEIGHT,
     color: "rgba(255,255,255,0.86)",
   },
   formInner: {
     width: "100%",
-    maxWidth: 380,
+    maxWidth: FORM_MAX_WIDTH,
   },
   formBrand: {
-    fontFamily: "Work Sans",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 3,
-    color: PURSUIT.purple,
-    marginBottom: 24,
+    fontFamily: webTypography.wordmark.fontFamily,
+    fontSize: FORM_BRAND_SIZE,
+    fontWeight: webTypography.wordmark.fontWeight,
+    letterSpacing: WORDMARK_TRACKING,
+    color: colors.pursuitPurple,
+    marginBottom: CONTENT_PADDING_H,
   },
   panelTitle: {
-    fontFamily: "Poppins",
-    fontSize: 30,
-    fontWeight: "700",
-    color: PURSUIT.textPrimary,
-    marginBottom: 24,
+    fontFamily: webTypography.heading.fontFamily,
+    fontSize: PANEL_TITLE_SIZE,
+    fontWeight: webTypography.heading.fontWeight,
+    color: colors.pursuitTextPrimary,
+    marginBottom: CONTENT_PADDING_H,
   },
   formStack: {
-    gap: 16,
+    gap: STACK_GAP,
   },
 });

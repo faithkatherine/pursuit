@@ -1,0 +1,525 @@
+<!doctype html>
+<!-- @startingPoint section="Web product" subtitle="Pursuit web — all 22 screens, desktop + mobile, hero five at full polish" viewport="1920x1080" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Pursuit Web — Designs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="web/web-shell.css" />
+<link rel="stylesheet" href="web/screens.css" />
+</head>
+<body>
+
+<div id="root"></div>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="22" fill="rgb(252, 249, 246)"/>
+    <rect x="14" y="22" width="48" height="56" rx="6" fill="rgb(124, 92, 156)"/>
+    <rect x="66" y="22" width="20" height="56" rx="4" fill="rgb(232, 181, 176)"/>
+    <text x="50" y="93" font-family="Work Sans, sans-serif" font-size="9" font-weight="800" letter-spacing="0.8" fill="rgb(124,92,156)" text-anchor="middle">PURSUIT</text>
+  </svg>
+</template>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="web/Components.jsx"></script>
+<script type="text/babel" src="web/Discover.jsx"></script>
+<script type="text/babel" src="web/Event.jsx"></script>
+<script type="text/babel" src="web/Onboarding.jsx"></script>
+<script type="text/babel" src="web/Plans.jsx"></script>
+<script type="text/babel" src="web/Stubs.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+function SideNav() {
+  const sections = [
+    { id: "auth",       no: "01", title: "Auth",        items: [["1.1", "Splash"], ["1.2", "Sign In"], ["1.3", "Sign Up"]] },
+    { id: "onboarding", no: "02", title: "Onboarding",  items: [["2.1", "Interests"], ["2.2", "Location"], ["2.3", "Notifications"], ["2.4", "Welcome"]] },
+    { id: "discovery",  no: "03", title: "Discovery",   items: [["3.1", "Discover · A"], ["3.2", "Discover · B"], ["3.3", "Discover · C"], ["3.4", "Explore"], ["3.5", "Search"], ["3.6", "Category"]] },
+    { id: "events",     no: "04", title: "Events",      items: [["4.1", "Event Detail · A"], ["4.2", "Event Detail · B"], ["4.3", "Event Detail · C"], ["4.4", "Checkout"], ["4.5", "Confirmation"]] },
+    { id: "plans",      no: "05", title: "Plans",       items: [["5.1", "Plans"], ["5.2", "Group Plans"]] },
+    { id: "profile",    no: "06", title: "Profile",     items: [["6.1", "Profile"], ["6.2", "Saved"], ["6.3", "Inbox"], ["6.4", "Settings"]] },
+    { id: "utility",    no: "07", title: "Utility",     items: [["7.1", "Organizer"], ["7.2", "404"], ["7.3", "Empty states"]] },
+  ];
+  return (
+    <nav className="docnav">
+      <h1 className="docnav__brand">Pursuit<small>Web · Designs</small></h1>
+      <p style={{fontFamily: "var(--font-secondary)", fontSize: 12, color: "var(--web-ink-2)", lineHeight: 1.5, margin: "16px 0 0"}}>
+        22 screens across 7 flows. Hero five at full polish: Discover (× 3), Event Detail (× 3), Checkout, Onboarding, Plans. Mobile responsive side by side.
+      </p>
+      {sections.map(s => (
+        <div key={s.id}>
+          <p className="docnav__sec">{s.no} · {s.title}</p>
+          <ul className="docnav__list">
+            {s.items.map(([ix, name]) => (
+              <li key={ix}><a href={"#" + s.id + "-" + ix.replace(".", "-")}><span className="ix">{ix}</span>{name}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+      <div className="docnav__cred">
+        Brand source: <a href="Pursuit Web Playbook.html" style={{color: "var(--deluge)"}}>web playbook</a> · <a href="Pursuit UI Kit (standalone).html" style={{color: "var(--deluge)"}}>mobile UI kit</a>. Imagery: Unsplash hotlinks (event photos) + project onboarding stock.
+      </div>
+    </nav>
+  );
+}
+
+/* ============================================================
+   Flow sections
+   ============================================================ */
+
+function FlowAuth() {
+  return (
+    <section className="flow" id="auth">
+      <FlowHeader num="01 · Auth" title="Get in." em="Or back in." desc="One photo panel, one form. Reuses mobile inputs/buttons; the desktop split-screen panel is the only net-new web piece." />
+
+      <div id="auth-1-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="1.1 · Splash" note="Editorial hero — sets the brand voice">
+          <SplashDesk />
+        </Frame>
+        <Frame kind="mob" name="1.1 · Splash · mobile">
+          <SplashMobile />
+        </Frame>
+      </FrameSet>
+
+      <div id="auth-1-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="1.2 · Sign In" note="Split-screen pattern — same form components as mobile">
+          <SignIn />
+        </Frame>
+        <Frame kind="mob" name="1.2 · Sign In · mobile">
+          <SignInMobile />
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "reuse", text: "Inputs + Auth button" },
+        { kind: "reuse", text: "Google sign-in" },
+        { kind: "new", text: "Split-screen photo panel" },
+        { kind: "new", text: "Magic link option" },
+      ]} />
+
+      <div id="auth-1-3"></div>
+      <FrameSet>
+        <Frame kind="desk" name="1.3 · Sign Up" note="Same shell as Sign In, one extra field">
+          <SignUp />
+        </Frame>
+        <Frame kind="mob" name="1.3 · Sign Up · mobile">
+          <SignUpMobile />
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function FlowOnboarding() {
+  return (
+    <section className="flow" id="onboarding">
+      <FlowHeader num="02 · Onboarding" title="The first five" em="minutes." desc="Glass-sheet pattern from mobile, opened up on desktop with the photo as a side panel. Interests grid is the same category color band system, enlarged." />
+
+      <div id="onboarding-2-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="2.1 · Interests" note="Step 1 — three or more">
+          <OnbInterests />
+        </Frame>
+        <Frame kind="mob" name="2.1 · Interests · mobile">
+          <OnbInterestsMobile />
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "reuse", text: "Interest pill (enlarged)" },
+        { kind: "reuse", text: "Category color band" },
+        { kind: "new", text: "3-col grid" },
+        { kind: "new", text: "Web progress dots" },
+      ]} />
+
+      <div id="onboarding-2-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="2.2 · Location" note="Step 2 — neighborhoods, not a map pin">
+          <OnbLocation />
+        </Frame>
+        <Frame kind="mob" name="2.2 · Location · mobile" stubTag="Adapted from mobile">
+          <div className="web web--mob">
+            <header className="pnav pnav--mob" style={{background: "transparent", borderBottom: "none"}}>
+              <div className="pnav__in" style={{padding: "0 20px"}}>
+                <span className="pnav__brand">Pursuit</span>
+                <span style={{marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--web-ink-3)"}}>Step 2 of 3</span>
+              </div>
+            </header>
+            <main style={{padding: "16px 20px"}}>
+              <div className="ob-progress" style={{margin: 0}}>
+                <div className="ob-progress__dot is-on"></div>
+                <div className="ob-progress__dot is-on"></div>
+                <div className="ob-progress__dot"></div>
+              </div>
+              <p className="kicker" style={{fontSize: 10, marginTop: 16}}>Where do you spend your week?</p>
+              <h1 style={{fontFamily: "var(--font-primary)", fontSize: 26, fontWeight: 800, letterSpacing: "-0.025em", margin: "4px 0 14px"}}>Pick your <em style={{fontFamily: "var(--font-editorial)", fontStyle: "italic", color: "var(--deluge)", fontWeight: 400}}>neighborhoods.</em></h1>
+              <div className="ob-loc-list" style={{marginTop: 8}}>
+                {[
+                  { name: "Westlands", sub: "Bars, brunch, nightlife", on: true },
+                  { name: "Kilimani", sub: "Cafés, galleries",  on: true },
+                  { name: "Karen", sub: "Gardens, weekends", on: false },
+                  { name: "Lavington", sub: "Quiet, food", on: false },
+                  { name: "CBD", sub: "Theatre, markets", on: false },
+                ].map(n => (
+                  <div key={n.name} className={"ob-loc-row" + (n.on ? " is-on" : "")} style={{padding: "12px 14px"}}>
+                    <div className="ob-loc-row__pin" style={{width: 32, height: 32}}><Icon name="pin" size={16} /></div>
+                    <div>
+                      <div className="ob-loc-row__name">{n.name}</div>
+                      <div className="ob-loc-row__sub">{n.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button className="btn btn--primary btn--lg btn--block" style={{marginTop: 22}}>Continue</button>
+            </main>
+          </div>
+        </Frame>
+      </FrameSet>
+
+      <div id="onboarding-2-3"></div>
+      <FrameSet>
+        <Frame kind="desk" name="2.3 · Notifications" note="New for web v1 — toggles with editorial copy">
+          <OnbNotifications />
+        </Frame>
+        <Frame kind="mob" name="2.3 · Notifications · mobile" stubTag="Same toggles, single column">
+          <div className="web web--mob">
+            <main style={{padding: "20px 20px 40px"}}>
+              <p className="kicker" style={{fontSize: 10}}>Step 3 of 3 · Stay in the loop</p>
+              <h1 style={{fontFamily: "var(--font-primary)", fontSize: 26, fontWeight: 800, letterSpacing: "-0.025em", margin: "6px 0 8px"}}>Be first to know when <em style={{fontFamily: "var(--font-editorial)", fontStyle: "italic", color: "var(--deluge)", fontWeight: 400}}>B&W</em> drops.</h1>
+              <p style={{fontSize: 13, color: "var(--web-ink-2)", marginBottom: 18}}>Only events that match. No daily summaries.</p>
+              <div className="ob-notif-list">
+                {[
+                  { icon: "ticket", h: "New events in your areas", p: "Roughly 2-3 a week.", on: true },
+                  { icon: "calendar", h: "Plan reminders", p: "The morning of an event.", on: true },
+                  { icon: "users", h: "Group activity", p: "Friend invites and votes.", on: false },
+                  { icon: "mail", h: "Saturday Brief", p: "Editorial dispatch every Friday.", on: true },
+                ].map((n, i) => (
+                  <div key={i} className="ob-notif" style={{padding: "14px 16px"}}>
+                    <div className="ob-notif__icon" style={{width: 36, height: 36}}><Icon name={n.icon} size={18}/></div>
+                    <div className="ob-notif__txt">
+                      <h4 style={{fontSize: 14}}>{n.h}</h4>
+                      <p style={{fontSize: 12}}>{n.p}</p>
+                    </div>
+                    <div className={"toggle" + (n.on ? "" : " is-off")}></div>
+                  </div>
+                ))}
+              </div>
+              <button className="btn btn--primary btn--lg btn--block" style={{marginTop: 22}}>All set, let's go</button>
+            </main>
+          </div>
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "new", text: "Web notification toggles" },
+        { kind: "new", text: "Saturday Brief opt-in (editorial product)" },
+      ]} />
+
+      <div id="onboarding-2-4"></div>
+      <FrameSet>
+        <Frame kind="desk" name="2.4 · Welcome" note="Editorial moment — first three picks below the fold">
+          <OnbWelcome />
+        </Frame>
+        <Frame kind="mob" name="2.4 · Welcome · mobile" stubTag="Same flow, narrower">
+          <div className="web web--mob">
+            <main>
+              <section className="ob-shell" style={{padding: "60px 20px 32px", minHeight: 600}}>
+                <div className="ob-done" style={{padding: "20px 0"}}>
+                  <div className="ob-done__mark" style={{width: 72, height: 72}}><Icon name="check" size={36} stroke={2.5} /></div>
+                  <p className="kicker" style={{fontSize: 10}}>All set, Wanjiru</p>
+                  <h1 style={{fontFamily: "var(--font-primary)", fontSize: 32, fontWeight: 800, letterSpacing: "-0.03em", margin: "8px 0 12px"}}>Your Nairobi, <em style={{fontFamily: "var(--font-editorial)", fontStyle: "italic", color: "var(--deluge)", fontWeight: 400}}>curated.</em></h1>
+                  <p style={{fontSize: 14, color: "var(--web-ink-2)", maxWidth: 280, margin: "0 auto 20px"}}>5 events lined up. The first one's in 3 days.</p>
+                  <button className="btn btn--primary btn--lg btn--block">Open Discover</button>
+                </div>
+              </section>
+            </main>
+          </div>
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function FlowDiscovery() {
+  return (
+    <section className="flow" id="discovery">
+      <FlowHeader num="03 · Discovery" title="Find" em="something good." desc="Three layout directions for the home, each starting from the same brand DNA. Pick A for an editorial-first reader, B for a curated dashboard, C for a search-forward index." />
+
+      <div id="discovery-3-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="3.1 · Discover" variation="Variation A · Editorial" note="Lean into the magazine voice — big serif moments, single editor's pick">
+          <DiscoverA />
+        </Frame>
+        <Frame kind="mob" name="3.1 · Discover · mobile">
+          <DiscoverMobile />
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "reuse", text: "Event card · short variant" },
+        { kind: "reuse", text: "Category color band" },
+        { kind: "reuse", text: "Pursuit Says block (serif)" },
+        { kind: "new", text: "Editor's pick hero (2-up split)" },
+        { kind: "new", text: "Top nav · Discover | Explore | Plans | Inbox" },
+      ]} />
+
+      <div id="discovery-3-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="3.1 · Discover" variation="Variation B · Sidebar" note="Two-column with sticky 'Your Pursuit' panel — most app-like">
+          <DiscoverB />
+        </Frame>
+      </FrameSet>
+
+      <div id="discovery-3-3"></div>
+      <FrameSet>
+        <Frame kind="desk" name="3.1 · Discover" variation="Variation C · Search-first" note="Index-first, like a hyperlocal Eater — search is the centerpiece">
+          <DiscoverC />
+        </Frame>
+      </FrameSet>
+
+      <div id="discovery-3-4"></div>
+      <FrameSet>
+        <Frame kind="desk" name="3.2 · Explore" note="Filter sidebar + 3-col masonry grid">
+          <Explore />
+        </Frame>
+        <Frame kind="mob" name="3.2 · Explore · mobile" stubTag="Stack filters as chips">
+          <div className="web web--mob">
+            <TopNav mobile />
+            <main style={{padding: "16px 20px 80px"}}>
+              <p className="kicker" style={{fontSize: 10}}>42 tonight</p>
+              <h1 style={{fontFamily: "var(--font-primary)", fontSize: 26, fontWeight: 800, letterSpacing: "-0.025em", margin: "4px 0 14px"}}>Explore <em style={{fontFamily: "var(--font-editorial)", fontStyle: "italic", color: "var(--deluge)", fontWeight: 400}}>everything.</em></h1>
+              <div style={{display: "flex", gap: 8, overflowX: "auto", marginBottom: 16, paddingBottom: 6}}>
+                {["All", "Tonight", "Music", "Food", "Free", "Westlands"].map((n, i) => <span key={n} className={"fchip" + (i === 0 ? " is-on" : "")}>{n}</span>)}
+              </div>
+              <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+                {EVENTS.slice(0, 4).map(ev => <EventCard key={ev.id} ev={ev} />)}
+              </div>
+            </main>
+            <MobileTabs active="explore" />
+          </div>
+        </Frame>
+      </FrameSet>
+
+      <div id="discovery-3-5"></div>
+      <FrameSet>
+        <Frame kind="desk" name="3.3 · Search Results" stubTag="Query header + filtered grid">
+          <Search />
+        </Frame>
+      </FrameSet>
+
+      <div id="discovery-3-6"></div>
+      <FrameSet>
+        <Frame kind="desk" name="3.4 · Category Browse" note="'Jazz in Nairobi' — editorial header + filtered grid" stubTag="Dark variant (concerts)">
+          <CategoryBrowse />
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function FlowEvents() {
+  return (
+    <section className="flow" id="events">
+      <FlowHeader num="04 · Events" title="The" em="flagship." desc="The event detail page is where the brand earns its name. Three directions, each themed entirely by the event's category variant. Checkout is M-Pesa-first." />
+
+      <div id="events-4-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="4.1 · Event Detail" variation="Variation A · Cinematic" note="Full-bleed image with gradient overlay; left story column, right sticky ticket card">
+          <EventDetailA />
+        </Frame>
+        <Frame kind="mob" name="4.1 · Event Detail · mobile" note="Sticky bottom CTA replaces the sidebar">
+          <EventDetailMobile />
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "reuse", text: "Category band + accent" },
+        { kind: "reuse", text: "Pursuit Says block" },
+        { kind: "reuse", text: "Stat tiles" },
+        { kind: "reuse", text: "Save / share icon buttons" },
+        { kind: "new", text: "Sticky ticket card (sidebar)" },
+        { kind: "new", text: "Map + organizer card" },
+      ]} />
+
+      <div id="events-4-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="4.1 · Event Detail" variation="Variation B · Banner + itinerary" note="Editorial banner with split image; itinerary as the centerpiece (great for events with a clear schedule)">
+          <EventDetailB />
+        </Frame>
+      </FrameSet>
+
+      <div id="events-4-3"></div>
+      <FrameSet>
+        <Frame kind="desk" name="4.1 · Event Detail" variation="Variation C · Color band (mobile DNA)" note="Closest to the shipped mobile pattern — full-color category header, image inset on the right">
+          <EventDetailC />
+        </Frame>
+      </FrameSet>
+
+      <div id="events-4-4"></div>
+      <FlowHeader num="04.5" title="Checkout —" em="M-Pesa first." desc="Three steps shown across desktop frames. Native KES pricing, M-Pesa STK push as the default payment method." />
+      <FrameSet>
+        <Frame kind="desk" name="4.2 · Checkout · Tickets" note="Step 1 — quantity steppers per tier">
+          <CheckoutStep1 />
+        </Frame>
+      </FrameSet>
+      <FrameSet>
+        <Frame kind="desk" name="4.2 · Checkout · Details" note="Step 2 — attendee form">
+          <CheckoutStep2 />
+        </Frame>
+      </FrameSet>
+      <FrameSet>
+        <Frame kind="desk" name="4.2 · Checkout · M-Pesa" note="Step 3 — STK push prompt + live state">
+          <CheckoutStep3 />
+        </Frame>
+        <Frame kind="mob" name="4.2 · Checkout · mobile" note="M-Pesa flow on phone">
+          <CheckoutMobile />
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "reuse", text: "CTA buttons" },
+        { kind: "reuse", text: "Stat tiles → quantity rows" },
+        { kind: "new", text: "Multi-step pill nav" },
+        { kind: "new", text: "M-Pesa STK push state" },
+        { kind: "new", text: "Sticky order summary" },
+      ]} />
+
+      <div id="events-4-5"></div>
+      <FrameSet>
+        <Frame kind="desk" name="4.3 · Confirmation" note="QR ticket card with perforation, calendar / PDF / share actions">
+          <ConfirmationDesk />
+        </Frame>
+        <Frame kind="mob" name="4.3 · Confirmation · mobile">
+          <ConfirmationMobile />
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function FlowPlans() {
+  return (
+    <section className="flow" id="plans">
+      <FlowHeader num="05 · Plans" title="Your Nairobi," em="scheduled." desc="The itinerary timeline from mobile, expanded to a sticky date rail on desktop. Group plans get a dedicated layout with side-by-side voting." />
+
+      <div id="plans-5-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="5.1 · Plans" note="Up-next hero + timeline grouped by day">
+          <PlansDesk />
+        </Frame>
+        <Frame kind="mob" name="5.1 · Plans · mobile">
+          <PlansMobile />
+        </Frame>
+      </FrameSet>
+      <Notes items={[
+        { kind: "reuse", text: "Timeline component (mobile)" },
+        { kind: "reuse", text: "Category color band on row" },
+        { kind: "new", text: "Plans hero with stat row" },
+        { kind: "new", text: "Calendar / timeline toggle" },
+        { kind: "new", text: "Tabs: Upcoming / Past / Saved / Group" },
+      ]} />
+
+      <div id="plans-5-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="5.2 · Group Plans" note="Voting cards + member sidebar — translates the mobile swipe pattern into web-appropriate thumbs-up/down">
+          <GroupPlans />
+        </Frame>
+        <Frame kind="mob" name="5.2 · Group Plans · mobile">
+          <GroupPlansMobile />
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function FlowProfile() {
+  return (
+    <section className="flow" id="profile">
+      <FlowHeader num="06 · Profile & Account" title="The" em="quiet pages." desc="Less editorial flair, more utility. Same typographic system, calmer composition." />
+
+      <div id="profile-6-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="6.1 · Profile" stubTag="Includes 'Year on Pursuit' editorial moment">
+          <Profile />
+        </Frame>
+      </FrameSet>
+
+      <div id="profile-6-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="6.2 · Saved" stubTag="Grid of saved events">
+          <Saved />
+        </Frame>
+      </FrameSet>
+
+      <div id="profile-6-3"></div>
+      <FrameSet>
+        <Frame kind="desk" name="6.3 · Inbox" stubTag="New for web v1">
+          <Inbox />
+        </Frame>
+      </FrameSet>
+
+      <div id="profile-6-4"></div>
+      <FrameSet>
+        <Frame kind="desk" name="6.4 · Settings" stubTag="M-Pesa as default payment">
+          <Settings />
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function FlowUtility() {
+  return (
+    <section className="flow" id="utility">
+      <FlowHeader num="07 · Utility" title="Edges &" em="empty states." desc="Things you never want to see often, but matter when you do. Consistent typographic treatment instead of illustrated mascots." />
+
+      <div id="utility-7-1"></div>
+      <FrameSet>
+        <Frame kind="desk" name="7.1 · Organizer profile" stubTag="New for web v1">
+          <Organizer />
+        </Frame>
+      </FrameSet>
+
+      <div id="utility-7-2"></div>
+      <FrameSet>
+        <Frame kind="desk" name="7.2 · 404 / Not found">
+          <NotFound />
+        </Frame>
+      </FrameSet>
+
+      <div id="utility-7-3"></div>
+      <FrameSet>
+        <Frame kind="desk" name="7.3 · Empty states" note="Plans / Inbox / Saved — typographic treatment, not illustrations">
+          <EmptyStates />
+        </Frame>
+      </FrameSet>
+    </section>
+  );
+}
+
+function App() {
+  return (
+    <div className="doc">
+      <SideNav />
+      <div className="docmain">
+        <FlowAuth />
+        <FlowOnboarding />
+        <FlowDiscovery />
+        <FlowEvents />
+        <FlowPlans />
+        <FlowProfile />
+        <FlowUtility />
+      </div>
+    </div>
+  );
+}
+
+setTimeout(() => {
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+}, 60);
+</script>
+
+</body>
+</html>

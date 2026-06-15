@@ -18,13 +18,14 @@ export default function EventModalLayout() {
       <Stack.Screen
         name="checkout"
         options={{
-          gestureEnabled: true, // Back icon navigates to detail without confirmation
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
         name="confirmation"
         options={{
-          gestureEnabled: false, // Block back gesture - only ✕ close icon exits
+          gestureEnabled: false,
+          headerShown: false,
         }}
       />
     </Stack>

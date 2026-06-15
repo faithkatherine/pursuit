@@ -174,6 +174,25 @@ export const typography = {
   },
 } as const;
 
+export const webTypography = {
+  heading: {
+    fontFamily: fontFamilies.secondary,
+    fontWeight: fontWeights.bold,
+  },
+  body: {
+    fontFamily: fontFamilies.primary,
+    fontWeight: fontWeights.regular,
+  },
+  label: {
+    fontFamily: fontFamilies.primary,
+    fontWeight: fontWeights.semibold,
+  },
+  wordmark: {
+    fontFamily: fontFamilies.primary,
+    fontWeight: fontWeights.heavy,
+  },
+} as const;
+
 // Type definitions
 export type FontFamily = keyof typeof fontFamilies;
 export type FontWeight = keyof typeof fontWeights;

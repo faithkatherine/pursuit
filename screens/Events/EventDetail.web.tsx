@@ -8,23 +8,51 @@ import type { EventInfoFragment, EventType, GetEventQuery } from "graphql/genera
 import { Loading, Error } from "components/Layout";
 import { RecommendationCard } from "components/Cards/RecommendationCard";
 import { formatEventDate } from "utils/date";
+import { colors } from "themes/tokens/colors";
+import { webTypography } from "themes/tokens/typography";
 
 interface EventDetailProps {
   eventId: string;
   onClose?: () => void;
 }
 
+// ─── Layout constants ──────────────────────────────────────────────────────
+const MAX_CONTENT_WIDTH = 1200;
+const CONTENT_PADDING_H = 24;
+const BREAKPOINT_TABLET = 768;
+const BREAKPOINT_DESKTOP = 1024;
+const BOOKING_CARD_WIDTH = 360;
+const HERO_HEIGHT = 480;
+const HERO_PADDING_BOTTOM = 36;
+const SECTION_PADDING_Y = 48;
+const DETAIL_GRID_GAP = 40;
+const GRID_GAP = 20;
+const CARD_RADIUS = 16;
+const CARD_PADDING = 24;
+const BADGE_RADIUS = 999;
+const BADGE_PADDING_H = 12;
+const BADGE_PADDING_V = 6;
+const HERO_TITLE_SIZE = 44;
+const HERO_TITLE_LINE_HEIGHT = 52;
+const SECTION_TITLE_SIZE = 22;
+const BODY_SIZE = 16;
+const BODY_LINE_HEIGHT = 26;
+const BOOKING_TOP = 88;
+const RELATED_CARD_MIN_WIDTH = 280;
+const RELATED_CARD_WIDTH = "31.7%";
+// ──────────────────────────────────────────────────────────────────────────
+
 const PURSUIT = {
-  purple: "#7C5C9C",
-  rose: "#E8B5B0",
-  sage: "#B8C9A8",
-  warmBg: "#FCF9F6",
-  mist: "#EDE8F5",
-  textPrimary: "#1A1A2E",
-  textMuted: "#8A7F7A",
-  border: "#E0D5CC",
-  white: "#FFFFFF",
-  roseBand: "#F5EDE8",
+  purple: colors.pursuitPurple,
+  rose: colors.pursuitRose,
+  sage: colors.pursuitSage,
+  warmBg: colors.pursuitWarmBg,
+  mist: colors.pursuitMist,
+  textPrimary: colors.pursuitTextPrimary,
+  textMuted: colors.pursuitTextMuted,
+  border: colors.pursuitBorder,
+  white: colors.white,
+  roseBand: colors.pursuitRoseBand,
 };
 
 const stickyPosition = "sticky" as ViewStyle["position"];
@@ -273,9 +301,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   backText: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.purple,
   },
   heroCopy: {
@@ -287,18 +315,18 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: PURSUIT.mist,
     color: PURSUIT.purple,
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginBottom: 12,
   },
   heroTitle: {
-    fontFamily: "Poppins",
-    fontSize: 44,
-    fontWeight: "700",
-    lineHeight: 52,
+    fontFamily: webTypography.heading.fontFamily,
+    fontSize: HERO_TITLE_SIZE,
+    fontWeight: webTypography.heading.fontWeight,
+    lineHeight: HERO_TITLE_LINE_HEIGHT,
     color: PURSUIT.white,
   },
   contentBand: {
@@ -318,18 +346,18 @@ const styles = StyleSheet.create({
     flex: 0.4,
   },
   sectionTitle: {
-    fontFamily: "Poppins",
-    fontSize: 22,
-    fontWeight: "700",
+    fontFamily: webTypography.heading.fontFamily,
+    fontSize: SECTION_TITLE_SIZE,
+    fontWeight: webTypography.heading.fontWeight,
     color: PURSUIT.textPrimary,
     marginBottom: 12,
   },
   bodyText: {
     maxWidth: 680,
-    fontFamily: "Work Sans",
-    fontSize: 16,
-    fontWeight: "400",
-    lineHeight: 26,
+    fontFamily: webTypography.body.fontFamily,
+    fontSize: BODY_SIZE,
+    fontWeight: webTypography.body.fontWeight,
+    lineHeight: BODY_LINE_HEIGHT,
     color: PURSUIT.textPrimary,
     marginBottom: 24,
   },
@@ -341,23 +369,23 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   hostEyebrow: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.purple,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   hostName: {
     marginTop: 8,
-    fontFamily: "Poppins",
+    fontFamily: webTypography.heading.fontFamily,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: webTypography.heading.fontWeight,
     color: PURSUIT.textPrimary,
   },
   hostCopy: {
     marginTop: 8,
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.body.fontFamily,
     fontSize: 14,
     color: PURSUIT.textMuted,
     lineHeight: 22,
@@ -374,18 +402,18 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
   },
   bookingEyebrow: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.purple,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   price: {
     marginTop: 8,
-    fontFamily: "Poppins",
+    fontFamily: webTypography.heading.fontFamily,
     fontSize: 30,
-    fontWeight: "700",
+    fontWeight: webTypography.heading.fontWeight,
     color: PURSUIT.textPrimary,
   },
   bookingDivider: {
@@ -394,16 +422,16 @@ const styles = StyleSheet.create({
     marginVertical: 18,
   },
   bookingLabel: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.textMuted,
     marginBottom: 4,
   },
   bookingValue: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.textPrimary,
     marginBottom: 14,
   },
@@ -415,9 +443,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   primaryButtonText: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.white,
   },
   secondaryButton: {
@@ -429,9 +457,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   secondaryButtonText: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.purple,
   },
   shareRow: {
@@ -440,9 +468,9 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   shareText: {
-    fontFamily: "Work Sans",
+    fontFamily: webTypography.label.fontFamily,
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: webTypography.label.fontWeight,
     color: PURSUIT.textMuted,
   },
   moreBand: {
