@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pursuit Web Design Concepts</title>
+    <link rel="stylesheet" href="colors_and_type.css" />
+    <style>
+      main {
+        margin: 0 auto;
+        max-width: 900px;
+        padding: 80px 24px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin: 32px 0;
+      }
+
+      .card {
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 24px;
+      }
+
+      a {
+        color: var(--deluge);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>Design library reference</p>
+      <h1>Web Design Concepts</h1>
+      <p>
+        This page keeps the public design-library link meaningful while the
+        original React/Babel prototype artifact remains preserved in the repo as
+        <code>docs/design/Pursuit Web Designs.html</code>.
+      </p>
+      <div class="grid">
+        <article class="card">
+          <h2>Discover</h2>
+          <p>Web adaptation concepts for curated event discovery.</p>
+        </article>
+        <article class="card">
+          <h2>Event</h2>
+          <p>Event-detail patterns for clarity, status, and decision support.</p>
+        </article>
+        <article class="card">
+          <h2>Plans</h2>
+          <p>Saved, Going, and Ticketed planning states for the product.</p>
+        </article>
+      </div>
+      <p>
+        Related: <a href="Pursuit Web Playbook.html">Web Adaptation Playbook</a>
+        and <a href="Pursuit Buttons.html">Button System</a>.
+      </p>
+      <a href="/">Back to public website</a>
+    </main>
+  </body>
+</html>

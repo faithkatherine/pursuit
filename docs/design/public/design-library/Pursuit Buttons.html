@@ -1,0 +1,643 @@
+<!doctype html>
+<!-- @startingPoint section="Components" subtitle="Pursuit — 8 button design directions to choose from" viewport="1440x2400" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Pursuit — Button Explorations</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="web/web-shell.css" />
+<style>
+  body {
+    margin: 0;
+    background: var(--web-bg);
+    padding: 64px 80px 120px;
+    font-family: var(--font-secondary);
+    color: var(--web-ink);
+  }
+  .doc-head { max-width: 880px; margin: 0 auto 64px; }
+  .doc-head p.kicker { margin: 0 0 12px; }
+  .doc-head h1 {
+    font-family: var(--font-primary);
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .doc-head h1 em {
+    font-family: var(--font-editorial);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--deluge);
+  }
+  .doc-head p.dek {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--web-ink-2);
+    max-width: 60ch;
+    margin: 0;
+  }
+
+  /* Each direction is a card */
+  .dir {
+    max-width: 1280px;
+    margin: 0 auto 48px;
+    background: var(--white);
+    border: 1px solid var(--web-line);
+    border-radius: 20px;
+    padding: 40px 48px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 56px;
+    align-items: flex-start;
+  }
+  .dir__meta { position: sticky; top: 24px; }
+  .dir__num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--web-ink-3);
+  }
+  .dir__name {
+    font-family: var(--font-primary);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--web-ink);
+    margin: 6px 0 10px;
+    text-wrap: balance;
+  }
+  .dir__tag {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: rgba(124,92,156,0.10);
+    color: var(--deluge);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .dir__desc {
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--web-ink-2);
+    margin: 0 0 14px;
+  }
+  .dir__use {
+    font-family: var(--font-primary);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--web-ink-3);
+    margin: 14px 0 4px;
+  }
+  .dir__when {
+    font-family: var(--font-primary);
+    font-size: 13px;
+    color: var(--web-ink);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .dir__stage {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--web-line);
+  }
+  .row:last-child { border-bottom: none; padding-bottom: 0; }
+  .row > .lab {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--web-ink-3);
+    min-width: 92px;
+  }
+
+  .dark-bg {
+    background: var(--midnight-blue);
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* ============================================================
+     Direction 1 — Pill (current)
+     ============================================================ */
+  .b1 {
+    font-family: var(--font-primary); font-weight: 600;
+    height: 48px; padding: 0 24px;
+    border-radius: 999px;
+    border: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+  .b1--primary { background: var(--deluge); color: var(--white); box-shadow: 0 2px 8px rgba(124,92,156,0.30); }
+  .b1--primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(124,92,156,0.40); }
+  .b1--ghost { background: transparent; color: var(--web-ink); border: 1.5px solid var(--web-line-2); }
+  .b1--ghost:hover { border-color: var(--web-ink); }
+  .b1--lg { height: 56px; padding: 0 32px; font-size: 15px; }
+  .b1--sm { height: 36px; padding: 0 16px; font-size: 13px; }
+
+  /* ============================================================
+     Direction 2 — Sharp editorial (rectangular)
+     ============================================================ */
+  .b2 {
+    font-family: var(--font-primary); font-weight: 700;
+    height: 52px; padding: 0 28px;
+    border-radius: 4px;
+    border: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 180ms ease;
+  }
+  .b2--primary {
+    background: var(--web-ink);
+    color: var(--white);
+  }
+  .b2--primary:hover { background: var(--deluge); transform: translateY(-1px); }
+  .b2--ghost {
+    background: transparent;
+    color: var(--web-ink);
+    border: 1.5px solid var(--web-ink);
+  }
+  .b2--ghost:hover { background: var(--web-ink); color: white; }
+  .b2--accent {
+    background: var(--deluge);
+    color: var(--white);
+  }
+  .b2--accent:hover { background: var(--web-ink); }
+
+  /* ============================================================
+     Direction 3 — Soft brutalist (chunky, layered shadow)
+     ============================================================ */
+  .b3 {
+    font-family: var(--font-primary); font-weight: 700;
+    height: 52px; padding: 0 26px;
+    border-radius: 12px;
+    border: 1.5px solid var(--web-ink);
+    background: var(--deluge);
+    color: var(--white);
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 4px 4px 0 0 var(--web-ink);
+    transition: all 140ms ease;
+  }
+  .b3:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 var(--web-ink);
+  }
+  .b3:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 0 var(--web-ink);
+  }
+  .b3--ghost {
+    background: var(--white);
+    color: var(--web-ink);
+  }
+  .b3--accent {
+    background: var(--careys-pink);
+    color: var(--web-ink);
+  }
+
+  /* ============================================================
+     Direction 4 — Underlined editorial link button (magazine voice)
+     ============================================================ */
+  .b4 {
+    font-family: var(--font-primary); font-weight: 600;
+    background: transparent;
+    color: var(--web-ink);
+    border: none;
+    border-bottom: 2px solid var(--web-ink);
+    padding: 6px 0;
+    cursor: pointer;
+    display: inline-flex; align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    letter-spacing: -0.005em;
+    transition: all 200ms ease;
+  }
+  .b4:hover { color: var(--deluge); border-bottom-color: var(--deluge); }
+  .b4 .arr { transition: transform 200ms ease; }
+  .b4:hover .arr { transform: translateX(4px); }
+  .b4--lg { font-size: 22px; font-weight: 700; padding: 8px 0; border-bottom-width: 3px; }
+  .b4--primary { color: var(--deluge); border-bottom-color: var(--deluge); }
+
+  /* ============================================================
+     Direction 5 — Pill with circular arrow node
+     ============================================================ */
+  .b5 {
+    font-family: var(--font-primary); font-weight: 600;
+    height: 56px; padding: 0 8px 0 24px;
+    border-radius: 999px;
+    background: var(--deluge);
+    color: var(--white);
+    border: none;
+    display: inline-flex; align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 4px 16px rgba(124,92,156,0.25);
+    transition: all 180ms ease;
+  }
+  .b5__node {
+    width: 40px; height: 40px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.18);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 200ms ease;
+  }
+  .b5:hover { padding-right: 16px; box-shadow: 0 8px 24px rgba(124,92,156,0.40); }
+  .b5:hover .b5__node { background: var(--white); color: var(--deluge); }
+  .b5--ghost {
+    background: var(--white);
+    color: var(--web-ink);
+    border: 1px solid var(--web-line-2);
+    box-shadow: 0 2px 8px rgba(43,35,42,0.05);
+  }
+  .b5--ghost .b5__node { background: var(--web-bg-soft); color: var(--web-ink); }
+  .b5--ghost:hover .b5__node { background: var(--web-ink); color: var(--white); }
+
+  /* ============================================================
+     Direction 6 — Two-tone (split fill) editorial
+     ============================================================ */
+  .b6 {
+    font-family: var(--font-primary); font-weight: 700;
+    height: 52px;
+    border-radius: 999px;
+    border: none;
+    display: inline-flex; align-items: stretch;
+    overflow: hidden;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 180ms ease;
+    box-shadow: 0 2px 12px rgba(43,35,42,0.08);
+  }
+  .b6__label {
+    background: var(--deluge);
+    color: var(--white);
+    padding: 0 22px;
+    display: inline-flex; align-items: center;
+    gap: 8px;
+  }
+  .b6__suffix {
+    background: var(--web-ink);
+    color: var(--white);
+    padding: 0 18px;
+    display: inline-flex; align-items: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .b6:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(43,35,42,0.12); }
+  .b6--alt .b6__label { background: var(--shilo); color: var(--web-ink); }
+  .b6--alt .b6__suffix { background: var(--terracotta); }
+
+  /* ============================================================
+     Direction 7 — Inset / soft material (with subtle inner shadow)
+     ============================================================ */
+  .b7 {
+    font-family: var(--font-primary); font-weight: 600;
+    height: 50px; padding: 0 24px;
+    border-radius: 14px;
+    background: var(--white);
+    color: var(--web-ink);
+    border: 1px solid var(--web-line-2);
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow:
+      0 1px 0 rgba(43,35,42,0.04),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: all 160ms ease;
+  }
+  .b7:hover { background: var(--web-bg-soft); border-color: var(--web-ink-2); }
+  .b7:active { box-shadow: inset 0 2px 4px rgba(43,35,42,0.10); }
+  .b7--primary {
+    background: linear-gradient(180deg, rgba(255,255,255,0.16), transparent), var(--deluge);
+    color: var(--white);
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow:
+      0 2px 0 rgba(74, 52, 96, 0.40),
+      inset 0 1px 0 rgba(255,255,255,0.30);
+  }
+  .b7--primary:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 0 0 rgba(74, 52, 96, 0.40),
+      inset 0 1px 0 rgba(255,255,255,0.20);
+  }
+
+  /* ============================================================
+     Direction 8 — Hairline (refined, minimal — best for utility)
+     ============================================================ */
+  .b8 {
+    font-family: var(--font-primary); font-weight: 500;
+    height: 36px; padding: 0 14px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--web-ink);
+    border: 1px solid var(--web-line-2);
+    display: inline-flex; align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: -0.005em;
+    transition: all 140ms ease;
+  }
+  .b8:hover { background: var(--white); border-color: var(--web-ink); }
+  .b8--primary { background: var(--web-ink); color: var(--white); border-color: var(--web-ink); }
+  .b8--accent { color: var(--deluge); border-color: rgba(124,92,156,0.30); }
+  .b8--accent:hover { background: rgba(124,92,156,0.06); border-color: var(--deluge); }
+
+  /* Shared swatch / icon paths */
+  .arr-icon { width: 16px; height: 16px; }
+
+  /* Verdict footer */
+  .verdict {
+    max-width: 1280px;
+    margin: 32px auto 0;
+    background: var(--web-bg-soft);
+    border-radius: 16px;
+    padding: 28px 36px;
+    font-family: var(--font-primary);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .verdict h3 { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 4px; }
+  .verdict p { font-family: var(--font-secondary); font-size: 14px; line-height: 1.55; color: var(--web-ink-2); margin: 0; max-width: 70ch; }
+</style>
+</head>
+<body>
+
+<div class="doc-head">
+  <p class="kicker">Component exploration · Buttons</p>
+  <h1>Eight ways Pursuit could <em>click.</em></h1>
+  <p class="dek">Same three states across each direction (primary · ghost · accent + size variants), so you're comparing voice, not coverage. The current direction is #1; the rest reach in different directions — more editorial, more brutalist, more refined. Hover them.</p>
+</div>
+
+<!-- 1. Pill (current) -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 01</p>
+    <span class="dir__tag">Currently shipping</span>
+    <h2 class="dir__name">Pill · soft</h2>
+    <p class="dir__desc">Fully-rounded capsule with a quiet purple-tinted shadow. Friendly, app-native, what's in the mobile UI kit today.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Everyday CTAs. Booking, saving, filling forms.</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Primary</span>
+      <button class="b1 b1--primary b1--lg">Book tickets
+        <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button class="b1 b1--primary">Save to plans</button>
+      <button class="b1 b1--primary b1--sm">Share</button>
+    </div>
+    <div class="row">
+      <span class="lab">Ghost</span>
+      <button class="b1 b1--ghost b1--lg">Save to plans</button>
+      <button class="b1 b1--ghost">View details</button>
+      <button class="b1 b1--ghost b1--sm">Cancel</button>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Sharp editorial -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 02</p>
+    <span class="dir__tag">More editorial</span>
+    <h2 class="dir__name">Sharp · editorial</h2>
+    <p class="dir__desc">Squared 4px corners, all-caps tracking. Reads like a magazine sidebar — confident, opinionated, less app-feeling.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Editor's Pick CTAs, "Read the brief", page-level hero actions. Calmer surfaces.</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Primary</span>
+      <button class="b2 b2--primary">Book tickets →</button>
+      <button class="b2 b2--accent">Read the brief</button>
+    </div>
+    <div class="row">
+      <span class="lab">Ghost</span>
+      <button class="b2 b2--ghost">View details</button>
+      <button class="b2 b2--ghost">Save</button>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Soft brutalist -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 03</p>
+    <span class="dir__tag">Bolder</span>
+    <h2 class="dir__name">Block · drop-shadow</h2>
+    <p class="dir__desc">Solid border + hard offset shadow, presses down to flat on click. Risky on a calm canvas — strongest on featured tiles, ticket bars, and weekend brief teasers.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">One marquee CTA per page. Don't use for routine actions.</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Primary</span>
+      <button class="b3">Book tickets
+        <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button class="b3 b3--accent">Save to plans</button>
+    </div>
+    <div class="row">
+      <span class="lab">Ghost</span>
+      <button class="b3 b3--ghost">View details</button>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Underlined editorial -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 04</p>
+    <span class="dir__tag">Editorial · minimal</span>
+    <h2 class="dir__name">Underline · "read more"</h2>
+    <p class="dir__desc">No box, no shadow — just type and a baseline rule. Arrow nudges right on hover. Reads as a magazine "continue" link.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Secondary CTAs inside editorial blocks. "Read the full pick", "See the brief", "View 12 more".</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row" style="background: var(--web-bg-soft); padding: 24px; border-radius: 12px; border-bottom: none;">
+      <span class="lab" style="opacity: 0.6">In context</span>
+      <div style="display: flex; flex-direction: column; gap: 16px; flex: 1; max-width: 540px;">
+        <p style="font-family: var(--font-editorial); font-style: italic; font-size: 22px; line-height: 1.4; color: var(--web-ink); margin: 0;">"Half the city will tell you Wednesdays at the Alchemist are a tourist trap. They're wrong."</p>
+        <button class="b4 b4--primary">Read the full pick <span class="arr">→</span></button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="lab">Sizes</span>
+      <button class="b4 b4--lg b4--primary">Book Blankets &amp; Wine <span class="arr">→</span></button>
+      <button class="b4">View all 12 <span class="arr">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Arrow node -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 05</p>
+    <span class="dir__tag">Premium · refined</span>
+    <h2 class="dir__name">Pill · circular node</h2>
+    <p class="dir__desc">Capsule with an inset arrow circle. The arrow node flips white on hover and the pill widens slightly — feels considered, premium, hospitality-grade.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Booking CTAs on premium event detail pages. Membership upsells. "Build the plan".</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Primary</span>
+      <button class="b5">Book Blankets &amp; Wine
+        <span class="b5__node">
+          <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </button>
+    </div>
+    <div class="row">
+      <span class="lab">Ghost</span>
+      <button class="b5 b5--ghost">Save to plans
+        <span class="b5__node">
+          <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Two-tone -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 06</p>
+    <span class="dir__tag">Functional · with detail</span>
+    <h2 class="dir__name">Two-tone · split fill</h2>
+    <p class="dir__desc">A label and a suffix in different colors, sharing one pill. Lets you put the price (or count) right on the CTA without it feeling like an afterthought.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Checkout CTAs ("Pay · KES 12,645"), filter pills with counts, anywhere price/quantity is part of the action.</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Primary</span>
+      <button class="b6"><span class="b6__label">Pay with M-Pesa
+        <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </span><span class="b6__suffix">KES 12,645</span></button>
+      <button class="b6 b6--alt"><span class="b6__label">Save to plans</span><span class="b6__suffix">+ 1</span></button>
+    </div>
+    <div class="row">
+      <span class="lab">Filters</span>
+      <button class="b6"><span class="b6__label" style="background: var(--white); color: var(--web-ink); border: 1px solid var(--web-line-2);">Tonight</span><span class="b6__suffix" style="background: var(--web-ink); color: var(--white);">42</span></button>
+      <button class="b6"><span class="b6__label" style="background: var(--white); color: var(--web-ink); border: 1px solid var(--web-line-2);">Westlands</span><span class="b6__suffix" style="background: var(--web-ink); color: var(--white);">11</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Soft material -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 07</p>
+    <span class="dir__tag">Tactile</span>
+    <h2 class="dir__name">Material · soft inset</h2>
+    <p class="dir__desc">Subtle inner highlight + offset shadow makes the button feel pressable; presses physically down on click. Quiet but unmistakably an interactive surface.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Form submits, settings, quantity steppers, M-Pesa confirmation — places that should feel like real buttons.</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Primary</span>
+      <button class="b7 b7--primary">Confirm payment
+        <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button class="b7">Cancel</button>
+    </div>
+    <div class="row">
+      <span class="lab">Quiet</span>
+      <button class="b7">Add another ticket</button>
+      <button class="b7">Edit attendee</button>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Hairline -->
+<section class="dir">
+  <div class="dir__meta">
+    <p class="dir__num">Direction 08</p>
+    <span class="dir__tag">Utility · refined</span>
+    <h2 class="dir__name">Hairline · 36px</h2>
+    <p class="dir__desc">A pared-back utility button — small, hairline border, no shadow. Doesn't compete with imagery or editorial type. Pairs with one of the bolder directions above as the primary.</p>
+    <p class="dir__use">Best for</p>
+    <p class="dir__when">Filters, sort pills, "View all", icon-buttons, settings rows. The supporting cast, never the lead.</p>
+  </div>
+  <div class="dir__stage">
+    <div class="row">
+      <span class="lab">Variants</span>
+      <button class="b8 b8--primary">Sort: Recommended
+        <svg class="arr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <button class="b8 b8--accent">+ Add filter</button>
+      <button class="b8">Westlands</button>
+      <button class="b8">Free</button>
+      <button class="b8">Under KES 1,500</button>
+    </div>
+    <div class="row">
+      <span class="lab">On dark</span>
+      <div class="dark-bg">
+        <button class="b8" style="background: rgba(255,255,255,0.10); color: white; border-color: rgba(255,255,255,0.20)">All venues</button>
+        <button class="b8" style="background: rgba(255,255,255,0.10); color: white; border-color: rgba(255,255,255,0.20)">Westlands</button>
+        <button class="b8" style="background: white; color: var(--web-ink); border-color: white">Karen</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="verdict">
+  <div style="font-family: var(--font-editorial); font-style: italic; font-size: 56px; color: var(--deluge); line-height: 1;">"</div>
+  <div>
+    <h3>My pairing recommendation</h3>
+    <p>
+      <b>Primary:</b> stick with #1 (Pill · soft) or upgrade to #5 (Pill · circular node) for marquee booking CTAs.
+      <b>Secondary:</b> #4 (Underline) inside editorial blocks — Pursuit Says, briefs, "view all".
+      <b>Utility:</b> #8 (Hairline) for filters, sort, settings. Reach for #2 only on dedicated editorial pages (organizer profile, brief archive); skip #3 unless one marquee CTA per surface is what you want.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

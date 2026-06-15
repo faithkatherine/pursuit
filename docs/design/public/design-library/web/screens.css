@@ -1,0 +1,7 @@
+.screen,
+.preview,
+.card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}

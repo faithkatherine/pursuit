@@ -1,0 +1,21 @@
+:root {
+  --web-bg: #fdfcfa;
+  --web-ink: #1a1b1f;
+  --web-ink-secondary: #4a4c52;
+  --deluge: #7c5c9c;
+  --primary: #634482;
+  --line: #e2e2e2;
+  --surface: #f7f9ff;
+  --accent-warm: #e8e2d9;
+}
+
+body {
+  background: var(--web-bg);
+  color: var(--web-ink);
+  font-family: "Hanken Grotesk", system-ui, sans-serif;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}

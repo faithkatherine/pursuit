@@ -1,0 +1,22 @@
+body {
+  line-height: 1.55;
+}
+
+.topbar {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 20px 32px;
+}
+
+.topbar__link {
+  color: var(--web-ink-secondary);
+  margin-left: 12px;
+}
+
+.prose {
+  color: var(--web-ink-secondary);
+  max-width: 760px;
+}

@@ -1,0 +1,11 @@
+.web-shell,
+.screen-shell,
+.page-shell {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 32px;
+}
+
+.muted {
+  color: var(--web-ink-secondary);
+}
