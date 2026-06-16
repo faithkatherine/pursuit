@@ -1,33 +1,29 @@
-const designLinks = [
-  {
-    title: "Home Experience",
-    href: "/design-library/Pursuit%20Home.html",
-    description: "Early home experience reference and product direction.",
-  },
-  {
-    title: "Web Design Concepts",
-    href: "/design-library/Pursuit%20Web%20Designs.html",
-    description: "Editorial website explorations for the public Pursuit presence.",
-  },
-  {
-    title: "Web Adaptation Playbook",
-    href: "/design-library/Pursuit%20Web%20Playbook.html",
-    description: "Guidance for adapting mobile product language to web.",
-  },
-  {
-    title: "Button System",
-    href: "/design-library/Pursuit%20Buttons.html",
-    description: "Interaction and button references from the design library.",
-  },
-];
-
 const productPoints = [
-  "Discover curated Nairobi events",
-  "Save events for later",
-  "Mark events as Going",
-  "Track Ticketed plans",
-  "Create group plans with friends",
-  "Support organizers in the future",
+  {
+    title: "Discover",
+    copy: "Curated events across Nairobi, organized by what's actually happening this week.",
+  },
+  {
+    title: "Save",
+    copy: "Keep events you're interested in without committing yet.",
+  },
+  {
+    title: "Going",
+    copy: "Mark the plans you intend to attend.",
+  },
+  {
+    title: "Ticketed",
+    copy: "Track events you've already booked or paid for, in one list.",
+  },
+  {
+    title: "Group Plans",
+    copy: "Create a plan, add a few options, and let friends vote - no app required to weigh in.",
+  },
+  {
+    title: "For Organizers",
+    badge: "Planned",
+    copy: "Manage listings, track attendance, and understand your audience from one dashboard.",
+  },
 ];
 
 const planStates = [
@@ -38,12 +34,12 @@ const planStates = [
   },
   {
     title: "Going",
-    label: "Intending",
+    label: "Committed",
     copy: "Experiences the user plans to attend or coordinate around.",
   },
   {
     title: "Ticketed",
-    label: "Booked",
+    label: "Confirmed",
     copy: "Paid, booked, or confirmed plans that need easier tracking.",
   },
 ];
@@ -51,44 +47,79 @@ const planStates = [
 const groupSteps = [
   {
     title: "Create group plan",
-    copy: "Start with a weekend, birthday, date night, or casual hangout.",
+    copy: "Start a plan and choose a few events that could work.",
   },
   {
     title: "Shared voting page",
-    copy: "Add a few event options and share one link with friends.",
+    copy: "Send one link so friends can weigh in without signing up.",
   },
   {
     title: "Voting results",
-    copy: "Friends vote without signing up, helping the group decide faster.",
+    copy: "See what the group prefers and turn that signal into a plan.",
   },
 ];
 
 const organizerCards = [
-  "Create event",
-  "Manage listings",
-  "Ticket sales",
-  "Attendance overview",
-  "Audience insights",
-  "Verification status",
+  "Create Event",
+  "Manage Listings",
+  "Ticket Sales",
+  "Attendance Overview",
+  "Audience Insights",
+  "Verification Status",
 ];
 
-function Arrow() {
-  return <span aria-hidden="true">↗</span>;
+const nowItems = [
+  "Curated event discovery across Nairobi",
+  "Save, Going, and Ticketed plan tracking",
+  "Mobile app in active development (React Native + Expo)",
+];
+
+const nextItems = [
+  "Group voting for shared plans",
+  "Organizer dashboard and ticketing",
+  "Audience insights for event hosts",
+];
+
+function ArrowNode() {
+  return (
+    <span className="iconNode" aria-hidden="true">
+      ↗
+    </span>
+  );
 }
 
-function MiniPhone({ title, tag, children }) {
+function MiniPhone({ title, tag, image, children }) {
   return (
     <div className="phone">
       <div className="phoneNotch" />
       <div className="phoneScreen">
-        <div className="phoneTop">
-          <span>{tag}</span>
-          <span>Design preview</span>
-        </div>
-        <h3>{title}</h3>
-        {children}
+        {image ? (
+          <img src={image} alt={`${title} screen`} />
+        ) : (
+          <>
+            <div className="phoneTop">
+              <span>{tag}</span>
+            </div>
+            <h3>{title}</h3>
+            {children}
+          </>
+        )}
       </div>
+      <span className="screenLabel">{tag}</span>
     </div>
+  );
+}
+
+function StatusList({ title, items }) {
+  return (
+    <article className="statusPanel">
+      <h3>{title}</h3>
+      <div className="statusItems">
+        {items.map((item) => (
+          <p key={item}>{item}</p>
+        ))}
+      </div>
+    </article>
   );
 }
 
@@ -100,17 +131,16 @@ export default function Home() {
           Pursuit
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#overview">Overview</a>
-          <a href="#plans">Plans</a>
           <a href="#screens">Screens</a>
-          <a href="#library">Library</a>
-          <a href="#about">About</a>
+          <a href="#vision">Vision</a>
+          <a href="#overview">Product</a>
+          <a href="#plans">Plans</a>
         </nav>
       </header>
 
       <section className="hero section" id="top">
         <div className="heroCopy">
-          <p className="kicker">Nairobi-first event discovery</p>
+          <p className="kicker">Nairobi-First Event Discovery</p>
           <h1>Pursuit</h1>
           <h2>Discover real-life experiences in Nairobi.</h2>
           <p>
@@ -118,17 +148,11 @@ export default function Home() {
             from casual nights out to group plans with friends.
           </p>
           <div className="actions">
-            <a className="button primary" href="#screens">
-              View Product Screens <Arrow />
+            <a className="button primary hasNode" href="#overview">
+              Explore Product <ArrowNode />
             </a>
-            <a className="button secondary" href="#library">
-              View Design Library
-            </a>
-            <a
-              className="button ghost"
-              href="https://faithkatherine.github.io/Portfolio"
-            >
-              View Portfolio <Arrow />
+            <a className="button secondary" href="#vision">
+              See the Vision
             </a>
           </div>
         </div>
@@ -146,21 +170,87 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section" id="screens">
+        <div className="sectionIntro centered">
+          <p className="kicker">Interface</p>
+          <h2>What it actually looks like.</h2>
+          <p>
+            Screens from the live build. Conceptual flows - group voting,
+            organizer tools - are clearly marked as design previews.
+          </p>
+        </div>
+        <div className="phones">
+          <MiniPhone
+            title="Explore"
+            tag="Live build"
+            image="/product-screens/discover-home.png"
+          >
+            <div className="eventTile tall" />
+            <div className="eventTile" />
+            <div className="eventTile small" />
+          </MiniPhone>
+          <MiniPhone
+            title="Event detail"
+            tag="Live build"
+            image="/product-screens/event-detail.png"
+          >
+            <div className="planStrip saved">Saved</div>
+            <div className="planStrip going">Going</div>
+            <div className="planStrip ticketed">Ticketed</div>
+          </MiniPhone>
+          <MiniPhone
+            title="Checkout"
+            tag="Live build"
+            image="/product-screens/checkout.png"
+          >
+            <div className="voteOption">
+              Rooftop jazz <strong>62%</strong>
+            </div>
+            <div className="voteOption">
+              Gallery night <strong>31%</strong>
+            </div>
+            <div className="voteOption">
+              Supper club <strong>7%</strong>
+            </div>
+          </MiniPhone>
+        </div>
+      </section>
+
+      <section className="section vision" id="vision">
+        <div className="visionCopy">
+          <p className="kicker">Product Vision</p>
+          <h2>Nairobi runs on word of mouth. Pursuit gives it a home.</h2>
+        </div>
+        <div className="visionBody">
+          <p>
+            A friend's story, a poster on a wall, a forwarded screenshot -
+            that's still how most people in Nairobi find out what's happening.
+            Pursuit started as a way to fix discovery: one place to find real
+            events, decide what's worth going to, and figure out who's coming
+            with you. The next phase brings organizers into the same system,
+            because the signals that help someone plan a Friday night are the
+            same ones that help the person hosting it understand their audience.
+            We're building this in public, in Nairobi, one release at a time.
+          </p>
+          <blockquote>
+            "The goal isn't to replace how people already find things to do -
+            it's to keep up with it."
+          </blockquote>
+        </div>
+      </section>
+
       <section className="section split" id="overview">
         <div>
-          <p className="kicker">Product overview</p>
+          <p className="kicker">The Core Experience</p>
           <h2>A lighter way to decide what to do next.</h2>
         </div>
         <div className="grid two">
           {productPoints.map((point) => (
-            <article className="card compact" key={point}>
+            <article className="card compact" key={point.title}>
               <span className="dot" />
-              <h3>{point}</h3>
-              <p>
-                {point.includes("future")
-                  ? "Planned as the platform grows beyond attendee discovery."
-                  : "Presented as a focused product capability for the evolving app."}
-              </p>
+              {point.badge ? <span className="miniBadge">{point.badge}</span> : null}
+              <h3>{point.title}</h3>
+              <p>{point.copy}</p>
             </article>
           ))}
         </div>
@@ -168,12 +258,11 @@ export default function Home() {
 
       <section className="section warm" id="plans">
         <div className="sectionIntro">
-          <p className="kicker">Plans concept</p>
-          <h2>Saved, Going, and Ticketed replace itinerary overload.</h2>
+          <p className="kicker">How Planning Works</p>
+          <h2>Saved, Going, and Ticketed replace the itinerary.</h2>
           <p>
-            Pursuit treats planning as a simple progression: interest,
-            intention, then confirmation. These cards are static concept
-            previews, not live ticketing tools.
+            Most plans don't need a spreadsheet. They need three honest states:
+            interested, committed, and confirmed.
           </p>
         </div>
         <div className="grid three">
@@ -191,12 +280,12 @@ export default function Home() {
 
       <section className="section">
         <div className="sectionIntro">
-          <p className="kicker">Group planning concept</p>
-          <h2>Make the group decision easier before anyone downloads an app.</h2>
+          <p className="kicker">Group Planning</p>
+          <h2>Decide as a group, without making everyone download anything.</h2>
           <p>
-            A user can create a group plan, add event options, and share a
-            voting link. Friends can vote without signing up, and the voting
-            flow can introduce new people to Pursuit naturally.
+            Create a plan, add a few events to choose from, and share one link.
+            Friends vote without signing up - and some of them end up staying
+            on Pursuit afterward.
           </p>
         </div>
         <div className="grid three">
@@ -215,113 +304,53 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section dark">
+      <section className="section dark" id="organizers">
+        <div className="organizerLayout">
+          <div className="sectionIntro">
+            <p className="kicker">For Organizers - Planned</p>
+            <h2>The other side of discovery.</h2>
+            <p>
+              Every event on Pursuit has someone behind it trying to fill the
+              room. The organizer tools we're building turn that into less
+              guesswork: create and manage listings, see who's actually showing
+              interest, and eventually sell tickets without juggling five
+              different tools.
+            </p>
+          </div>
+          <div className="dashboardGrid">
+            {organizerCards.map((card) => (
+              <article className="dashboardCard" key={card}>
+                <span className="status">Planned</span>
+                <h3>{card}</h3>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section nowNext">
         <div className="sectionIntro">
-          <p className="kicker">Planned Organizer Tools</p>
-          <h2>Future Organizer Dashboard</h2>
-          <p>
-            These are planned organizer concepts only. The public site does not
-            build organizer accounts, payments, ticketing, or operational
-            dashboard functionality.
-          </p>
+          <p className="kicker">Where Things Stand</p>
+          <h2>Available now, with the next layer already in motion.</h2>
         </div>
-        <div className="dashboardGrid">
-          {organizerCards.map((card) => (
-            <article className="dashboardCard" key={card}>
-              <span className="status">Planned</span>
-              <h3>{card}</h3>
-            </article>
-          ))}
+        <div className="statusGrid">
+          <StatusList title="Available Now" items={nowItems} />
+          <StatusList title="Next" items={nextItems} />
         </div>
       </section>
 
-      <section className="section" id="screens">
-        <div className="sectionIntro centered">
-          <p className="kicker">Product screens</p>
-          <h2>Static previews for the evolving mobile experience.</h2>
-          <p>
-            Real product screenshots can be added here as the design library
-            exports become available. For now, each frame is clearly labelled as
-            a design preview.
-          </p>
-        </div>
-        <div className="phones">
-          <MiniPhone title="Explore" tag="Curated feed">
-            <div className="eventTile tall" />
-            <div className="eventTile" />
-            <div className="eventTile small" />
-          </MiniPhone>
-          <MiniPhone title="Plans" tag="Saved · Going · Ticketed">
-            <div className="planStrip saved">Saved</div>
-            <div className="planStrip going">Going</div>
-            <div className="planStrip ticketed">Ticketed</div>
-          </MiniPhone>
-          <MiniPhone title="Group vote" tag="Shared link">
-            <div className="voteOption">Rooftop jazz <strong>62%</strong></div>
-            <div className="voteOption">Gallery night <strong>31%</strong></div>
-            <div className="voteOption">Supper club <strong>7%</strong></div>
-          </MiniPhone>
-        </div>
-      </section>
-
-      <section className="section warm" id="library">
-        <div className="sectionIntro">
-          <p className="kicker">Design library</p>
-          <h2>Existing design references stay accessible.</h2>
-        </div>
-        <div className="grid four">
-          {designLinks.map((link) => (
-            <a className="libraryCard" href={link.href} key={link.title}>
-              <span>HTML reference</span>
-              <h3>{link.title}</h3>
-              <p>{link.description}</p>
-              <strong>Open file <Arrow /></strong>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="section split" id="technology">
+      <footer id="contact">
         <div>
-          <p className="kicker">Technology / Case Study</p>
-          <h2>Built as a public showcase for an active product.</h2>
+          <span>Pursuit</span>
+          <p>Built by Faith Catherine Otieno through Pursuit HQ, Nairobi.</p>
         </div>
-        <div className="techList">
-          <p>
-            <strong>Mobile:</strong> React Native, Expo, Tamagui
-          </p>
-          <p>
-            <strong>Backend:</strong> Django, GraphQL, PostgreSQL
-          </p>
-          <p>
-            <strong>Web:</strong> Next.js static showcase
-          </p>
-          <p>
-            <strong>Status:</strong> active development
-          </p>
-        </div>
-      </section>
-
-      <section className="section about" id="about">
-        <div>
-          <p className="kicker">About</p>
-          <h2>Pursuit HQ</h2>
-          <p>
-            Designed and developed by Faith Catherine Otieno through Pursuit HQ.
-          </p>
-        </div>
-        <address>
-          <a href="mailto:faithcathy12@gmail.com">faithcathy12@gmail.com</a>
-          <span>Nairobi, Kenya</span>
+        <div className="footerLinks">
           <a href="https://faithkatherine.github.io/Portfolio">
-            Portfolio <Arrow />
+            Portfolio ↗
           </a>
-        </address>
-      </section>
-
-      <footer>
-        <span>Pursuit</span>
-        <p>Built in Nairobi. Static public website for the evolving platform.</p>
+          <a href="mailto:faithcathy12@gmail.com">Contact</a>
+        </div>
+        <p>© 2026 Pursuit. Built in Nairobi.</p>
       </footer>
     </main>
   );
