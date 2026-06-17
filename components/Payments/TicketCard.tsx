@@ -18,6 +18,8 @@ interface TicketCardProps {
   receipt: string;
   qrValue?: string;
   cutoutColor?: string;
+  ticketNumber?: number;
+  totalTickets?: number;
 }
 
 const getReferenceNumber = (orderId: string): string =>
@@ -34,6 +36,8 @@ export const TicketCard = ({
   orderId,
   qrValue,
   cutoutColor = colors.white,
+  ticketNumber,
+  totalTickets,
 }: TicketCardProps) => {
   const referenceNumber = getReferenceNumber(orderId);
 
@@ -80,6 +84,11 @@ export const TicketCard = ({
               {item.quantity} × {item.tierName}
             </Text>
           ))}
+          {totalTickets && totalTickets > 1 && ticketNumber ? (
+            <Text style={styles.ticketCount}>
+              Ticket {ticketNumber} of {totalTickets}
+            </Text>
+          ) : null}
           <View style={styles.referenceSpacer} />
           <Text style={styles.doorNote}>Show this at the door</Text>
         </View>
@@ -218,6 +227,11 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     lineHeight: 20,
     color: colors.onSurfaceVariant,
+  },
+  ticketCount: {
+    fontSize: 11,
+    color: colors.onSurfaceVariant,
+    marginTop: 4,
   },
   doorNote: {
     ...typography.caption,

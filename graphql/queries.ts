@@ -430,3 +430,55 @@ export const SKIP_ONBOARDING = gql`
   }
   ${AUTH_USER_FRAGMENT}
 `;
+
+// Plans queries
+export const GET_UPCOMING_PLANS = gql`
+  query GetUpcomingPlans($offset: Int, $limit: Int) {
+    upcomingPlans(offset: $offset, limit: $limit) {
+      ok
+      events {
+        ...EventInfo
+      }
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+export const GET_PAST_PLANS = gql`
+  query GetPastPlans($offset: Int, $limit: Int) {
+    pastPlans(offset: $offset, limit: $limit) {
+      ok
+      events {
+        ...EventInfo
+      }
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+// Going mutations
+export const MARK_GOING = gql`
+  mutation MarkGoing($id: ID!) {
+    markGoing(id: $id) {
+      ok
+      event {
+        ...EventInfo
+      }
+      errors
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+export const UNMARK_GOING = gql`
+  mutation UnmarkGoing($id: ID!) {
+    unmarkGoing(id: $id) {
+      ok
+      event {
+        ...EventInfo
+      }
+      errors
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;

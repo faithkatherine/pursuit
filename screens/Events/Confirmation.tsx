@@ -37,6 +37,13 @@ interface OrderItem {
   subtotal: string;
 }
 
+interface TicketSummary {
+  token: string;
+  tier_name: string;
+  event_title: string;
+  is_used: boolean;
+}
+
 interface OrderDetail {
   id: string;
   subtotal: string;
@@ -46,6 +53,7 @@ interface OrderDetail {
   checkout_request_id: string;
   resuming: boolean;
   items: OrderItem[];
+  tickets: TicketSummary[];
 }
 
 const getRestApiBaseUrl = (): string => {
@@ -248,19 +256,46 @@ export const Confirmation = () => {
         </View>
 
         <View style={styles.ticketSection}>
-          <TicketCard
-            eventTitle={event.name}
-            eventDate={eventDate}
-            venue={event.locationName ?? "Venue TBA"}
-            categoryLabel={categoryLabel}
-            categoryColor={categoryColor}
-            imageUri={event.image ?? undefined}
-            items={ticketItems}
-            orderId={orderId}
-            receipt={receipt}
-            qrValue={orderId}
-            cutoutColor={colors.white}
-          />
+          {(order?.tickets?.length ?? 0) > 0
+            ? (order?.tickets ?? []).map((ticket, index) => (
+                <View
+                  key={ticket.token}
+                  style={index > 0 ? styles.additionalTicket : undefined}
+                >
+                  <TicketCard
+                    eventTitle={event.name}
+                    eventDate={eventDate}
+                    venue={event.locationName ?? "Venue TBA"}
+                    categoryLabel={categoryLabel}
+                    categoryColor={categoryColor}
+                    imageUri={event.image ?? undefined}
+                    items={[{ tierName: ticket.tier_name, quantity: 1 }]}
+                    orderId={orderId}
+                    receipt={receipt}
+                    qrValue={ticket.token}
+                    cutoutColor={colors.white}
+                    ticketNumber={index + 1}
+                    totalTickets={order?.tickets?.length ?? 1}
+                  />
+                </View>
+              ))
+            : (
+              <TicketCard
+                eventTitle={event.name}
+                eventDate={eventDate}
+                venue={event.locationName ?? "Venue TBA"}
+                categoryLabel={categoryLabel}
+                categoryColor={categoryColor}
+                imageUri={event.image ?? undefined}
+                items={ticketItems}
+                orderId={orderId}
+                receipt={receipt}
+                qrValue={orderId}
+                cutoutColor={colors.white}
+                ticketNumber={undefined}
+                totalTickets={undefined}
+              />
+            )}
         </View>
 
         <View style={styles.receiptSection}>
@@ -412,6 +447,9 @@ const styles = StyleSheet.create({
   ticketSection: {
     marginTop: spacing.xl,
     marginHorizontal: spacing.lg,
+  },
+  additionalTicket: {
+    marginTop: 16,
   },
   receiptSection: {
     alignItems: "center",

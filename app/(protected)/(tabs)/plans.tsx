@@ -1,3 +1,3 @@
-import Travel from "screens/Travel";
+import Plans from "screens/Plans";
 
-export default Travel;
+export default Plans;

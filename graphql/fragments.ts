@@ -78,6 +78,7 @@ export const EVENT_FRAGMENT = gql`
     seriesName
     isFree
     isSaved
+    isGoing
     hasConfirmedTicket
     isEditorsPick
     reason
