@@ -11,6 +11,7 @@ interface PhoneInputProps {
   onNormalisedChange: (normalised: string) => void;
   error?: string | null;
   onSubmitEditing?: () => void;
+  inputAccessoryViewID?: string;
 }
 
 export const PhoneInput: React.FC<PhoneInputProps> = ({
@@ -19,6 +20,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   onNormalisedChange,
   error,
   onSubmitEditing,
+  inputAccessoryViewID,
 }) => {
   const [touched, setTouched] = useState(false);
   const [internalError, setInternalError] = useState<string | null>(null);
@@ -71,6 +73,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           maxLength={10}
           autoComplete="tel"
           textContentType="telephoneNumber"
+          inputAccessoryViewID={inputAccessoryViewID}
         />
       </View>
 

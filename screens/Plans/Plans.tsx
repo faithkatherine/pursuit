@@ -38,13 +38,14 @@ export default function PlansScreen() {
   const [activeSection, setActiveSection] = useState<SectionType>("my-plans");
   const [activeTab, setActiveTab] = useState<TabType>("upcoming");
 
-  // Fetch data for each tab
+  // Fetch data for each tab - only fetch active tab to avoid unnecessary queries
   const {
     data: upcomingData,
     loading: upcomingLoading,
     error: upcomingError,
   } = useQuery<GetUpcomingPlansQuery>(GET_UPCOMING_PLANS, {
     variables: { offset: 0, limit: 50 },
+    skip: activeSection !== "my-plans" || activeTab !== "upcoming",
   });
 
   const {
@@ -53,6 +54,7 @@ export default function PlansScreen() {
     error: pastError,
   } = useQuery<GetPastPlansQuery>(GET_PAST_PLANS, {
     variables: { offset: 0, limit: 50 },
+    skip: activeSection !== "my-plans" || activeTab !== "past",
   });
 
   const {
@@ -61,6 +63,7 @@ export default function PlansScreen() {
     error: savedError,
   } = useQuery<GetSavedEventsQuery>(GET_SAVED_EVENTS, {
     variables: { offset: 0, limit: 50 },
+    skip: activeSection !== "my-plans" || activeTab !== "saved",
   });
 
   const upcomingEvents = upcomingData?.upcomingPlans?.events ?? [];
@@ -148,6 +151,9 @@ export default function PlansScreen() {
                 const categorySlug = event.category?.[0]?.name?.toLowerCase().replace(/\s+/g, "-") || "";
                 const categoryColor = colors.deluge;
 
+                const formattedDate = formatEventDate(event.date);
+                const time = typeof formattedDate === "object" ? formattedDate.formattedTime : "";
+
                 return (
                   <UpcomingEventCard
                     key={event.id}
@@ -156,11 +162,7 @@ export default function PlansScreen() {
                     dayName={index === 0 ? dayName : ""}
                     daysFromNow={index === 0 ? daysFromNow : undefined}
                     title={event.name}
-                    time={
-                      typeof formatEventDate(event.date) === "object"
-                        ? formatEventDate(event.date).formattedTime
-                        : ""
-                    }
+                    time={time}
                     venue={event.locationName || "TBA"}
                     categoryLabel={event.category?.[0]?.name}
                     categoryColor={categoryColor}
@@ -214,6 +216,8 @@ export default function PlansScreen() {
             weekday: "long",
           });
           const categoryColor = colors.deluge;
+          const formattedDate = formatEventDate(event.date);
+          const time = typeof formattedDate === "object" ? formattedDate.formattedTime : "";
 
           return (
             <UpcomingEventCard
@@ -222,11 +226,7 @@ export default function PlansScreen() {
               month={month}
               dayName={dayName}
               title={event.name}
-              time={
-                typeof formatEventDate(event.date) === "object"
-                  ? formatEventDate(event.date).formattedTime
-                  : ""
-              }
+              time={time}
               venue={event.locationName || "TBA"}
               categoryLabel={event.category?.[0]?.name}
               categoryColor={categoryColor}

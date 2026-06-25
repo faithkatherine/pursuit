@@ -43,3 +43,20 @@ export function calculateEventDuration(
   );
   return days > 1 ? days : null;
 }
+
+/**
+ * Check if an event has already passed.
+ * Uses the endDate if available, otherwise falls back to the start date.
+ *
+ * @param startDate – Event start date string
+ * @param endDate – Event end date string (optional)
+ * @returns true if the event has passed, false otherwise
+ */
+export function isPastEvent(
+  startDate: string,
+  endDate?: string | null,
+): boolean {
+  const now = new Date();
+  const dateToCheck = endDate ? new Date(endDate) : new Date(startDate);
+  return dateToCheck < now;
+}

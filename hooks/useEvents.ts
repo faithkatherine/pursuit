@@ -4,12 +4,16 @@ import {
   GET_SAVED_EVENTS,
   SAVE_EVENT,
   UNSAVE_EVENT,
+  MARK_GOING,
+  UNMARK_GOING,
 } from "graphql/queries";
 import {
   GetEventsQuery,
   GetSavedEventsQuery,
   SaveEventMutation,
   UnsaveEventMutation,
+  MarkGoingMutation,
+  UnmarkGoingMutation,
 } from "graphql/generated/graphql";
 
 export const useEvents = (filters?: {
@@ -58,4 +62,12 @@ export const useSavedEvents = (offset = 0, limit = 20) => {
     ...result,
     savedEvents: result.data?.savedEvents?.events || [],
   };
+};
+
+export const useMarkGoing = () => {
+  return useMutation<MarkGoingMutation>(MARK_GOING);
+};
+
+export const useUnmarkGoing = () => {
+  return useMutation<UnmarkGoingMutation>(UNMARK_GOING);
 };

@@ -51,10 +51,18 @@ export const reconcileLocation = async (
       } else {
         // Denied → disable backend
         console.log("Permission denied, disabling backend");
-        await client.mutate({
-          mutation: DISABLE_LOCATION,
-          refetchQueries: [{ query: GET_HOME }],
-        });
+        try {
+          await client.mutate({
+            mutation: DISABLE_LOCATION,
+            refetchQueries: [{ query: GET_HOME }],
+          });
+        } catch (error) {
+          console.error("Failed to disable location:", error);
+          Alert.alert(
+            "Error",
+            "Couldn't update location settings. Please try again.",
+          );
+        }
         return { shouldSync: false };
       }
     }
@@ -74,10 +82,18 @@ export const reconcileLocation = async (
               style: "cancel",
               onPress: async () => {
                 // User chooses to disable
-                await client.mutate({
-                  mutation: DISABLE_LOCATION,
-                  refetchQueries: [{ query: GET_HOME }],
-                });
+                try {
+                  await client.mutate({
+                    mutation: DISABLE_LOCATION,
+                    refetchQueries: [{ query: GET_HOME }],
+                  });
+                } catch (error) {
+                  console.error("Failed to disable location:", error);
+                  Alert.alert(
+                    "Error",
+                    "Couldn't update location settings. Please try again.",
+                  );
+                }
                 resolve({ shouldSync: false });
               },
             },
@@ -86,10 +102,18 @@ export const reconcileLocation = async (
               onPress: async () => {
                 Linking.openSettings();
                 // Disable backend for now - user can re-enable after granting permission
-                await client.mutate({
-                  mutation: DISABLE_LOCATION,
-                  refetchQueries: [{ query: GET_HOME }],
-                });
+                try {
+                  await client.mutate({
+                    mutation: DISABLE_LOCATION,
+                    refetchQueries: [{ query: GET_HOME }],
+                  });
+                } catch (error) {
+                  console.error("Failed to disable location:", error);
+                  Alert.alert(
+                    "Error",
+                    "Couldn't update location settings. Please try again.",
+                  );
+                }
                 resolve({ shouldSync: false });
               },
             },
@@ -151,16 +175,25 @@ const syncLocationToBackend = async (
       .join(", ");
 
     if (name) {
-      await enableLocationMutation({
-        variables: {
-          locationName: name,
-          location: [
-            currentLocation.coords.latitude,
-            currentLocation.coords.longitude,
-          ],
-        },
-        refetchQueries: [{ query: GET_HOME }],
-      });
+      try {
+        await enableLocationMutation({
+          variables: {
+            locationName: name,
+            location: [
+              currentLocation.coords.latitude,
+              currentLocation.coords.longitude,
+            ],
+          },
+          refetchQueries: [{ query: GET_HOME }],
+        });
+      } catch (error) {
+        console.error("Failed to enable location:", error);
+        Alert.alert(
+          "Error",
+          "Couldn't update your location. Please try again.",
+        );
+        throw error; // Re-throw so caller can handle
+      }
     }
   }
 

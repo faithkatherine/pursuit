@@ -16,11 +16,13 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery } from "@apollo/client";
+import MapView, { Marker } from "react-native-maps";
 
 import { GET_EVENT } from "graphql/queries";
 import { GetEventQuery } from "graphql/generated/graphql";
 import { EventType } from "graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
+import { useGoingToggle } from "hooks/useGoingToggle";
 
 import { Loading, Error } from "components/Layout";
 import { BackButton, SaveButton, CTAButton } from "components/Buttons";
@@ -28,13 +30,14 @@ import { StatTile } from "components/Tiles";
 import { Badge } from "components/Badge";
 import { SavedIndicator } from "components/SavedIndicator";
 import { PriceDisplay } from "components/PriceDisplay";
+import { GoingBanner } from "components/GoingBanner";
 
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { spacing, radii } from "themes/tokens/spacing";
 
 import { getVariant } from "utils/categoryVariants";
-import { formatEventDate, calculateEventDuration } from "utils/date";
+import { formatEventDate, calculateEventDuration, isPastEvent } from "utils/date";
 import { getScarcityBadge, getTicketButtonText } from "utils/eventHelpers";
 
 import DateIcon from "assets/icons/date.svg";
@@ -68,6 +71,11 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
   const { isSaved, saving, handleSave } = useSaveToggle(
     eventId,
     event?.isSaved || false,
+  );
+
+  const { isGoing, processing, handleToggle: handleGoingToggle } = useGoingToggle(
+    eventId,
+    event?.isGoing || false,
   );
 
   const hasTicket = event?.hasConfirmedTicket || false;
@@ -141,6 +149,17 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
   const isSoldOut = event.availableTickets === 0;
   const isFree = event.isFree || event.price === 0;
 
+  // Determine event type based on backend computed fields
+  // Type A: Internal Free (isFree=true, isExternal=false)
+  // Type B: Internal Paid (isFree=false, isExternal=false, ticketingEnabled=true)
+  // Type C: External Free (isFree=true, isExternal=true)
+  // Type D: External Paid (isFree=false, isExternal=true)
+  const isExternal = event.isExternal || false;
+  const isInternalPaid = !isExternal && event.ticketingEnabled && !isFree;
+
+  // Check if event has already passed
+  const eventHasPassed = isPastEvent(event.date, event.endDate);
+
   // Parse gallery images from JSON string
   const galleryImages =
     event.hasGallery && event.galleryImages
@@ -189,6 +208,21 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
 
   const handleViewTicket = () => {
     router.push(`/(protected)/events/${eventId}/confirmation`);
+  };
+
+  const handleMapPress = () => {
+    if (!event.coordinates || event.coordinates.length < 2) return;
+    const [lng, lat] = event.coordinates;
+    if (lng == null || lat == null) return;
+    const label = event.locationName || "Event Location";
+    const scheme = Platform.select({
+      ios: `maps://app?daddr=${lat},${lng}`,
+      android: `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(label)})`,
+    });
+    const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    Linking.openURL(scheme || fallbackUrl).catch(() => {
+      Linking.openURL(fallbackUrl);
+    });
   };
 
   if (isDesktopWeb) {
@@ -431,11 +465,65 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
                   </Pressable>
                 </View>
               )}
+
+              {event.coordinates &&
+               event.coordinates.length >= 2 &&
+               event.coordinates[0] != null &&
+               event.coordinates[1] != null && (
+                <View style={styles.locationSection}>
+                  <Text
+                    style={[
+                      styles.locationSectionLabel,
+                      { color: colors.graniteGray },
+                    ]}
+                  >
+                    LOCATION
+                  </Text>
+                  <Pressable onPress={handleMapPress} testID="map-view">
+                    <MapView
+                      style={styles.map}
+                      initialRegion={{
+                        latitude: event.coordinates[1] as number,
+                        longitude: event.coordinates[0] as number,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                      }}
+                      scrollEnabled={false}
+                      zoomEnabled={false}
+                      pitchEnabled={false}
+                      rotateEnabled={false}
+                      pointerEvents="none"
+                    >
+                      <Marker
+                        coordinate={{
+                          latitude: event.coordinates[1] as number,
+                          longitude: event.coordinates[0] as number,
+                        }}
+                        pinColor={colors.deluge}
+                      />
+                    </MapView>
+                  </Pressable>
+                </View>
+              )}
             </View>
 
             <View style={styles.webAsideColumn}>
               <View style={styles.webBookingPanel}>
-                {hasTicket ? (
+                {eventHasPassed ? (
+                  <>
+                    <Text style={styles.webPanelEyebrow}>Event Status</Text>
+                    <Text style={[styles.webPanelTitle, { color: colors.aluminium }]}>
+                      This event has passed
+                    </Text>
+                    {isGoing && (
+                      <View style={styles.attendedBadge}>
+                        <Text style={[styles.attendedText, { color: v.ctaForeground }]}>
+                          ✓ Attended
+                        </Text>
+                      </View>
+                    )}
+                  </>
+                ) : hasTicket ? (
                   <>
                     <Text style={styles.webPanelEyebrow}>Ticket</Text>
                     <Text style={styles.webPanelTitle}>You're booked</Text>
@@ -449,7 +537,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
                       View ticket
                     </CTAButton>
                   </>
-                ) : event.ticketingEnabled ? (
+                ) : isInternalPaid ? (
                   <>
                     <PriceDisplay
                       price={event.price}
@@ -469,19 +557,60 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
                       {getTicketButtonText(isSoldOut, event.isFree, event.price)}
                     </CTAButton>
                   </>
-                ) : event.moreDetailsUrl ? (
-                  <CTAButton
-                    variant="primary"
-                    onPress={handleMoreDetails}
+                ) : isExternal ? (
+                  <>
+                    <CTAButton
+                      variant="outlined"
+                      onPress={handleMoreDetails}
+                      borderColor={v.ctaForeground}
+                      textColor={v.ctaForeground}
+                      fullWidth
+                    >
+                      More details
+                    </CTAButton>
+                    {isGoing ? (
+                      <GoingBanner
+                        onPress={handleGoingToggle}
+                        backgroundColor={v.ctaButtonBg}
+                        textColor={v.ctaButtonText}
+                        fullWidth
+                        testID="going-banner"
+                      />
+                    ) : (
+                      <CTAButton
+                        variant="primary"
+                        onPress={handleGoingToggle}
+                        backgroundColor={v.ctaButtonBg}
+                        textColor={v.ctaButtonText}
+                        fullWidth
+                        testID="going-button"
+                      >
+                        {processing ? "..." : "Going"}
+                      </CTAButton>
+                    )}
+                  </>
+                ) : isGoing ? (
+                  <GoingBanner
+                    onPress={handleGoingToggle}
                     backgroundColor={v.ctaButtonBg}
                     textColor={v.ctaButtonText}
                     fullWidth
+                    testID="going-banner"
+                  />
+                ) : (
+                  <CTAButton
+                    variant="primary"
+                    onPress={handleGoingToggle}
+                    backgroundColor={v.ctaButtonBg}
+                    textColor={v.ctaButtonText}
+                    fullWidth
+                    testID="going-button"
                   >
-                    More details
+                    {processing ? "..." : "Going"}
                   </CTAButton>
-                ) : null}
+                )}
 
-                {isSaved ? (
+                {isSaved && !eventHasPassed && (
                   <SavedIndicator
                     iconSize={16}
                     iconColor={v.ctaForeground}
@@ -489,17 +618,6 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
                     backgroundColor={v.curatorNoteBg}
                     textColor={v.ctaForeground}
                   />
-                ) : (
-                  <CTAButton
-                    variant="outlined"
-                    onPress={handleSave}
-                    disabled={saving}
-                    borderColor={v.ctaForeground}
-                    textColor={v.ctaForeground}
-                    fullWidth
-                  >
-                    Save to plans
-                  </CTAButton>
                 )}
               </View>
             </View>
@@ -815,6 +933,46 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
             </Pressable>
           </View>
         )}
+
+        {event.coordinates &&
+         event.coordinates.length >= 2 &&
+         event.coordinates[0] != null &&
+         event.coordinates[1] != null && (
+          <View style={styles.locationSection}>
+            <Text
+              style={[
+                styles.locationSectionLabel,
+                { color: colors.graniteGray },
+              ]}
+            >
+              LOCATION
+            </Text>
+            <Pressable onPress={handleMapPress} testID="map-view">
+              <MapView
+                style={styles.map}
+                initialRegion={{
+                  latitude: event.coordinates[1] as number,
+                  longitude: event.coordinates[0] as number,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                scrollEnabled={false}
+                zoomEnabled={false}
+                pitchEnabled={false}
+                rotateEnabled={false}
+                pointerEvents="none"
+              >
+                <Marker
+                  coordinate={{
+                    latitude: event.coordinates[1] as number,
+                    longitude: event.coordinates[0] as number,
+                  }}
+                  pinColor={colors.deluge}
+                />
+              </MapView>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
 
       <View
@@ -827,7 +985,22 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
           },
         ]}
       >
-        {hasTicket ? (
+        {eventHasPassed ? (
+          <View style={styles.ctaContent}>
+            <View style={styles.pastEventNotice}>
+              <Text style={[styles.pastEventText, { color: colors.aluminium }]}>
+                This event has passed
+              </Text>
+              {isGoing && (
+                <View style={styles.attendedBadge}>
+                  <Text style={[styles.attendedText, { color: v.ctaForeground }]}>
+                    ✓ Attended
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        ) : hasTicket ? (
           <View style={styles.ctaContentRow}>
             <CTAButton
               variant="outlined"
@@ -847,7 +1020,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
               View ticket
             </CTAButton>
           </View>
-        ) : event.ticketingEnabled ? (
+        ) : isInternalPaid ? (
           <View style={styles.ctaContentRow}>
             <PriceDisplay
               price={event.price}
@@ -865,44 +1038,57 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
               {getTicketButtonText(isSoldOut, event.isFree, event.price)}
             </CTAButton>
           </View>
-        ) : event.moreDetailsUrl ? (
-          <View style={styles.ctaContent}>
+        ) : isExternal ? (
+          <View style={styles.ctaContentRow}>
             <CTAButton
-              variant="primary"
+              variant="outlined"
               onPress={handleMoreDetails}
-              backgroundColor={v.ctaButtonBg}
-              textColor={v.ctaButtonText}
-              fullWidth
+              borderColor={v.ctaForeground}
+              textColor={v.ctaForeground}
             >
               More details
             </CTAButton>
-            {isSaved && (
-              <SavedIndicator
-                iconSize={12}
-                iconColor={v.ctaForeground}
+            {isGoing ? (
+              <GoingBanner
+                onPress={handleGoingToggle}
+                backgroundColor={v.ctaButtonBg}
+                textColor={v.ctaButtonText}
+                flex={2}
+                testID="going-banner"
               />
+            ) : (
+              <CTAButton
+                variant="primary"
+                onPress={handleGoingToggle}
+                backgroundColor={v.ctaButtonBg}
+                textColor={v.ctaButtonText}
+                flex={2}
+                testID="going-button"
+              >
+                {processing ? "..." : "Going"}
+              </CTAButton>
             )}
           </View>
         ) : (
           <View style={styles.ctaContent}>
-            {isSaved ? (
-              <SavedIndicator
-                iconSize={16}
-                iconColor={v.ctaForeground}
-                showBackground
-                backgroundColor={v.curatorNoteBg}
-                textColor={v.ctaForeground}
+            {isGoing ? (
+              <GoingBanner
+                onPress={handleGoingToggle}
+                backgroundColor={v.ctaButtonBg}
+                textColor={v.ctaButtonText}
+                fullWidth
+                testID="going-banner"
               />
             ) : (
               <CTAButton
-                variant="outlined"
-                onPress={handleSave}
-                disabled={saving}
-                borderColor={v.ctaForeground}
-                textColor={v.ctaForeground}
+                variant="primary"
+                onPress={handleGoingToggle}
+                backgroundColor={v.ctaButtonBg}
+                textColor={v.ctaButtonText}
                 fullWidth
+                testID="going-button"
               >
-                Save to plans
+                {processing ? "..." : "Going"}
               </CTAButton>
             )}
           </View>
@@ -1186,5 +1372,44 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
+  },
+  locationSection: {
+    gap: spacing.sm,
+  },
+  locationSectionLabel: {
+    ...typography.body,
+    fontSize: 18,
+    fontWeight: fontWeights.semibold,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    lineHeight: 24,
+  },
+  map: {
+    width: "100%",
+    height: 200,
+    borderRadius: radii.md,
+  },
+  pastEventNotice: {
+    alignItems: "center",
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+  },
+  pastEventText: {
+    ...typography.body,
+    fontSize: fontSizes.base,
+    lineHeight: 20,
+  },
+  attendedBadge: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.deluge,
+  },
+  attendedText: {
+    ...typography.body,
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.medium,
+    lineHeight: 16,
   },
 });

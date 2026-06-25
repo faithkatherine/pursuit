@@ -14,10 +14,11 @@ import {
   Animated,
   Easing,
   SafeAreaView,
+  InputAccessoryView,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, useApolloClient, gql } from "@apollo/client";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { PaymentMethodRow, TicketStepper, OrderSummaryRow, PhoneInput } from "components/Payments";
@@ -25,6 +26,7 @@ import { Error, Loading } from "components/Layout";
 import type { EventInfoFragment } from "graphql/generated/graphql";
 import { usePayment } from "hooks/usePayment";
 import { useAuth } from "providers/AuthProvider";
+import { GET_EVENT, GET_UPCOMING_PLANS } from "graphql/queries";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii, spacing } from "themes/tokens/spacing";
@@ -112,6 +114,7 @@ export const Checkout = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const apolloClient = useApolloClient();
   const profilePhone = user?.profile?.phoneNumber ?? "";
 
   const [tierQuantities, setTierQuantities] = useState<Record<number, number>>({});
@@ -226,6 +229,13 @@ export const Checkout = () => {
 
   useEffect(() => {
     if (payment.status === "paid" && payment.orderId) {
+      // Refetch queries to update cache after successful payment
+      // This will update hasConfirmedTicket and add event to upcoming plans
+      apolloClient.refetchQueries({
+        include: [GET_EVENT, GET_UPCOMING_PLANS],
+      });
+
+      // Navigate to confirmation
       router.push({
         pathname: "/(protected)/events/[eventId]/confirmation",
         params: {
@@ -235,7 +245,7 @@ export const Checkout = () => {
         },
       });
     }
-  }, [eventId, payment.orderId, payment.receipt, payment.status, router]);
+  }, [apolloClient, eventId, payment.orderId, payment.receipt, payment.status, router]);
 
   useEffect(() => {
     if (payment.error === "already_purchased") {
@@ -425,6 +435,7 @@ export const Checkout = () => {
             value={userDetails.name}
             onChangeText={(text) => setUserDetails((prev) => ({ ...prev, name: text }))}
             style={styles.textInput}
+            inputAccessoryViewID="checkoutInputAccessory"
           />
           <TextInput
             placeholder="your@email.com"
@@ -435,6 +446,7 @@ export const Checkout = () => {
             value={userDetails.email}
             onChangeText={(text) => setUserDetails((prev) => ({ ...prev, email: text }))}
             style={styles.textInput}
+            inputAccessoryViewID="checkoutInputAccessory"
           />
         </View>
 
@@ -452,6 +464,7 @@ export const Checkout = () => {
             onChangeText={setPhoneInput}
             onNormalisedChange={setNormalisedPhone}
             error={payment.error && payment.error.toLowerCase().includes("phone") ? payment.error : null}
+            inputAccessoryViewID="checkoutInputAccessory"
           />
         </View>
 
@@ -488,6 +501,7 @@ export const Checkout = () => {
                 onChangeText={setPromoCode}
                 autoCapitalize="characters"
                 style={styles.promoInput}
+                inputAccessoryViewID="checkoutInputAccessory"
               />
               <Pressable style={styles.applyButton}>
                 <Text style={styles.applyButtonText}>Apply</Text>
@@ -551,6 +565,13 @@ export const Checkout = () => {
           </SafeAreaView>
         </View>
       ) : null}
+
+      {/* Empty input accessory view to hide iOS keyboard toolbar */}
+      {Platform.OS === "ios" && (
+        <InputAccessoryView nativeID="checkoutInputAccessory">
+          <View />
+        </InputAccessoryView>
+      )}
     </SafeAreaView>
   );
 };

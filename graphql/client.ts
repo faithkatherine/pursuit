@@ -233,6 +233,29 @@ const cache = new InMemoryCache({
             return incoming; // Replace with fresh data
           },
         },
+        // Plans queries - merge with deduplication
+        upcomingPlans: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (!incoming) return existing;
+            // Always take incoming data from server as source of truth
+            return incoming;
+          },
+        },
+        pastPlans: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (!incoming) return existing;
+            return incoming;
+          },
+        },
+        savedEvents: {
+          keyArgs: false,
+          merge(existing, incoming) {
+            if (!incoming) return existing;
+            return incoming;
+          },
+        },
       },
     },
     // Type policies for individual entities
@@ -323,12 +346,12 @@ export const client = new ApolloClient({
   defaultOptions: {
     watchQuery: {
       errorPolicy: "all",
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: "cache-and-network", // Show cache + refetch for freshness
       notifyOnNetworkStatusChange: true,
     },
     query: {
       errorPolicy: "all",
-      fetchPolicy: "network-only",
+      fetchPolicy: "cache-and-network", // Always fetch fresh data in background
     },
   },
 });

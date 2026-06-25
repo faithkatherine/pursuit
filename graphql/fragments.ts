@@ -77,6 +77,8 @@ export const EVENT_FRAGMENT = gql`
     galleryDescription
     seriesName
     isFree
+    isExternal
+    isInternal
     isSaved
     isGoing
     hasConfirmedTicket
@@ -85,6 +87,7 @@ export const EVENT_FRAGMENT = gql`
     source
     curatorNote
     curatorName
+    coordinates
     category {
       ...CategoryInfo
     }
