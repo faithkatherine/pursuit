@@ -8,6 +8,7 @@ import {
   Dimensions,
   Platform,
 } from "react-native";
+import { BlurView } from "expo-blur";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii } from "themes/tokens/spacing";
@@ -29,15 +30,20 @@ interface RecommendationCardProps {
   onPress: () => void;
   /** Enable category-specific visual treatment (Made for your week only) */
   useVariant?: boolean;
+  variant?: "default" | "frosted";
 }
 
 export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   event,
   onPress,
   useVariant = false,
+  variant = "default",
 }) => {
-  const variant = useVariant ? getVariant(event) : null;
-  const heartColor = variant ? variant.accentColor : colors.deluge;
+  const categoryVariant = useVariant ? getVariant(event) : null;
+  const isFrosted = variant === "frosted";
+  const heartColor = categoryVariant
+    ? categoryVariant.accentColor
+    : colors.deluge;
 
   const { isSaved, saving, handleSave } = useSaveToggle(
     event.id,
@@ -50,25 +56,36 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
       ? formattedDate
       : formattedDate.formattedDate;
 
-  const cardBackground = variant ? variant.cardBackground : colors.deluge;
-  const titleColor = variant
-    ? variant.isDark
+  const cardBackground = categoryVariant
+    ? categoryVariant.cardBackground
+    : colors.deluge;
+  const titleColor = categoryVariant
+    ? categoryVariant.isDark
       ? colors.white
       : colors.thunder
     : colors.white;
-  const subtitleColor = variant
-    ? variant.isDark
+  const subtitleColor = categoryVariant
+    ? categoryVariant.isDark
       ? colors.white80
       : colors.aluminium
     : colors.white;
-  const subtitleOpacity = variant ? 1 : 0.7;
+  const subtitleOpacity = categoryVariant ? 1 : 0.7;
 
   return (
     <Pressable
       onPress={onPress}
       testID="recommendation-card"
-      style={[styles.container, { backgroundColor: cardBackground }]}
+      style={[
+        styles.container,
+        { backgroundColor: cardBackground },
+        isFrosted && styles.containerFrosted,
+      ]}
     >
+      {isFrosted && (
+        <View pointerEvents="none" style={styles.frostedSurface}>
+          <BlurView intensity={28} tint="light" style={styles.frostedBlur} />
+        </View>
+      )}
       {/* Save button - top right with cutout from card background */}
       <View
         style={[
@@ -115,13 +132,19 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
         <View
           style={[
             styles.priceBadge,
-            variant ? { backgroundColor: variant.badgeBackground } : undefined,
+            categoryVariant
+              ? { backgroundColor: categoryVariant.badgeBackground }
+              : undefined,
+            isFrosted && styles.badgeFrosted,
           ]}
         >
           <Text
             style={[
               styles.priceText,
-              variant ? { color: variant.accentColor } : undefined,
+              categoryVariant
+                ? { color: categoryVariant.accentColor }
+                : undefined,
+              isFrosted && styles.badgeTextFrosted,
             ]}
           >
             {event.isFree ? "Free" : "Paid"}
@@ -129,16 +152,34 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
         </View>
 
         {/* Date badge - bottom right corner */}
-        <View style={styles.dateBadge}>
-          <Text style={styles.dateBadgeLabel}>Date</Text>
-          <Text style={styles.dateBadgeValue}>{dateText}</Text>
+        <View style={[styles.dateBadge, isFrosted && styles.dateBadgeFrosted]}>
+          <Text
+            style={[
+              styles.dateBadgeLabel,
+              isFrosted && styles.dateBadgeLabelFrosted,
+            ]}
+          >
+            Date
+          </Text>
+          <Text
+            style={[
+              styles.dateBadgeValue,
+              isFrosted && styles.dateBadgeValueFrosted,
+            ]}
+          >
+            {dateText}
+          </Text>
         </View>
       </View>
 
       {/* Text content below image */}
       <View style={styles.textContent}>
         <Text
-          style={[styles.eventName, { color: titleColor }]}
+          style={[
+            styles.eventName,
+            { color: titleColor },
+            isFrosted && styles.eventNameFrosted,
+          ]}
           numberOfLines={1}
         >
           {event.name}
@@ -147,6 +188,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
           style={[
             styles.subtitle,
             { color: subtitleColor, opacity: subtitleOpacity },
+            isFrosted && styles.subtitleFrosted,
           ]}
           numberOfLines={1}
         >
@@ -164,6 +206,21 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     backgroundColor: colors.deluge,
     overflow: "visible",
+  },
+  containerFrosted: {
+    backgroundColor: "transparent",
+    overflow: "visible",
+  },
+  frostedSurface: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.white02,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    overflow: "hidden",
+  },
+  frostedBlur: {
+    ...StyleSheet.absoluteFillObject,
   },
   saveButtonOuter: {
     position: "absolute",
@@ -202,6 +259,12 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.semibold,
     color: colors.white,
   },
+  badgeFrosted: {
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+  badgeTextFrosted: {
+    color: colors.white,
+  },
   dateBadge: {
     position: "absolute",
     bottom: 0,
@@ -212,6 +275,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radii.md,
     alignItems: "center",
   },
+  dateBadgeFrosted: {
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
   dateBadgeLabel: {
     fontFamily: typography.caption.fontFamily,
     fontSize: fontSizes.xs,
@@ -219,11 +285,18 @@ const styles = StyleSheet.create({
     color: colors.black,
     opacity: 0.7,
   },
+  dateBadgeLabelFrosted: {
+    color: colors.white,
+    opacity: 1,
+  },
   dateBadgeValue: {
     fontFamily: typography.caption.fontFamily,
     fontSize: fontSizes.xs,
     fontWeight: fontWeights.bold,
     color: colors.black,
+  },
+  dateBadgeValueFrosted: {
+    color: colors.white,
   },
   textContent: {
     paddingHorizontal: 14,
@@ -237,11 +310,18 @@ const styles = StyleSheet.create({
     color: colors.white, // overridden inline when variant is active
     marginBottom: 2,
   },
+  eventNameFrosted: {
+    color: colors.white,
+  },
   subtitle: {
     fontFamily: typography.body.fontFamily,
     fontSize: fontSizes.sm,
     fontWeight: fontWeights.medium,
     color: colors.white, // overridden inline when variant is active
     opacity: 0.7,
+  },
+  subtitleFrosted: {
+    color: colors.white,
+    opacity: 0.75,
   },
 });

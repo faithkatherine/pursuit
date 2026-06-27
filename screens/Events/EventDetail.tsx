@@ -19,8 +19,7 @@ import { useQuery } from "@apollo/client";
 import MapView, { Marker } from "react-native-maps";
 
 import { GET_EVENT } from "graphql/queries";
-import { GetEventQuery } from "graphql/generated/graphql";
-import { EventType } from "graphql/generated/graphql";
+import { GetEventQuery, EventInfoFragment } from "graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
 import { useGoingToggle } from "hooks/useGoingToggle";
 
@@ -66,7 +65,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
     skip: !eventId,
   });
 
-  const event = data?.event?.event as EventType | null;
+  const event = data?.event?.event as EventInfoFragment | null;
 
   const { isSaved, saving, handleSave } = useSaveToggle(
     eventId,

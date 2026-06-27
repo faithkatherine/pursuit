@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import { useRouter } from "expo-router";
 
 import { GET_EVENT } from "graphql/queries";
-import type { EventInfoFragment, EventType, GetEventQuery } from "graphql/generated/graphql";
+import type { EventInfoFragment, GetEventQuery } from "graphql/generated/graphql";
 import { Loading, Error } from "components/Layout";
 import { RecommendationCard } from "components/Cards/RecommendationCard";
 import { formatEventDate } from "utils/date";
@@ -152,7 +152,7 @@ export const EventDetail = ({ eventId, onClose }: EventDetailProps) => {
     variables: { id: eventId },
     skip: !eventId,
   });
-  const event = data?.event?.event as EventType | null | undefined;
+  const event = data?.event?.event as EventInfoFragment | null | undefined;
   const related = MOCK_RELATED_EVENTS.map(relatedToEventInfo);
 
   if (loading) return <Loading />;

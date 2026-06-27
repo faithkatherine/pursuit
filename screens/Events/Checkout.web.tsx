@@ -11,7 +11,7 @@ import { useQuery } from "@apollo/client";
 
 import { Button } from "components/Buttons";
 import { GET_EVENT } from "graphql/queries";
-import type { EventType, GetEventQuery } from "graphql/generated/graphql";
+import type { EventInfoFragment, GetEventQuery } from "graphql/generated/graphql";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii, spacing } from "themes/tokens/spacing";
@@ -36,7 +36,7 @@ const fallbackCheckoutEvent: CheckoutEvent = {
 };
 
 const toCheckoutEvent = (
-  event: EventType | null | undefined,
+  event: EventInfoFragment | null | undefined,
   eventId: string | undefined,
 ): CheckoutEvent => {
   if (!event) {

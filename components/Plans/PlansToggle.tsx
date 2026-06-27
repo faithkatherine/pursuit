@@ -1,19 +1,15 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
+import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 
 interface PlansToggleProps {
   active: "my-plans" | "group-plans";
-  myPlansCount: number;
-  groupPlansCount: number;
   onSelect: (section: "my-plans" | "group-plans") => void;
 }
 
 export const PlansToggle: React.FC<PlansToggleProps> = ({
   active,
-  myPlansCount,
-  groupPlansCount,
   onSelect,
 }) => {
   return (
@@ -26,14 +22,7 @@ export const PlansToggle: React.FC<PlansToggleProps> = ({
           pressed && styles.pillPressed,
         ]}
       >
-        <Text
-          style={[
-            styles.pillText,
-            active === "my-plans" && styles.pillTextActive,
-          ]}
-        >
-          My Plans ({myPlansCount})
-        </Text>
+        <Text style={styles.pillText}>My Plans</Text>
       </Pressable>
 
       <Pressable
@@ -44,14 +33,7 @@ export const PlansToggle: React.FC<PlansToggleProps> = ({
           pressed && styles.pillPressed,
         ]}
       >
-        <Text
-          style={[
-            styles.pillText,
-            active === "group-plans" && styles.pillTextActive,
-          ]}
-        >
-          Group Plans ({groupPlansCount})
-        </Text>
+        <Text style={styles.pillText}>Group Plans</Text>
       </Pressable>
     </View>
   );
@@ -60,30 +42,33 @@ export const PlansToggle: React.FC<PlansToggleProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    gap: 8,
+    justifyContent: "space-between",
+    backgroundColor: colors.white02,
+    height: 50,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+    borderRadius: 25,
   },
   pill: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
     paddingVertical: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    backgroundColor: "transparent",
+    borderRadius: 25,
+    height: 40,
+    width: "50%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   pillActive: {
     backgroundColor: colors.deluge,
-    borderColor: colors.deluge,
   },
   pillPressed: {
     opacity: 0.7,
   },
   pillText: {
-    fontSize: fontSizes.sm,
+    fontSize: fontSizes.base,
+    fontFamily: typography.body.fontFamily,
     fontWeight: fontWeights.bold,
-    lineHeight: 19,
-    color: colors.aluminium,
-  },
-  pillTextActive: {
+    lineHeight: 16,
     color: colors.white,
   },
 });

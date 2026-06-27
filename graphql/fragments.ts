@@ -9,28 +9,17 @@ export const WEATHER_FRAGMENT = gql`
   }
 `;
 
-export const BUCKET_CATEGORY_FRAGMENT = gql`
+export const CATEGORY_FRAGMENT = gql`
   fragment CategoryInfo on CategoryType {
     id
     name
+    slug
     icon
     color
-  }
-`;
-
-export const BUCKET_ITEM_FRAGMENT = gql`
-  fragment BucketItemInfo on BucketItemType {
-    id
-    title
     description
-    image
-    completed
-    categoryId
-    category {
-      ...CategoryInfo
-    }
+    isActive
+    sortOrder
   }
-  ${BUCKET_CATEGORY_FRAGMENT}
 `;
 
 export const USER_BASIC_FRAGMENT = gql`
@@ -88,11 +77,16 @@ export const EVENT_FRAGMENT = gql`
     curatorNote
     curatorName
     coordinates
+    createdAt
+    isActive
+    status
+    updatedAt
+    userStatus
     category {
       ...CategoryInfo
     }
   }
-  ${BUCKET_CATEGORY_FRAGMENT}
+  ${CATEGORY_FRAGMENT}
 `;
 
 export const AUTH_PAYLOAD_FRAGMENT = gql`

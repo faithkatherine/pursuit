@@ -1,8 +1,7 @@
 import { gql } from "@apollo/client";
 
 import {
-  BUCKET_CATEGORY_FRAGMENT,
-  BUCKET_ITEM_FRAGMENT,
+  CATEGORY_FRAGMENT,
   WEATHER_FRAGMENT,
   AUTH_USER_FRAGMENT,
   EVENT_FRAGMENT,
@@ -90,73 +89,20 @@ export const GET_HOME = gql`
     }
   }
   ${WEATHER_FRAGMENT}
-  ${BUCKET_CATEGORY_FRAGMENT}
+  ${CATEGORY_FRAGMENT}
   ${EVENT_FRAGMENT}
 `;
 
-export const ADD_BUCKET_CATEGORY = gql`
-  mutation AddBucketCategory($name: String!, $emoji: String) {
-    addBucketCategory(name: $name, emoji: $emoji) {
-      category {
-        id
-        name
-        icon
-        color
+export const GET_CATEGORIES = gql`
+  query GetCategories {
+    getCategories {
+      ok
+      categories {
+        ...CategoryInfo
       }
     }
   }
-`;
-
-export const ADD_BUCKET_ITEM = gql`
-  mutation AddBucketItem(
-    $title: String!
-    $description: String
-    $estimatedCost: Float
-    $location: String
-    $categoryId: String
-  ) {
-    addBucketItem(
-      title: $title
-      description: $description
-      estimatedCost: $estimatedCost
-      location: $location
-      categoryId: $categoryId
-    ) {
-      bucketItem {
-        id
-        title
-        description
-        amount
-        image
-        completed
-        categoryId
-        category {
-          id
-          name
-          icon
-          color
-        }
-      }
-    }
-  }
-`;
-
-export const GET_BUCKET_CATEGORIES = gql`
-  query GetBucketCategories {
-    getBucketCategories {
-      ...CategoryInfo
-    }
-  }
-  ${BUCKET_CATEGORY_FRAGMENT}
-`;
-
-export const GET_BUCKET_ITEMS = gql`
-  query GetBucketItems($categoryId: String) {
-    getBucketItems(categoryId: $categoryId) {
-      ...BucketItemInfo
-    }
-  }
-  ${BUCKET_ITEM_FRAGMENT}
+  ${CATEGORY_FRAGMENT}
 `;
 
 export const SIGN_IN = gql`
@@ -351,6 +297,7 @@ export const GET_SAVED_EVENTS = gql`
   query GetSavedEvents($offset: Int, $limit: Int) {
     savedEvents(offset: $offset, limit: $limit) {
       ok
+      totalCount
       events {
         ...EventInfo
       }
@@ -436,6 +383,7 @@ export const GET_UPCOMING_PLANS = gql`
   query GetUpcomingPlans($offset: Int, $limit: Int) {
     upcomingPlans(offset: $offset, limit: $limit) {
       ok
+      totalCount
       events {
         ...EventInfo
       }
@@ -448,6 +396,7 @@ export const GET_PAST_PLANS = gql`
   query GetPastPlans($offset: Int, $limit: Int) {
     pastPlans(offset: $offset, limit: $limit) {
       ok
+      totalCount
       events {
         ...EventInfo
       }

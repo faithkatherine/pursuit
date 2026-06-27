@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@apollo/client";
 
 import { GET_EVENT } from "graphql/queries";
-import type { EventType, GetEventQuery } from "graphql/generated/graphql";
+import type { EventInfoFragment, GetEventQuery } from "graphql/generated/graphql";
 import colors from "themes/tokens/colors";
 import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii, spacing } from "themes/tokens/spacing";
@@ -17,7 +17,7 @@ export const Confirmation = () => {
     skip: !eventId,
   });
 
-  const event = data?.event?.event as EventType | null | undefined;
+  const event = data?.event?.event as EventInfoFragment | null | undefined;
   const formattedDate = event ? formatEventDate(event.date) : null;
   const dateText =
     !formattedDate || typeof formattedDate === "string"

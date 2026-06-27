@@ -1,21 +1,24 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
+  Animated,
+  useWindowDimensions,
+  AppState,
 } from "react-native";
-import { useQuery } from "@apollo/client";
+import { useQuery, useApolloClient } from "@apollo/client";
 import { useRouter } from "expo-router";
 import colors from "themes/tokens/colors";
 import { fontSizes, fontWeights } from "themes/tokens/typography";
+import { spacing } from "themes/tokens/spacing";
 import {
   PlansToggle,
   PlansTabs,
   UpcomingEventCard,
   EmptyState,
+  PaginationControls,
 } from "components/Plans";
 import { RecommendationCard } from "components/Cards/RecommendationCard";
 import {
@@ -27,25 +30,52 @@ import {
   GetUpcomingPlansQuery,
   GetPastPlansQuery,
   GetSavedEventsQuery,
+  EventInfoFragment,
 } from "graphql/generated/graphql";
 import { formatEventDate } from "utils/date";
+import { Error, Layout, Loading } from "components/Layout";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PlansRadialGradient } from "themes/gradients";
 
 type TabType = "upcoming" | "past" | "saved";
 type SectionType = "my-plans" | "group-plans";
 
+const ITEMS_PER_PAGE = 5;
+
 export default function PlansScreen() {
   const router = useRouter();
+  const client = useApolloClient();
   const [activeSection, setActiveSection] = useState<SectionType>("my-plans");
   const [activeTab, setActiveTab] = useState<TabType>("upcoming");
+  const [upcomingPage, setUpcomingPage] = useState(1);
+  const [pastPage, setPastPage] = useState(1);
+  const [savedPage, setSavedPage] = useState(1);
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [navigationTabsHeight, setNavigationTabsHeight] = useState(200);
+  const gradientHeight = Math.max(height, navigationTabsHeight);
 
-  // Fetch data for each tab - only fetch active tab to avoid unnecessary queries
+  const fadeStart = navigationTabsHeight - insets.top;
+  const statusBarOpacity = scrollY.interpolate({
+    inputRange: [0, fadeStart * 0.6, fadeStart],
+    outputRange: [0, 0, 1],
+    extrapolate: "clamp",
+  });
+
+  const upcomingOffset = (upcomingPage - 1) * ITEMS_PER_PAGE;
+  const pastOffset = (pastPage - 1) * ITEMS_PER_PAGE;
+  const savedOffset = (savedPage - 1) * ITEMS_PER_PAGE;
+
   const {
     data: upcomingData,
     loading: upcomingLoading,
     error: upcomingError,
   } = useQuery<GetUpcomingPlansQuery>(GET_UPCOMING_PLANS, {
-    variables: { offset: 0, limit: 50 },
+    variables: { offset: upcomingOffset, limit: ITEMS_PER_PAGE },
     skip: activeSection !== "my-plans" || activeTab !== "upcoming",
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -53,8 +83,10 @@ export default function PlansScreen() {
     loading: pastLoading,
     error: pastError,
   } = useQuery<GetPastPlansQuery>(GET_PAST_PLANS, {
-    variables: { offset: 0, limit: 50 },
+    variables: { offset: pastOffset, limit: ITEMS_PER_PAGE },
     skip: activeSection !== "my-plans" || activeTab !== "past",
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -62,23 +94,84 @@ export default function PlansScreen() {
     loading: savedLoading,
     error: savedError,
   } = useQuery<GetSavedEventsQuery>(GET_SAVED_EVENTS, {
-    variables: { offset: 0, limit: 50 },
+    variables: { offset: savedOffset, limit: ITEMS_PER_PAGE },
     skip: activeSection !== "my-plans" || activeTab !== "saved",
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
 
-  const upcomingEvents = upcomingData?.upcomingPlans?.events ?? [];
-  const pastEvents = pastData?.pastPlans?.events ?? [];
-  const savedEvents = savedData?.savedEvents?.events ?? [];
+  const upcomingEvents =
+    upcomingData?.upcomingPlans?.events ?? ([] as EventInfoFragment[]);
+  const pastEvents = pastData?.pastPlans?.events ?? ([] as EventInfoFragment[]);
+  const savedEvents = savedData?.savedEvents?.events ?? ([] as EventInfoFragment[]);
 
-  const counts = {
-    upcoming: upcomingEvents.length,
-    past: pastEvents.length,
-    saved: savedEvents.length,
-  };
+  const upcomingTotalCount = upcomingData?.upcomingPlans?.totalCount ?? 0;
+  const pastTotalCount = pastData?.pastPlans?.totalCount ?? 0;
+  const savedTotalCount = savedData?.savedEvents?.totalCount ?? 0;
 
-  // Group events by date for upcoming timeline
-  const groupEventsByDate = (events: typeof upcomingEvents) => {
-    const grouped: Record<string, typeof upcomingEvents> = {};
+  const upcomingTotalPages = Math.ceil(upcomingTotalCount / ITEMS_PER_PAGE);
+  const pastTotalPages = Math.ceil(pastTotalCount / ITEMS_PER_PAGE);
+  const savedTotalPages = Math.ceil(savedTotalCount / ITEMS_PER_PAGE);
+
+  // Prefetch next page when current page loads
+  useEffect(() => {
+    if (activeSection === "my-plans" && activeTab === "upcoming") {
+      const nextOffset = upcomingPage * ITEMS_PER_PAGE;
+      if (nextOffset < upcomingTotalCount) {
+        client.query({
+          query: GET_UPCOMING_PLANS,
+          variables: { offset: nextOffset, limit: ITEMS_PER_PAGE },
+          fetchPolicy: "network-only",
+        });
+      }
+    }
+  }, [activeTab, activeSection, upcomingPage, upcomingTotalCount, client]);
+
+  useEffect(() => {
+    if (activeSection === "my-plans" && activeTab === "past") {
+      const nextOffset = pastPage * ITEMS_PER_PAGE;
+      if (nextOffset < pastTotalCount) {
+        client.query({
+          query: GET_PAST_PLANS,
+          variables: { offset: nextOffset, limit: ITEMS_PER_PAGE },
+          fetchPolicy: "network-only",
+        });
+      }
+    }
+  }, [activeTab, activeSection, pastPage, pastTotalCount, client]);
+
+  useEffect(() => {
+    if (activeSection === "my-plans" && activeTab === "saved") {
+      const nextOffset = savedPage * ITEMS_PER_PAGE;
+      if (nextOffset < savedTotalCount) {
+        client.query({
+          query: GET_SAVED_EVENTS,
+          variables: { offset: nextOffset, limit: ITEMS_PER_PAGE },
+          fetchPolicy: "network-only",
+        });
+      }
+    }
+  }, [activeTab, activeSection, savedPage, savedTotalCount, client]);
+
+  // Refetch saved events when app comes to foreground to keep cross-tab logic current
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState === "active" && activeTab === "saved") {
+        client.query({
+          query: GET_SAVED_EVENTS,
+          variables: { offset: savedOffset, limit: ITEMS_PER_PAGE },
+          fetchPolicy: "network-only",
+        });
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [activeTab, savedOffset, client]);
+
+  const groupEventsByDate = (events: EventInfoFragment[]) => {
+    const grouped: Record<string, EventInfoFragment[]> = {};
     events.forEach((event) => {
       const dateKey = new Date(event.date).toISOString().split("T")[0];
       if (!grouped[dateKey]) {
@@ -91,19 +184,11 @@ export default function PlansScreen() {
 
   const renderUpcomingContent = () => {
     if (upcomingLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.deluge} />
-        </View>
-      );
+      return <Loading />;
     }
 
     if (upcomingError) {
-      return (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Error loading plans</Text>
-        </View>
-      );
+      return <Error error="Failed to load upcoming events." />;
     }
 
     if (upcomingEvents.length === 0) {
@@ -123,63 +208,80 @@ export default function PlansScreen() {
     const groupedEvents = groupEventsByDate(upcomingEvents);
 
     return (
-      <ScrollView style={styles.scrollView}>
-        {groupedEvents.map(([dateKey, events]) => {
-          const firstEvent = events[0];
-          const eventDate = new Date(firstEvent.date);
-          const dayNumber = eventDate.getDate().toString();
-          const month = eventDate.toLocaleDateString("en-US", {
-            month: "short",
-          }).toUpperCase();
-          const dayName = eventDate.toLocaleDateString("en-US", {
-            weekday: "long",
-          });
+      <>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.eventListContent}
+        >
+          {groupedEvents.map(([dateKey, events]) => {
+            const firstEvent = events[0];
+            const eventDate = new Date(firstEvent.date);
+            const dayNumber = eventDate.getDate().toString();
+            const month = eventDate
+              .toLocaleDateString("en-US", {
+                month: "short",
+              })
+              .toUpperCase();
+            const dayName = eventDate.toLocaleDateString("en-US", {
+              weekday: "long",
+            });
 
-          // Calculate days from now
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const eventDateOnly = new Date(eventDate);
-          eventDateOnly.setHours(0, 0, 0, 0);
-          const diffTime = eventDateOnly.getTime() - today.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          const daysFromNow =
-            diffDays > 0 ? `in ${diffDays} day${diffDays > 1 ? "s" : ""}` : undefined;
+            // Calculate days from now
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const eventDateOnly = new Date(eventDate);
+            eventDateOnly.setHours(0, 0, 0, 0);
+            const diffTime = eventDateOnly.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const daysFromNow =
+              diffDays > 0
+                ? `in ${diffDays} day${diffDays > 1 ? "s" : ""}`
+                : undefined;
 
-          return (
-            <View key={dateKey}>
-              {events.map((event, index) => {
-                const categorySlug = event.category?.[0]?.name?.toLowerCase().replace(/\s+/g, "-") || "";
-                const categoryColor = colors.deluge;
+            return (
+              <View key={dateKey} style={styles.dateGroup}>
+                {events.map((event, index) => {
+                  const categoryColor = colors.deluge;
 
-                const formattedDate = formatEventDate(event.date);
-                const time = typeof formattedDate === "object" ? formattedDate.formattedTime : "";
+                  const formattedDate = formatEventDate(event.date);
+                  const time =
+                    typeof formattedDate === "object"
+                      ? formattedDate.formattedTime
+                      : "";
 
-                return (
-                  <UpcomingEventCard
-                    key={event.id}
-                    dayNumber={index === 0 ? dayNumber : ""}
-                    month={index === 0 ? month : ""}
-                    dayName={index === 0 ? dayName : ""}
-                    daysFromNow={index === 0 ? daysFromNow : undefined}
-                    title={event.name}
-                    time={time}
-                    venue={event.locationName || "TBA"}
-                    categoryLabel={event.category?.[0]?.name}
-                    categoryColor={categoryColor}
-                    isTicketed={event.hasConfirmedTicket ?? false}
-                    statusLabel={
-                      event.hasConfirmedTicket ? "RSVP CONFIRMED" : "GOING"
-                    }
-                    onPress={() =>
-                      router.push(`/(protected)/events/${event.id}`)
-                    }
-                  />
-                );
-              })}
-            </View>
-          );
-        })}
-      </ScrollView>
+                  return (
+                    <UpcomingEventCard
+                      key={event.id}
+                      dayNumber={index === 0 ? dayNumber : ""}
+                      month={index === 0 ? month : ""}
+                      dayName={index === 0 ? dayName : ""}
+                      daysFromNow={index === 0 ? daysFromNow : undefined}
+                      title={event.name}
+                      time={time}
+                      venue={event.locationName || "TBA"}
+                      categoryLabel={event.category?.[0]?.name}
+                      categoryColor={categoryColor}
+                      isTicketed={event.hasConfirmedTicket ?? false}
+                      statusLabel={
+                        event.hasConfirmedTicket ? "RSVP CONFIRMED" : "GOING"
+                      }
+                      onPress={() =>
+                        router.push(`/(protected)/events/${event.id}`)
+                      }
+                    />
+                  );
+                })}
+              </View>
+            );
+          })}
+        </ScrollView>
+        <PaginationControls
+          currentPage={upcomingPage}
+          totalPages={upcomingTotalPages}
+          onPrevious={() => setUpcomingPage((p) => Math.max(1, p - 1))}
+          onNext={() => setUpcomingPage((p) => Math.min(upcomingTotalPages, p + 1))}
+        />
+      </>
     );
   };
 
@@ -205,40 +307,61 @@ export default function PlansScreen() {
     }
 
     return (
-      <ScrollView style={styles.scrollView}>
-        {pastEvents.map((event) => {
-          const eventDate = new Date(event.date);
-          const dayNumber = eventDate.getDate().toString();
-          const month = eventDate.toLocaleDateString("en-US", {
-            month: "short",
-          }).toUpperCase();
-          const dayName = eventDate.toLocaleDateString("en-US", {
-            weekday: "long",
-          });
-          const categoryColor = colors.deluge;
-          const formattedDate = formatEventDate(event.date);
-          const time = typeof formattedDate === "object" ? formattedDate.formattedTime : "";
+      <>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.eventListContent}
+        >
+          {pastEvents.map((event) => {
+            const eventDate = new Date(event.date);
+            const dayNumber = eventDate.getDate().toString();
+            const month = eventDate
+              .toLocaleDateString("en-US", {
+                month: "short",
+              })
+              .toUpperCase();
+            const dayName = eventDate.toLocaleDateString("en-US", {
+              weekday: "long",
+            });
+            const categoryColor = colors.deluge;
+            const formattedDate = formatEventDate(event.date);
+            const time =
+              typeof formattedDate === "object"
+                ? formattedDate.formattedTime
+                : "";
 
-          return (
-            <UpcomingEventCard
-              key={event.id}
-              dayNumber={dayNumber}
-              month={month}
-              dayName={dayName}
-              title={event.name}
-              time={time}
-              venue={event.locationName || "TBA"}
-              categoryLabel={event.category?.[0]?.name}
-              categoryColor={categoryColor}
-              isTicketed={event.hasConfirmedTicket ?? false}
-              statusLabel={
-                event.hasConfirmedTicket ? "ATTENDED" : "WENT"
-              }
-              onPress={() => router.push(`/(protected)/events/${event.id}`)}
-            />
-          );
-        })}
-      </ScrollView>
+            // Use userStatus from backend: 'WENT' or 'SAVED'
+            const statusLabel = event.userStatus === 'SAVED'
+              ? 'SAVED'
+              : event.hasConfirmedTicket
+              ? "ATTENDED"
+              : "WENT";
+
+            return (
+              <UpcomingEventCard
+                key={event.id}
+                dayNumber={dayNumber}
+                month={month}
+                dayName={dayName}
+                title={event.name}
+                time={time}
+                venue={event.locationName || "TBA"}
+                categoryLabel={event.category?.[0]?.name}
+                categoryColor={categoryColor}
+                isTicketed={event.hasConfirmedTicket ?? false}
+                statusLabel={statusLabel}
+                onPress={() => router.push(`/(protected)/events/${event.id}`)}
+              />
+            );
+          })}
+        </ScrollView>
+        <PaginationControls
+          currentPage={pastPage}
+          totalPages={pastTotalPages}
+          onPrevious={() => setPastPage((p) => Math.max(1, p - 1))}
+          onNext={() => setPastPage((p) => Math.min(pastTotalPages, p + 1))}
+        />
+      </>
     );
   };
 
@@ -264,19 +387,28 @@ export default function PlansScreen() {
     }
 
     return (
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.savedGrid}>
-          {savedEvents.map((event) => (
-            <View key={event.id} style={styles.savedCardWrapper}>
-              <RecommendationCard
-                event={event}
-                onPress={() => router.push(`/(protected)/events/${event.id}`)}
-                useVariant={false}
-              />
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+      <>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.savedGrid}>
+            {savedEvents.map((event) => (
+              <View key={event.id} style={styles.savedCardWrapper}>
+                <RecommendationCard
+                  event={event}
+                  onPress={() => router.push(`/(protected)/events/${event.id}`)}
+                  useVariant={false}
+                  variant="frosted"
+                />
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+        <PaginationControls
+          currentPage={savedPage}
+          totalPages={savedTotalPages}
+          onPrevious={() => setSavedPage((p) => Math.max(1, p - 1))}
+          onNext={() => setSavedPage((p) => Math.min(savedTotalPages, p + 1))}
+        />
+      </>
     );
   };
 
@@ -296,53 +428,78 @@ export default function PlansScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>PLANS · YOUR NAIROBI</Text>
+    <Layout backgroundColor={colors.deluge} shouldShowTopInset={false}>
+      <View style={styles.gradientBackground} pointerEvents="none">
+        <PlansRadialGradient width={width} height={gradientHeight} />
       </View>
-
-      {/* Toggle */}
-      <View style={styles.toggleContainer}>
-        <PlansToggle
-          active={activeSection}
-          myPlansCount={counts.upcoming + counts.saved}
-          groupPlansCount={0}
-          onSelect={setActiveSection}
-        />
-      </View>
-
-      {/* Tabs (only show for My Plans) */}
-      {activeSection === "my-plans" && (
-        <View style={styles.tabsContainer}>
-          <PlansTabs
-            active={activeTab}
-            counts={counts}
-            onSelect={setActiveTab}
-          />
-        </View>
-      )}
-
-      {/* Content */}
-      <View style={styles.content}>
-        {activeSection === "my-plans" ? (
-          <>
-            {activeTab === "upcoming" && renderUpcomingContent()}
-            {activeTab === "past" && renderPastContent()}
-            {activeTab === "saved" && renderSavedContent()}
-          </>
-        ) : (
-          renderGroupPlansContent()
+      <Animated.View
+        style={[
+          styles.statusBarFill,
+          { height: insets.top, opacity: statusBarOpacity },
+        ]}
+      />
+      <Animated.ScrollView
+        style={styles.scrollContainer}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
         )}
-      </View>
-    </SafeAreaView>
+      >
+        <View
+          onLayout={(e) => setNavigationTabsHeight(e.nativeEvent.layout.height)}
+        >
+          <View style={[styles.container, { paddingTop: insets.top }]}>
+            <View style={styles.toggleContainer}>
+              <PlansToggle
+                active={activeSection}
+                onSelect={setActiveSection}
+              />
+            </View>
+
+            {/* Tabs (only show for My Plans) */}
+            {activeSection === "my-plans" && (
+              <View style={styles.tabsContainer}>
+                <PlansTabs active={activeTab} onSelect={setActiveTab} />
+              </View>
+            )}
+
+            {/* Content */}
+            <View style={styles.content}>
+              {activeSection === "my-plans" ? (
+                <>
+                  {activeTab === "upcoming" && renderUpcomingContent()}
+                  {activeTab === "past" && renderPastContent()}
+                  {activeTab === "saved" && renderSavedContent()}
+                </>
+              ) : (
+                renderGroupPlansContent()
+              )}
+            </View>
+          </View>
+        </View>
+      </Animated.ScrollView>
+    </Layout>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.ghostWhite,
+  },
+  gradientBackground: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  statusBarFill: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.deluge,
+    zIndex: 1,
   },
   header: {
     paddingHorizontal: 20,
@@ -373,6 +530,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  eventListContent: {
+    paddingVertical: spacing.base,
+    gap: spacing.md,
+  },
+  dateGroup: {
+    gap: spacing.md,
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -392,10 +556,11 @@ const styles = StyleSheet.create({
     color: colors.aluminium,
   },
   savedGrid: {
-    paddingVertical: 16,
-    gap: 16,
+    paddingVertical: spacing.base,
+    alignItems: "center",
+    gap: spacing.lg,
   },
   savedCardWrapper: {
-    marginBottom: 16,
+    marginBottom: spacing.none,
   },
 });

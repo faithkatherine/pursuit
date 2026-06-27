@@ -174,7 +174,7 @@ const cache = new InMemoryCache({
         // into unfiltered results (and vice versa).
         getHome: {
           keyArgs: ["neighborhoodId", "timeFilter"],
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
@@ -229,30 +229,28 @@ const cache = new InMemoryCache({
         },
         // Emoji library - can replace since it's static
         getEmojiLibrary: {
-          merge(existing = [], incoming) {
+          merge(_existing = [], incoming) {
             return incoming; // Replace with fresh data
           },
         },
-        // Plans queries - merge with deduplication
+        // Plans queries - use offset and limit as key args for proper pagination
+        // Each page is cached separately, preventing item accumulation
         upcomingPlans: {
-          keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming) return existing;
-            // Always take incoming data from server as source of truth
+          keyArgs: ["offset", "limit"],
+          merge(_existing, incoming) {
+            // Simply replace - don't merge with other pages
             return incoming;
           },
         },
         pastPlans: {
-          keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming) return existing;
+          keyArgs: ["offset", "limit"],
+          merge(_existing, incoming) {
             return incoming;
           },
         },
         savedEvents: {
-          keyArgs: false,
-          merge(existing, incoming) {
-            if (!incoming) return existing;
+          keyArgs: ["offset", "limit"],
+          merge(_existing, incoming) {
             return incoming;
           },
         },
@@ -263,12 +261,12 @@ const cache = new InMemoryCache({
       fields: {
         // Categories can be dynamic
         name: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
         emoji: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
@@ -278,22 +276,22 @@ const cache = new InMemoryCache({
       fields: {
         // Bucket items will be very dynamic
         completed: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
         amount: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
         title: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
         description: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
@@ -303,12 +301,12 @@ const cache = new InMemoryCache({
       fields: {
         // All nested fields in home data should merge for dynamic updates
         greeting: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
         timeOfDay: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },
@@ -331,7 +329,7 @@ const cache = new InMemoryCache({
           },
         },
         recommendations: {
-          merge(existing, incoming) {
+          merge(_existing, incoming) {
             return incoming;
           },
         },

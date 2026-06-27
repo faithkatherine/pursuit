@@ -4,6 +4,7 @@ export const colors = {
   leather: "rgb(150, 116, 89)",
   aluminium: "rgb(166, 168, 177)",
   careysPink: "rgb(215, 166, 165)",
+  frenchPink: "rgb(255, 110, 154)",
   shilo: "rgb(232, 181, 176)",
   silverSand: "rgb(199, 201, 204)",
   roseFog: "rgb(234, 192, 197)",

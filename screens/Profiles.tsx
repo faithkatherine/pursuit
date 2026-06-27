@@ -16,7 +16,7 @@ import { Layout } from "components/Layout";
 import { AuthContext, type User } from "providers/AuthProvider";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights } from "themes/tokens/typography";
-import { GET_BUCKET_ITEMS } from "../graphql/queries";
+import { GET_SAVED_EVENTS } from "../graphql/queries";
 
 const Profiles = () => {
   const context = useContext(AuthContext);
@@ -27,41 +27,37 @@ const Profiles = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
-  // Fetch bucket items using GraphQL
-  const { data: bucketData } = useQuery(GET_BUCKET_ITEMS);
-  const bucketItems = bucketData?.getBucketItems || [];
-  const completedItems = bucketItems.filter((item: any) => item.completed);
-  const totalValue = bucketItems.reduce(
-    (sum: number, item: any) => sum + (item.amount || 0),
-    0
-  );
-  const completedValue = completedItems.reduce(
-    (sum: number, item: any) => sum + (item.amount || 0),
-    0
-  );
+  // Fetch saved events using GraphQL
+  const { data: eventsData } = useQuery(GET_SAVED_EVENTS);
+  const savedEvents = eventsData?.savedEvents?.events || [];
+  const attendedEvents = savedEvents.filter((event: any) => event.isGoing);
 
-  // Calculate achievements
+  // TODO: Replace with actual spending data from ticket purchases
+  const totalValue = 0;
+  const completedValue = 0;
+
+  // Calculate achievements based on events
   const achievements = [
     {
-      id: "first-bucket",
+      id: "first-event",
       title: "First Adventure",
-      description: "Added your first bucket list item",
+      description: "Saved your first event",
       icon: "🎯",
-      earned: bucketItems.length > 0,
+      earned: savedEvents.length > 0,
     },
     {
-      id: "first-completion",
-      title: "Dream Achiever",
-      description: "Completed your first bucket list item",
+      id: "first-attendance",
+      title: "Event Goer",
+      description: "Attended your first event",
       icon: "✅",
-      earned: completedItems.length > 0,
+      earned: attendedEvents.length > 0,
     },
     {
-      id: "high-roller",
-      title: "High Roller",
-      description: "Added a bucket item worth over $1000",
+      id: "event-explorer",
+      title: "Explorer",
+      description: "Saved 10 or more events",
       icon: "💰",
-      earned: bucketItems.some((item: any) => (item.amount || 0) > 1000),
+      earned: savedEvents.length >= 10,
     },
     {
       id: "explorer",
@@ -139,20 +135,20 @@ const Profiles = () => {
         {/* Stats Overview */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{bucketItems.length}</Text>
-            <Text style={styles.statLabel}>Total Dreams</Text>
+            <Text style={styles.statNumber}>{savedEvents.length}</Text>
+            <Text style={styles.statLabel}>Saved Events</Text>
           </View>
 
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{completedItems.length}</Text>
-            <Text style={styles.statLabel}>Completed</Text>
+            <Text style={styles.statNumber}>{attendedEvents.length}</Text>
+            <Text style={styles.statLabel}>Attended</Text>
           </View>
 
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>
               ${totalValue.toLocaleString()}
             </Text>
-            <Text style={styles.statLabel}>Total Value</Text>
+            <Text style={styles.statLabel}>Total Spent</Text>
           </View>
         </View>
 
@@ -161,12 +157,12 @@ const Profiles = () => {
           <Text style={styles.sectionTitle}>Your Progress</Text>
           <View style={styles.progressRing}>
             <Text style={styles.progressPercentage}>
-              {bucketItems.length > 0
-                ? Math.round((completedItems.length / bucketItems.length) * 100)
+              {savedEvents.length > 0
+                ? Math.round((attendedEvents.length / savedEvents.length) * 100)
                 : 0}
               %
             </Text>
-            <Text style={styles.progressLabel}>Dreams Achieved</Text>
+            <Text style={styles.progressLabel}>Events Attended</Text>
           </View>
         </View>
 

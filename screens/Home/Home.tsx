@@ -101,8 +101,6 @@ const Home = () => {
     (t): t is NonNullable<typeof t> => t != null,
   );
 
-  // Hero card priority: editor's pick → first recommendation
-  // Trips and saved events are now handled by CTA cards
   const heroEditorsPick = editorsPick
     ? {
         id: editorsPick.id,

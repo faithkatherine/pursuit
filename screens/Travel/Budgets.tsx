@@ -13,7 +13,7 @@ import { useQuery } from "@apollo/client";
 import { Layout } from "components/Layout";
 import { colors, theme } from "themes/tokens/colors";
 import { typography, fontWeights } from "themes/tokens/typography";
-import { GET_BUCKET_ITEMS } from "../graphql/queries";
+import { GET_SAVED_EVENTS } from "../graphql/queries";
 
 const Budgets = () => {
   const { width } = useWindowDimensions();
@@ -22,20 +22,13 @@ const Budgets = () => {
     ? Math.min(width - 96, 720)
     : width - 48; // More padding for cleaner look
 
-  // Fetch bucket items using GraphQL
-  const { data: bucketData, loading, error } = useQuery(GET_BUCKET_ITEMS);
+  // Fetch saved events using GraphQL
+  const { data: eventsData, loading, error } = useQuery(GET_SAVED_EVENTS);
 
-  // Calculate spending data from bucket items
-  const bucketItems = bucketData?.getBucketItems || [];
-  const totalBudget = bucketItems.reduce(
-    (sum: number, item: any) => sum + (item.amount || 0),
-    0
-  );
-  const completedItems = bucketItems.filter((item: any) => item.completed);
-  const totalSpent = completedItems.reduce(
-    (sum: number, item: any) => sum + (item.amount || 0),
-    0
-  );
+  // TODO: Calculate spending data from ticket purchases
+  const savedEvents = eventsData?.savedEvents?.events || [];
+  const totalBudget = 0; // TODO: Calculate from user budget settings
+  const totalSpent = 0; // TODO: Calculate from ticket purchase history
   const remaining = totalBudget - totalSpent;
   const savings = remaining * 0.15; // Assume 15% savings rate
 
@@ -224,8 +217,7 @@ const Budgets = () => {
           <View style={styles.insightCard}>
             <Text style={styles.insightIcon}>🎯</Text>
             <Text style={styles.insightText}>
-              {completedItems.length} of {bucketItems.length} bucket items
-              completed
+              {savedEvents.length} events saved for upcoming trips
             </Text>
           </View>
 

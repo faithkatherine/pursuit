@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react-nativ
 import { MockedProvider } from "@apollo/client/testing";
 import { EventDetail } from "../EventDetail";
 import { GET_EVENT } from "graphql/queries";
-import { EventType } from "graphql/generated/graphql";
+import { EventInfoFragment } from "graphql/generated/graphql";
 
 // Mock react-native-safe-area-context
 jest.mock("react-native-safe-area-context", () => ({
@@ -34,7 +34,7 @@ jest.mock("assets/icons/date.svg", () => "DateIcon");
 jest.mock("assets/icons/location.svg", () => "LocationIcon");
 jest.mock("assets/icons/heart.svg", () => "HeartIcon");
 
-const mockEvent: Partial<EventType> = {
+const mockEvent: Partial<EventInfoFragment> = {
   __typename: "EventType",
   id: "event-1",
   name: "Test Event",

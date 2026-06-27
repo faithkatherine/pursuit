@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { BlurView } from "expo-blur";
 import colors from "themes/tokens/colors";
 import { fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii, spacing } from "themes/tokens/spacing";
 
 interface UpcomingEventCardProps {
   // Date column
@@ -59,11 +61,15 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
           pressed && styles.cardPressed,
         ]}
       >
+        <BlurView
+          intensity={30}
+          tint="light"
+          pointerEvents="none"
+          style={styles.cardBlur}
+        />
         <View style={styles.cardContent}>
           {categoryLabel && (
-            <Text style={[styles.categoryLabel, { color: categoryColor }]}>
-              {categoryLabel}
-            </Text>
+            <Text style={styles.categoryLabel}>{categoryLabel}</Text>
           )}
           <Text style={styles.title} numberOfLines={2}>
             {title}
@@ -77,19 +83,21 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
               <View
                 style={[
                   styles.statusBadge,
-                  {
-                    backgroundColor: isTicketed
-                      ? colors.sage
-                      : colors.primaryFixed,
-                  },
+                  statusLabel === 'SAVED'
+                    ? styles.statusBadgeSaved
+                    : isTicketed
+                    ? styles.statusBadgeTicketed
+                    : styles.statusBadgeGoing,
                 ]}
               >
                 <Text
                   style={[
                     styles.statusText,
-                    {
-                      color: isTicketed ? colors.forest : colors.deluge,
-                    },
+                    statusLabel === 'SAVED'
+                      ? styles.statusTextSaved
+                      : isTicketed
+                      ? styles.statusTextTicketed
+                      : styles.statusTextGoing,
                   ]}
                 >
                   {statusLabel}
@@ -111,7 +119,7 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    paddingVertical: 16,
+    paddingVertical: spacing.none,
     alignItems: "flex-start",
   },
   dateColumn: {
@@ -122,13 +130,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "800",
     lineHeight: 37,
-    color: colors.thunder,
+    color: colors.white,
   },
   month: {
     fontSize: 11,
     fontWeight: fontWeights.bold,
     lineHeight: 15,
-    color: colors.aluminium,
+    color: colors.white,
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginTop: 2,
@@ -137,25 +145,28 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: fontWeights.regular,
     lineHeight: 15,
-    color: colors.aluminium,
+    color: colors.white,
     marginTop: 2,
   },
   daysFromNow: {
     fontSize: 11,
     fontWeight: fontWeights.regular,
     lineHeight: 15,
-    color: colors.aluminium,
+    color: colors.white65,
     fontStyle: "italic",
     marginTop: 2,
   },
   card: {
     flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.white02,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.35)",
     borderLeftWidth: 4,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
+    overflow: "hidden",
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -165,13 +176,18 @@ const styles = StyleSheet.create({
   cardPressed: {
     opacity: 0.7,
   },
+  cardBlur: {
+    ...StyleSheet.absoluteFillObject,
+  },
   cardContent: {
     flex: 1,
+    flexShrink: 1,
   },
   categoryLabel: {
     fontSize: 9,
     fontWeight: fontWeights.bold,
     lineHeight: 13,
+    color: colors.white65,
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 4,
@@ -180,14 +196,14 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.lg,
     fontWeight: fontWeights.bold,
     lineHeight: 23,
-    color: colors.thunder,
+    color: colors.white,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: fontSizes.sm,
     fontWeight: fontWeights.regular,
     lineHeight: 21,
-    color: colors.aluminium,
+    color: colors.white65,
     marginBottom: 8,
   },
   statusRow: {
@@ -198,7 +214,16 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 999,
+    borderRadius: radii.full,
+  },
+  statusBadgeTicketed: {
+    backgroundColor: colors.sage,
+  },
+  statusBadgeGoing: {
+    backgroundColor: colors.primaryFixed,
+  },
+  statusBadgeSaved: {
+    backgroundColor: colors.deluge,
   },
   statusText: {
     fontSize: 10,
@@ -207,18 +232,28 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
+  statusTextTicketed: {
+    color: colors.forest,
+  },
+  statusTextGoing: {
+    color: colors.deluge,
+  },
+  statusTextSaved: {
+    color: colors.white,
+  },
   openButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 999,
+    borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: "rgba(255, 255, 255, 0.35)",
     marginLeft: 16,
+    flexShrink: 0,
   },
   openButtonText: {
     fontSize: fontSizes.sm,
     fontWeight: fontWeights.bold,
     lineHeight: 19,
-    color: colors.thunder,
+    color: colors.white,
   },
 });
