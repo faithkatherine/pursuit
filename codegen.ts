@@ -5,11 +5,11 @@ const config: CodegenConfig = {
   // Start backend with: cd ../pursuit-backend && python manage.py runserver
   schema: "http://localhost:8000/graphql/",
   documents: [
-    "graphql/queries.ts",
-    "graphql/fragments.ts",
+    "src/shared/graphql/queries.ts",
+    "src/shared/graphql/fragments.ts",
   ],
   generates: {
-    "./graphql/generated/": {
+    "./src/shared/graphql/generated/": {
       preset: "client",
       plugins: [],
       presetConfig: {

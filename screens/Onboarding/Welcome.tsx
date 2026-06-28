@@ -1,10 +1,10 @@
 import { Layout } from "components/Layout";
 import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
-import colors, { theme } from "themes/tokens/colors";
+import colors, { theme } from "@shared/constants/tokens/colors";
 import TravelIcon from "assets/icons/travel_explore.svg";
-import typography from "themes/tokens/typography";
-import spacing, { layoutSpacing } from "themes/tokens/spacing";
-import { useOnboarding } from "providers/OnboardingProvider";
+import typography from "@shared/constants/tokens/typography";
+import spacing, { layoutSpacing } from "@shared/constants/tokens/spacing";
+import { useOnboarding } from "@mobile/providers/OnboardingProvider";
 import { OnboardingLayout } from "components/Onboarding";
 
 const WelcomeScreen = () => {

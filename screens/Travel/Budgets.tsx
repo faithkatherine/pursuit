@@ -11,9 +11,9 @@ import {
 import { LineChart, PieChart } from "react-native-chart-kit";
 import { useQuery } from "@apollo/client";
 import { Layout } from "components/Layout";
-import { colors, theme } from "themes/tokens/colors";
-import { typography, fontWeights } from "themes/tokens/typography";
-import { GET_SAVED_EVENTS } from "../graphql/queries";
+import { colors, theme } from "@shared/constants/tokens/colors";
+import { typography, fontWeights } from "@shared/constants/tokens/typography";
+import { GET_SAVED_EVENTS } from "@shared/graphql/queries";
 
 const Budgets = () => {
   const { width } = useWindowDimensions();

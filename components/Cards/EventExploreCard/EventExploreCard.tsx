@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "themes/tokens/colors";
+import { colors } from "@shared/constants/tokens/colors";
 import Svg, { Path } from "react-native-svg";
 
 interface EventExploreCardProps {

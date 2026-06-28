@@ -8,19 +8,19 @@ import { Layout, Error, MasonryGrid } from "components/Layout";
 import { Button } from "components/Buttons";
 import { BaseModal } from "components/Modals";
 import { EventExploreCard } from "components/Cards/EventExploreCard";
-import { colors } from "themes/tokens/colors";
-import { useEvents } from "hooks/useEvents";
+import { colors } from "@shared/constants/tokens/colors";
+import { useEvents } from "@shared/hooks/useEvents";
 import {
   filterByCategory,
   filterBySpecificDate,
   isFeaturedEvent,
-} from "utils/eventFilters";
+} from "@shared/utils/eventFilters";
 import {
   isSameDay,
   formatDateLabel,
   getMonthTitle,
   getCalendarDays,
-} from "utils/calendar";
+} from "@shared/utils/calendar";
 
 // Import icons from assets
 import LocationIcon from "assets/icons/location.svg";

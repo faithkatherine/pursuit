@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 import { useApolloClient } from "@apollo/client";
-import { useSaveEvent, useUnsaveEvent } from "hooks/useEvents";
+import { useSaveEvent, useUnsaveEvent } from "@shared/hooks/useEvents";
 
 /**
  * Shared save/unsave toggle logic for event cards.

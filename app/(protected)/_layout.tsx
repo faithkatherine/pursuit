@@ -1,6 +1,6 @@
 import { Stack, Redirect, useSegments } from "expo-router";
 import { Platform } from "react-native";
-import { useAuth } from "providers/AuthProvider";
+import { useAuth } from "@mobile/providers/AuthProvider";
 import { Loading } from "components/Layout";
 
 export default function ProtectedLayout() {

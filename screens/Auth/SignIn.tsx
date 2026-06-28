@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import { useState, useRef } from "react";
 import { useRouter } from "expo-router";
-import { useAuth } from "providers/AuthProvider";
-import { theme } from "themes/tokens/colors";
+import { useAuth } from "@mobile/providers/AuthProvider";
+import { theme } from "@shared/constants/tokens/colors";
 import {
   AuthLayout,
   AuthField,

@@ -1,7 +1,7 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import { TrendingCard } from "../TrendingCard";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 
 jest.mock("graphql/hooks", () => ({
   useSaveEvent: () => [jest.fn()],

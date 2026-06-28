@@ -1,7 +1,7 @@
 import React from "react";
 import { ActivityIndicator } from "react-native";
 import HeartIcon from "assets/icons/heart.svg";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import { Button } from "./Buttons";
 
 interface SaveButtonProps {

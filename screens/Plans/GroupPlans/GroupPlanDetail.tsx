@@ -22,9 +22,9 @@ import {
   useCloseGroupPlan,
   useEventSuggestionsForGroupPlan,
 } from "hooks/useGroupPlans";
-import { colors } from "themes/tokens/colors";
-import { typography } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import { colors } from "@shared/constants/tokens/colors";
+import { typography } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 import { Layout } from "components/Layout/Layout";
 import { BackNavigationHeader } from "components/Layout/BackNavigationHeader";
 

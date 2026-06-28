@@ -5,11 +5,11 @@ import { useRouter } from "expo-router";
 import { Layout, Error } from "components/Layout";
 import { EventExploreCard } from "components/Cards/EventExploreCard";
 import { Button } from "components/Buttons";
-import { useEvents } from "hooks/useEvents";
-import { filterByCategory, isFeaturedEvent } from "utils/eventFilters";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
+import { useEvents } from "@shared/hooks/useEvents";
+import { filterByCategory, isFeaturedEvent } from "@shared/utils/eventFilters";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
 
 const CATEGORIES = [
   "All",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
-import { VoterSessionProvider, useVoterSession } from '../VoterSessionProvider';
+import { VoterSessionProvider, useVoterSession } from "@mobile/providers/VoterSessionProvider";
 
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({

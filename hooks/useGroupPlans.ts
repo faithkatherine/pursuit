@@ -13,8 +13,8 @@ import {
   CREATE_VOTER_SESSION,
   CAST_VOTE,
   GET_EVENT_SUGGESTIONS_FOR_GROUP_PLAN,
-} from '../graphql/queries';
-import { useVoterSession } from '../providers/VoterSessionProvider';
+} from '@shared/graphql/queries';
+import { useVoterSession } from '@mobile/providers/VoterSessionProvider';
 
 export function useCreateGroupPlan() {
   const [createGroupPlan, { loading, error }] = useMutation(CREATE_GROUP_PLAN, {

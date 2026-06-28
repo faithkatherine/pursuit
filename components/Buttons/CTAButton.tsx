@@ -1,6 +1,6 @@
 import { Pressable, Text, StyleSheet } from "react-native";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing, radii } from "themes/tokens/spacing";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing, radii } from "@shared/constants/tokens/spacing";
 
 export interface CTAButtonProps {
   variant: "primary" | "outlined";

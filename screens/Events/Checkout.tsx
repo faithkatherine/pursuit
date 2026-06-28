@@ -23,15 +23,15 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { PaymentMethodRow, TicketStepper, OrderSummaryRow, PhoneInput } from "components/Payments";
 import { Error, Loading } from "components/Layout";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 import { usePayment } from "hooks/usePayment";
-import { useAuth } from "providers/AuthProvider";
-import { GET_EVENT, GET_UPCOMING_PLANS } from "graphql/queries";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
-import { getCategorySlug, getVariant } from "utils/categoryVariants";
-import { formatEventDate } from "utils/date";
+import { useAuth } from "@mobile/providers/AuthProvider";
+import { GET_EVENT, GET_UPCOMING_PLANS } from "@shared/graphql/queries";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
+import { getCategorySlug, getVariant } from "@shared/utils/categoryVariants";
+import { formatEventDate } from "@shared/utils/date";
 
 interface TicketTier {
   id: number;

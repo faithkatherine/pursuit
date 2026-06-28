@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Alert, View, StyleSheet } from "react-native";
 import { useState, useRef } from "react";
 import { useRouter } from "expo-router";
-import { useAuth } from "providers/AuthProvider";
+import { useAuth } from "@mobile/providers/AuthProvider";
 import {
   AuthLayout,
   AuthField,

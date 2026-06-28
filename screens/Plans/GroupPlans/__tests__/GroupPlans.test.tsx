@@ -2,19 +2,19 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import GroupPlans from '../GroupPlans';
-import { useMyGroupPlans, useCreateGroupPlan } from '@/hooks/useGroupPlans';
+import { useMyGroupPlans, useCreateGroupPlan } from 'hooks/useGroupPlans';
 
 // Mock dependencies
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@/hooks/useGroupPlans', () => ({
+jest.mock('hooks/useGroupPlans', () => ({
   useMyGroupPlans: jest.fn(),
   useCreateGroupPlan: jest.fn(),
 }));
 
-jest.mock('@/components/Layout/Layout', () => ({
+jest.mock('components/Layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

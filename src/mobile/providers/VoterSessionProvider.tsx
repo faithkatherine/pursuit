@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import { VOTER_SESSION_KEY } from '@shared/hooks/useVoterSessionLogic';
 
 interface VoterSessionContextType {
   sessionToken: string | null;
@@ -9,8 +10,6 @@ interface VoterSessionContextType {
 }
 
 const VoterSessionContext = createContext<VoterSessionContextType | undefined>(undefined);
-
-const VOTER_SESSION_KEY = 'voter_session_token';
 
 export function VoterSessionProvider({ children }: { children: ReactNode }) {
   const [sessionToken, setSessionTokenState] = useState<string | null>(null);

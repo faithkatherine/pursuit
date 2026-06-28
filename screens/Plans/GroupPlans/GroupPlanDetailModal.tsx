@@ -16,12 +16,12 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
 import { Button } from "components/Buttons";
 import { PlanCard } from "components/Plans";
-import { useAuth } from "providers/AuthProvider";
+import { useAuth } from "@mobile/providers/AuthProvider";
 import {
   useCastVote,
   useCloseGroupPlan,
@@ -33,10 +33,10 @@ import {
 import type {
   GroupPlanEventInfoFragment,
   GroupPlanInfoFragment,
-} from "graphql/generated/graphql";
-import { GroupPlansGroupPlanStatusChoices } from "graphql/generated/graphql";
-import { formatEventDate } from "utils/date";
-import { buildVoteLink } from "utils/linking";
+} from "@shared/graphql/generated/graphql";
+import { GroupPlansGroupPlanStatusChoices } from "@shared/graphql/generated/graphql";
+import { formatEventDate } from "@shared/utils/date";
+import { buildVoteLink } from "@mobile/utils/linking";
 
 interface GroupPlanDetailModalProps {
   groupPlanId: string | null;

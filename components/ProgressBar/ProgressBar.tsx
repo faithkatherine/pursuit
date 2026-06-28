@@ -6,8 +6,8 @@ import {
   StyleProp,
   TextStyle,
 } from "react-native";
-import { colors } from "themes/tokens/colors";
-import { typography, fontSizes } from "themes/tokens/typography";
+import { colors } from "@shared/constants/tokens/colors";
+import { typography, fontSizes } from "@shared/constants/tokens/typography";
 import { Progress } from "graphql/types";
 
 interface ProgressBarProps {

@@ -6,9 +6,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import colors, { theme } from "themes/tokens/colors";
-import spacing, { radii } from "themes/tokens/spacing";
-import typography from "themes/tokens/typography";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import spacing, { radii } from "@shared/constants/tokens/spacing";
+import typography from "@shared/constants/tokens/typography";
 import { OnboardingProgressMarkers } from "./OnboardingProgressMarkers";
 
 interface OnboardingFooterProps {

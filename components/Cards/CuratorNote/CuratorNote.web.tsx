@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 
 const MIN_HEIGHT = 310;
 const PADDING = 32;

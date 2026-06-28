@@ -14,9 +14,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { ShakeAnimatedView, ShakeAnimatedViewRef } from "components/Animations";
-import colors, { theme } from "themes/tokens/colors";
-import { typography } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import { typography } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 
 import ItineraryIcon from "assets/icons/itinerary.svg";
 import Svg, {

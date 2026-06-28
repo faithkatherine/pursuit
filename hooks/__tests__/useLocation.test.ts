@@ -17,7 +17,7 @@ import {
   useLocationPermission,
 } from "../useLocation";
 import { Alert, Linking } from "react-native";
-import { UserType } from "graphql/generated/graphql";
+import { UserType } from "@shared/graphql/generated/graphql";
 
 // Mock expo-location
 jest.mock("expo-location", () => ({

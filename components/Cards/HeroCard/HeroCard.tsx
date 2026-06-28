@@ -8,15 +8,15 @@ import {
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import typography, {
   fontSizes,
   fontWeights,
   letterSpacing,
-} from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+} from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { Button } from "components/Buttons/Buttons";
-import { formatEventDate } from "utils/date";
+import { formatEventDate } from "@shared/utils/date";
 
 export interface HeroCardData {
   id: string;

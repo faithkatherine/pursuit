@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { BlurView } from "expo-blur";
 import { ToggleSwitch } from "components/Buttons";
-import colors from "themes/tokens/colors";
-import typography from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import typography from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 
 interface SwitchCardProps {
   title: string;

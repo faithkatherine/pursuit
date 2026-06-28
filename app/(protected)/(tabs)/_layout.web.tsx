@@ -14,8 +14,8 @@ import DiscoverIcon from "assets/icons/begin_journey.svg";
 import PlansIcon from "assets/icons/plans.svg";
 import GroupIcon from "assets/icons/group_chat.svg";
 import ProfileIcon from "assets/icons/travel_explore.svg";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 
 // ─── Layout constants ──────────────────────────────────────────────────────
 const MAX_CONTENT_WIDTH = 1200;

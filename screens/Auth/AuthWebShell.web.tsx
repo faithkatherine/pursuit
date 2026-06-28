@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 
 // ─── Layout constants ──────────────────────────────────────────────────────
 const CONTENT_PADDING_H = 24;

@@ -14,9 +14,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChevronIcon from "assets/icons/chevron.svg";
 import TravelIcon from "assets/icons/travel_explore.svg";
 
-import colors from "themes/tokens/colors";
-import typography, { fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 
 type TripData = {
   id: string;

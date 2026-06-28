@@ -1,7 +1,7 @@
 import { View, Text, Modal, StyleSheet, Pressable } from "react-native";
 import CloseIcon from "assets/icons/close.svg";
-import colors from "themes/tokens/colors";
-import { radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { radii } from "@shared/constants/tokens/spacing";
 import { Button } from "components/Buttons";
 
 interface BaseModalProps {

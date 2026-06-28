@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
 
 interface TicketCardProps {
   eventTitle: string;

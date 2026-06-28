@@ -1,7 +1,7 @@
 import React from "react";
 import { render, act, waitFor } from "@testing-library/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthProvider, useAuth } from "../AuthProvider";
+import { AuthProvider, useAuth } from "@mobile/providers/AuthProvider";
 import { Alert } from "react-native";
 
 // Mock Alert

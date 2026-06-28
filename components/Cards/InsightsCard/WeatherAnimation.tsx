@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, ViewStyle, UIManager, Platform } from "react-native";
-import { getWeatherAnimation } from "utils/weatherAnimations";
+import { getWeatherAnimation } from "@shared/utils/weatherAnimations";
 
 /**
  * Map OWM icon codes to weather emojis (used when Lottie native module isn't available).

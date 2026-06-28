@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { CuratorNote } from "components/Cards/CuratorNote/CuratorNote.web";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 import HeartIcon from "assets/icons/heart.svg";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
-import { formatEventDate } from "utils/date";
-import { getVariant } from "utils/categoryVariants";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
+import { formatEventDate } from "@shared/utils/date";
+import { getVariant } from "@shared/utils/categoryVariants";
 
 const MAX_CONTENT_WIDTH = 1200;
 const CONTENT_PADDING_H = 48;

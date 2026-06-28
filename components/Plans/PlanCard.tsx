@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
-import type { VoterInfoType } from "graphql/generated/graphql";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
+import type { VoterInfoType } from "@shared/graphql/generated/graphql";
 import { VoterAvatarRow } from "components/VoterAvatarRow";
 
 interface PlanCardProps {

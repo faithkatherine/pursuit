@@ -11,7 +11,7 @@ import {
   useOpenGroupPlanForVoting,
   useCloseGroupPlan,
   useEventSuggestionsForGroupPlan,
-} from '@/hooks/useGroupPlans';
+} from 'hooks/useGroupPlans';
 
 // Mock dependencies
 jest.mock('expo-router', () => ({
@@ -19,12 +19,12 @@ jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@/hooks/useGroupPlans');
-jest.mock('@/components/Layout/Layout', () => ({
+jest.mock('hooks/useGroupPlans');
+jest.mock('components/Layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('@/components/Layout/BackNavigationHeader', () => ({
+jest.mock('components/Layout/BackNavigationHeader', () => ({
   __esModule: true,
   default: () => null,
 }));

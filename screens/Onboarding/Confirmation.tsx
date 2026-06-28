@@ -1,10 +1,10 @@
 import { Layout } from "components/Layout";
 import { OnboardingLayout } from "components/Onboarding";
-import { useOnboarding } from "providers/OnboardingProvider";
+import { useOnboarding } from "@mobile/providers/OnboardingProvider";
 import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import BeginJourneyIcon from "assets/icons/begin_journey.svg";
-import colors from "themes/tokens/colors";
-import typography from "themes/tokens/typography";
+import colors from "@shared/constants/tokens/colors";
+import typography from "@shared/constants/tokens/typography";
 
 export const Confirmation = () => {
   const { currentStep, totalSteps, prevStep, nextStep } = useOnboarding();

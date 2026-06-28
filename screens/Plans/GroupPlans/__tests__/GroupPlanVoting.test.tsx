@@ -7,8 +7,8 @@ import {
   useGroupPlanByShareToken,
   useCreateVoterSession,
   useCastVote,
-} from '@/hooks/useGroupPlans';
-import { useVoterSession } from '@/providers/VoterSessionProvider';
+} from 'hooks/useGroupPlans';
+import { useVoterSession } from '@mobile/providers/VoterSessionProvider';
 
 // Mock dependencies
 jest.mock('expo-router', () => ({
@@ -16,9 +16,9 @@ jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@/hooks/useGroupPlans');
-jest.mock('@/providers/VoterSessionProvider');
-jest.mock('@/components/Layout/Layout', () => ({
+jest.mock('hooks/useGroupPlans');
+jest.mock('@mobile/providers/VoterSessionProvider');
+jest.mock('components/Layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

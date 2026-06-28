@@ -1,13 +1,13 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Button } from "components/Buttons";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 import HeartIcon from "assets/icons/heart.svg";
 import LocationIcon from "assets/icons/location.svg";
 import DateIcon from "assets/icons/date.svg";
 import TicketIcon from "assets/icons/ticket.svg";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
-import { formatEventDate } from "utils/date";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
+import { formatEventDate } from "@shared/utils/date";
 
 const HERO_HEIGHT = 520;
 const IMAGE_FLEX = 1.2;

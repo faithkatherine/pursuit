@@ -6,8 +6,8 @@
 // - Dark variant (concerts-and-nightlife): scroll content is white, so uses solid white + subtle dark tints
 // ---------------------------------------------------------------------------
 
-import { EventInfoFragment } from "graphql/generated/graphql";
-import colors from "themes/tokens/colors";
+import { EventInfoFragment } from "@shared/graphql/generated/graphql";
+import colors from "@shared/constants/tokens/colors";
 
 type CategoryVariant = {
   // Original properties (used in RecommendationCard and other places)

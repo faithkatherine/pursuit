@@ -6,7 +6,7 @@ import {
   UNSAVE_EVENT,
   MARK_GOING,
   UNMARK_GOING,
-} from "graphql/queries";
+} from "@shared/graphql/queries";
 import {
   GetEventsQuery,
   GetSavedEventsQuery,
@@ -14,7 +14,7 @@ import {
   UnsaveEventMutation,
   MarkGoingMutation,
   UnmarkGoingMutation,
-} from "graphql/generated/graphql";
+} from "@shared/graphql/generated/graphql";
 
 export const useEvents = (filters?: {
   search?: string;

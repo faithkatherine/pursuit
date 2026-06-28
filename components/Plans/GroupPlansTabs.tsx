@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
 
 interface TabButtonProps {
   label: string;

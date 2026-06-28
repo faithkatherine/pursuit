@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
 
 interface OrderSummaryRowProps {
   label: string;

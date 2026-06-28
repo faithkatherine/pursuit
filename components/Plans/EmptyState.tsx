@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 import { Button } from "components/Buttons";
 
 interface EmptyStateAction {

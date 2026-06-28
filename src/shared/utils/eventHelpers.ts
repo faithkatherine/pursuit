@@ -1,4 +1,4 @@
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 /**
  * Get scarcity badge data based on available tickets.

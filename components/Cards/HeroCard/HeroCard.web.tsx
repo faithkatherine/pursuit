@@ -1,9 +1,9 @@
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { formatEventDate } from "utils/date";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import { formatEventDate } from "@shared/utils/date";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 
 // ─── Layout constants ──────────────────────────────────────────────────────
 const MAX_CONTENT_WIDTH = 1200;

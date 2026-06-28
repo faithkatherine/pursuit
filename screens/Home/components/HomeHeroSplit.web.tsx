@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { HeroEditorial } from "components/Cards/HeroEditorial/HeroEditorial.web";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 import type {
   HomeCategoryFilter,
   HomeDateFilter,
@@ -8,7 +8,7 @@ import type {
   HomeLocationFilter,
 } from "../hooks/useHomeFilters";
 import { HomeFilterSidebar } from "./HomeFilterSidebar.web";
-import { colors } from "themes/tokens/colors";
+import { colors } from "@shared/constants/tokens/colors";
 
 const MAX_CONTENT_WIDTH = 1200;
 const CONTENT_PADDING_H = 48;

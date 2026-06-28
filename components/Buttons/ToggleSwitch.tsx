@@ -1,5 +1,5 @@
 import { Switch } from "react-native";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 interface ToggleSwitchProps {
   isEnabled: boolean;

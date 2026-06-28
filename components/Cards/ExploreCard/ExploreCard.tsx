@@ -9,10 +9,10 @@ import {
   Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
-import { formatEventDate } from "utils/date";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
+import { formatEventDate } from "@shared/utils/date";
 import LocationIcon from "assets/icons/location.svg";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");

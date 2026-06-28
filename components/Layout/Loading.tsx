@@ -1,4 +1,4 @@
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 
 export const Loading = () => {

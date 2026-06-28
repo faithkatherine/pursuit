@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react-native";
 import { SavedIndicator } from "../SavedIndicator";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 describe("SavedIndicator", () => {
   it("renders indicator variant correctly", () => {

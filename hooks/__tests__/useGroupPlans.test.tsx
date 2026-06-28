@@ -16,10 +16,10 @@ import {
   ADD_EVENT_TO_BUCKET,
   REMOVE_EVENT_FROM_BUCKET,
   CAST_VOTE,
-} from '@/graphql/queries';
+} from '@shared/graphql/queries';
 
 // Mock VoterSessionProvider
-jest.mock('@/providers/VoterSessionProvider', () => ({
+jest.mock('@mobile/providers/VoterSessionProvider', () => ({
   useVoterSession: () => ({
     sessionToken: 'test-session-token',
     setSessionToken: jest.fn(),
@@ -262,7 +262,7 @@ describe('useGroupPlans hooks', () => {
     it('should throw error when no session token', async () => {
       // Override mock for this test
       jest.resetModules();
-      jest.doMock('@/providers/VoterSessionProvider', () => ({
+      jest.doMock('@mobile/providers/VoterSessionProvider', () => ({
         useVoterSession: () => ({
           sessionToken: null,
           setSessionToken: jest.fn(),

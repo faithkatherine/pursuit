@@ -2,12 +2,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@apollo/client";
 
-import { GET_EVENT } from "graphql/queries";
-import type { EventInfoFragment, GetEventQuery } from "graphql/generated/graphql";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
-import { formatEventDate } from "utils/date";
+import { GET_EVENT } from "@shared/graphql/queries";
+import type { EventInfoFragment, GetEventQuery } from "@shared/graphql/generated/graphql";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
+import { formatEventDate } from "@shared/utils/date";
 
 export const Confirmation = () => {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();

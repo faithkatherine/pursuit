@@ -1,6 +1,6 @@
-import colors, { theme } from "themes/tokens/colors";
-import { fontSizes, typography } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import { fontSizes, typography } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import {
   ActivityIndicator,
   Animated,

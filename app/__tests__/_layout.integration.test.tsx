@@ -13,7 +13,7 @@ import { render, waitFor, act } from "@testing-library/react-native";
 import * as Location from "expo-location";
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 import RootLayout from "../_layout";
-import { AuthProvider } from "providers/AuthProvider";
+import { AuthProvider } from "@mobile/providers/AuthProvider";
 
 // Mock expo-router
 jest.mock("expo-router", () => ({

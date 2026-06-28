@@ -3,11 +3,11 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
 
-import { useAuth } from "providers/AuthProvider";
+import { useAuth } from "@mobile/providers/AuthProvider";
 import { AuthButton, AuthField, AuthPrompt, GoogleButton } from "components/Auth";
 import { AuthWebShell } from "./AuthWebShell.web";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
 
 interface SignInFormData {
   email: string;

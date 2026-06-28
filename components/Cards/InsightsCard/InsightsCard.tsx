@@ -7,9 +7,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "themes/tokens/colors";
-import { typography, fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import { colors } from "@shared/constants/tokens/colors";
+import { typography, fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WeatherAnimation } from "./WeatherAnimation";
 

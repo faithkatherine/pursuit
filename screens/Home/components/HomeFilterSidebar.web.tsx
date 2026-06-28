@@ -6,8 +6,8 @@ import type {
   HomeFilters,
   HomeLocationFilter,
 } from "../hooks/useHomeFilters";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 
 const FILTER_SIDEBAR_W = 220;
 const CARD_RADIUS = 12;

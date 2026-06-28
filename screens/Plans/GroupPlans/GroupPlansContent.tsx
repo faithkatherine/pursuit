@@ -17,14 +17,14 @@ import {
   useMyGroupPlans,
   useUpdateGroupPlanName,
 } from "hooks/useGroupPlans";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 import { GroupPlansTabs } from "components/Plans";
 import { Ionicons } from "@expo/vector-icons";
-import type { GetMyGroupPlansQuery } from "graphql/generated/graphql";
+import type { GetMyGroupPlansQuery } from "@shared/graphql/generated/graphql";
 import { GroupPlanDetailModal } from "screens/Plans/GroupPlans/GroupPlanDetailModal";
-import { buildVoteLink } from "utils/linking";
+import { buildVoteLink } from "@mobile/utils/linking";
 import { CreateGroupPlanButton } from "components/CreateGroupPlanButton";
 
 type TabType = "active" | "draft" | "past";

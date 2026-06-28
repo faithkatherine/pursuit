@@ -1,9 +1,9 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import type { VoterInfoType } from "graphql/generated/graphql";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import type { VoterInfoType } from "@shared/graphql/generated/graphql";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 import { VoterAvatar } from "components/VoterAvatar";
 
 interface VoterAvatarRowProps {

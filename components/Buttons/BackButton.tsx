@@ -1,6 +1,6 @@
 import React from "react";
 import BackIcon from "assets/icons/back.svg";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import { Button } from "./Buttons";
 
 interface BackButtonProps {

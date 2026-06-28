@@ -10,11 +10,11 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import colors, { theme } from "themes/tokens/colors";
-import { typography } from "themes/tokens/typography";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import { typography } from "@shared/constants/tokens/typography";
 import { PurpleRadialGradient } from "themes/gradients";
-import { useOnboarding } from "providers/OnboardingProvider";
-import { getGroupedInterests } from "utils/interests";
+import { useOnboarding } from "@mobile/providers/OnboardingProvider";
+import { getGroupedInterests } from "@shared/utils/interests";
 import {
   OnboardingHeader,
   OnboardingFooter,

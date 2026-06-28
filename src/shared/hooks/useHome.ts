@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
-import { GET_HOME } from "graphql/queries";
-import { GetHomeQuery } from "graphql/generated/graphql";
+import { GET_HOME } from "@shared/graphql/queries";
+import { GetHomeQuery } from "@shared/graphql/generated/graphql";
 
 export const useHomeData = (timeFilter?: string | null) => {
   // cache-and-network: last known results render instantly while the network

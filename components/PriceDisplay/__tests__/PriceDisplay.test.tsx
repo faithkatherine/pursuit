@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react-native";
 import { PriceDisplay } from "../PriceDisplay";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 describe("PriceDisplay", () => {
   it("displays 'Free' when isFree is true", () => {

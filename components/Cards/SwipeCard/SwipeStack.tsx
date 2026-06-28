@@ -13,9 +13,9 @@ import Svg, { Path } from "react-native-svg";
 
 import { Button } from "components/Buttons";
 import HeartIcon from "assets/icons/heart.svg";
-import { colors } from "themes/tokens/colors";
-import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import { colors } from "@shared/constants/tokens/colors";
+import { typography, fontWeights, fontSizes } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { ExploreCard } from "components/Cards/ExploreCard";
 import type { ExploreCardData } from "components/Cards/ExploreCard";
 

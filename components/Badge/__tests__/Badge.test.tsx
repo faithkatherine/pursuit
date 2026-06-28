@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react-native";
 import { Badge } from "../Badge";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 describe("Badge", () => {
   it("renders text correctly", () => {

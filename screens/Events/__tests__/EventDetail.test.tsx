@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react-native";
 import { MockedProvider } from "@apollo/client/testing";
 import { EventDetail } from "../EventDetail";
-import { GET_EVENT } from "graphql/queries";
-import { EventInfoFragment } from "graphql/generated/graphql";
+import { GET_EVENT } from "@shared/graphql/queries";
+import { EventInfoFragment } from "@shared/graphql/generated/graphql";
 
 // Mock react-native-safe-area-context
 jest.mock("react-native-safe-area-context", () => ({

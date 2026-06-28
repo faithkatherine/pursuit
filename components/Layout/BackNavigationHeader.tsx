@@ -1,8 +1,8 @@
 import { View, Text } from "react-native";
 import BackIcon from "assets/icons/back.svg";
-import colors, { theme } from "themes/tokens/colors";
-import { typography, fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import { typography, fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { StyleSheet } from "react-native";
 import { Button } from "components/Buttons";
 

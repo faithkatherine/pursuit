@@ -21,14 +21,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RecommendationCard } from "components/Cards/RecommendationCard";
 import { TicketCard } from "components/Payments";
 import { Error as LayoutError } from "components/Layout";
-import { GET_EVENT, GET_EVENTS } from "graphql/queries";
-import type { EventInfoFragment, GetEventQuery, GetEventsQuery } from "graphql/generated/graphql";
-import { getTokens } from "utils/secureStorage";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
-import { getVariant } from "utils/categoryVariants";
-import { formatEventDate } from "utils/date";
+import { GET_EVENT, GET_EVENTS } from "@shared/graphql/queries";
+import type { EventInfoFragment, GetEventQuery, GetEventsQuery } from "@shared/graphql/generated/graphql";
+import { getTokens } from "@mobile/utils/secureStorage";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
+import { getVariant } from "@shared/utils/categoryVariants";
+import { formatEventDate } from "@shared/utils/date";
 
 interface OrderItem {
   tier_name: string;

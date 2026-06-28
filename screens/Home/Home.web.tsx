@@ -2,11 +2,11 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { Error, Layout, Loading } from "components/Layout";
-import type { EventInfoFragment } from "graphql/generated/graphql";
-import { useHomeData } from "hooks/useHome";
-import { useAuth } from "providers/AuthProvider";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
+import { useHomeData } from "@shared/hooks/useHome";
+import { useAuth } from "@mobile/providers/AuthProvider";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 import { HomeGreeting } from "./components/HomeGreeting.web";
 import { HomeHeroSplit } from "./components/HomeHeroSplit.web";
 import { HomeCuratedGrid } from "./components/HomeCuratedGrid.web";

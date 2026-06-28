@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import colors from "themes/tokens/colors";
-import { fontSizes } from "themes/tokens/typography";
-import { spacing, radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes } from "@shared/constants/tokens/typography";
+import { spacing, radii } from "@shared/constants/tokens/spacing";
 
 interface StatTileProps {
   /** Label text displayed above the value */

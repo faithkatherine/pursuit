@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import { useQuery, useApolloClient } from "@apollo/client";
 import { useRouter } from "expo-router";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 import {
   PlansToggle,
   PlansTabs,
@@ -25,14 +25,14 @@ import {
   GET_UPCOMING_PLANS,
   GET_PAST_PLANS,
   GET_SAVED_EVENTS,
-} from "graphql/queries";
+} from "@shared/graphql/queries";
 import {
   GetUpcomingPlansQuery,
   GetPastPlansQuery,
   GetSavedEventsQuery,
   EventInfoFragment,
-} from "graphql/generated/graphql";
-import { formatEventDate } from "utils/date";
+} from "@shared/graphql/generated/graphql";
+import { formatEventDate } from "@shared/utils/date";
 import { Error, Layout, Loading } from "components/Layout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PlansRadialGradient } from "themes/gradients";

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 
 export interface PriceDisplayProps {
   price: number | null | undefined;

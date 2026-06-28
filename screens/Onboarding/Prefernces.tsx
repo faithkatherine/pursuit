@@ -6,15 +6,15 @@ import {
   View,
 } from "react-native";
 import { OnboardingLayout } from "components/Onboarding/OnboardingLayout";
-import { useOnboarding } from "providers/OnboardingProvider";
+import { useOnboarding } from "@mobile/providers/OnboardingProvider";
 import { Layout } from "components/Layout";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import ScheduleEventsIcon from "assets/icons/schedule_events.svg";
 import { useForm } from "react-hook-form";
 import { Button } from "components/Buttons";
 import { Switch } from "react-native-gesture-handler";
 import { SwitchCard } from "components/Cards/SwitchCard/SwitchCard";
-import typography from "themes/tokens/typography";
+import typography from "@shared/constants/tokens/typography";
 import { BlushPurpleRadialGradient } from "themes/gradients";
 
 export const Prefernces = () => {

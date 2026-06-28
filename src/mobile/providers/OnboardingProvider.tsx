@@ -4,12 +4,12 @@ import { useAuth } from "./AuthProvider";
 import * as Notifications from "expo-notifications";
 import { Alert, Platform } from "react-native";
 import { useMutation } from "@apollo/client";
-import { SKIP_ONBOARDING, COMPLETE_ONBOARDING } from "graphql/queries";
+import { SKIP_ONBOARDING, COMPLETE_ONBOARDING } from "@shared/graphql/queries";
 import {
   SkipOnboardingMutation,
   CompleteOnboardingMutation,
   CompleteOnboardingMutationVariables,
-} from "graphql/generated/graphql";
+} from "@shared/graphql/generated/graphql";
 import { useLocationPermission } from "hooks/useLocation";
 
 interface OnboardingContextType {

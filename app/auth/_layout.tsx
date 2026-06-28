@@ -1,8 +1,8 @@
 import { Stack, Redirect } from "expo-router";
-import { useAuth } from "providers/AuthProvider";
+import { useAuth } from "@mobile/providers/AuthProvider";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
-import { getHasSeenGetStarted } from "utils/secureStorage";
+import { getHasSeenGetStarted } from "@mobile/utils/secureStorage";
 import { Loading } from "components/Layout";
 
 export default function AuthLayout() {

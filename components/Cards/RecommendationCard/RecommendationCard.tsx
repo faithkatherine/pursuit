@@ -9,14 +9,14 @@ import {
   Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { useSaveToggle } from "hooks/useSaveToggle";
 import { SaveButton } from "components/Buttons";
-import { formatEventDate } from "utils/date";
-import { getVariant } from "utils/categoryVariants";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import { formatEventDate } from "@shared/utils/date";
+import { getVariant } from "@shared/utils/categoryVariants";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = Platform.OS === "web" ? 360 : SCREEN_WIDTH * 0.7;

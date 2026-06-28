@@ -12,13 +12,13 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useAuth } from "providers/AuthProvider";
+import { useAuth } from "@mobile/providers/AuthProvider";
 import { images } from "assets/images";
-import { theme } from "themes/tokens/colors";
-import typography from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import { theme } from "@shared/constants/tokens/colors";
+import typography from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { Button } from "components/Buttons";
-import { setHasSeenGetStarted } from "utils/secureStorage";
+import { setHasSeenGetStarted } from "@mobile/utils/secureStorage";
 
 const GetStarted = () => {
   const router = useRouter();

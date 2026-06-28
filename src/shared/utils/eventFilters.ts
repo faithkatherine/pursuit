@@ -1,4 +1,4 @@
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 
 /**
  * Filter events by category

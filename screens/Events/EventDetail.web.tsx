@@ -3,13 +3,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "expo-router";
 
-import { GET_EVENT } from "graphql/queries";
-import type { EventInfoFragment, GetEventQuery } from "graphql/generated/graphql";
+import { GET_EVENT } from "@shared/graphql/queries";
+import type { EventInfoFragment, GetEventQuery } from "@shared/graphql/generated/graphql";
 import { Loading, Error } from "components/Layout";
 import { RecommendationCard } from "components/Cards/RecommendationCard";
-import { formatEventDate } from "utils/date";
-import { colors } from "themes/tokens/colors";
-import { webTypography } from "themes/tokens/typography";
+import { formatEventDate } from "@shared/utils/date";
+import { colors } from "@shared/constants/tokens/colors";
+import { webTypography } from "@shared/constants/tokens/typography";
 
 interface EventDetailProps {
   eventId: string;

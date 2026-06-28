@@ -1,11 +1,11 @@
 import React from "react";
 import { Text, Image, View, StyleSheet, Pressable } from "react-native";
-import colors, { theme } from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import { SaveButton } from "components/Buttons";
-import { formatEventDate } from "utils/date";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import { formatEventDate } from "@shared/utils/date";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
 
 interface TrendingCardProps {

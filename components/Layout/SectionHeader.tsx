@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button } from "components/Buttons";
-import { typography, fontWeights } from "themes/tokens/typography";
-import colors, { theme } from "themes/tokens/colors";
-import { radii } from "themes/tokens/spacing";
+import { typography, fontWeights } from "@shared/constants/tokens/typography";
+import colors, { theme } from "@shared/constants/tokens/colors";
+import { radii } from "@shared/constants/tokens/spacing";
 
 interface SectionHeaderProps {
   title: string;

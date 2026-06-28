@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
-import colors from "../tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 interface PlansRadialGradientProps {
   width: number;

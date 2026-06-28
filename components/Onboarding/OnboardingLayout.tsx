@@ -1,6 +1,6 @@
 import { Platform, View, StyleSheet } from "react-native";
-import colors from "themes/tokens/colors";
-import spacing from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import spacing from "@shared/constants/tokens/spacing";
 import { OnboardingFooter } from "./OnboardingFooter";
 import { OnboardingHeader } from "./OnboardingHeader";
 import { OnboardingProgressMarkers } from "./OnboardingProgressMarkers";

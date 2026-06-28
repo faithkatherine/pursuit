@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
 import { StatTile } from "../StatTile";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 describe("StatTile", () => {
   const defaultProps = {

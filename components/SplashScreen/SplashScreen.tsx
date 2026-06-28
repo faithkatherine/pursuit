@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { StyleSheet, Text, Animated, Easing } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "themes/tokens/colors";
-import { radii } from "themes/tokens/spacing";
+import { colors } from "@shared/constants/tokens/colors";
+import { radii } from "@shared/constants/tokens/spacing";
 
 interface SplashScreenProps {
   onFinish?: () => void;

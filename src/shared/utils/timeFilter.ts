@@ -1,4 +1,4 @@
-import type { TimeFilter } from "types/time";
+import type { TimeFilter } from "@shared/types/time";
 
 export const TIME_FILTERS: { key: TimeFilter; label: string }[] = [
   { key: "tonight", label: "Tonight" },

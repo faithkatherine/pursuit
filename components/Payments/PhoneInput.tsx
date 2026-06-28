@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
 
 interface PhoneInputProps {
   value: string;

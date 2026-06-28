@@ -1,11 +1,11 @@
 import React from "react";
 import { ScrollView, Text, Pressable, StyleSheet } from "react-native";
 import { useQuery } from "@apollo/client";
-import { GET_EMOJI_LIBRARY } from "graphql/queries";
+import { GET_EMOJI_LIBRARY } from "@shared/graphql/queries";
 import { Loading, Error } from "components/Layout";
 import { GetEmojiLibraryQuery } from "graphql/types";
-import colors from "themes/tokens/colors";
-import { radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { radii } from "@shared/constants/tokens/spacing";
 
 interface EmojiPickerProps {
   selectedEmoji: string;

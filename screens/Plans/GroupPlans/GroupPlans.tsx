@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useMyGroupPlans, useCreateGroupPlan } from "hooks/useGroupPlans";
-import colors from "themes/tokens/colors";
-import { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 import { Layout } from "components/Layout/Layout";
 import { GroupPlansTabs } from "components/Plans";
 import { Ionicons } from "@expo/vector-icons";

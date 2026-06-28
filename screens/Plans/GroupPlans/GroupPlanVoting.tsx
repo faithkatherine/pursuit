@@ -26,10 +26,10 @@ import {
   useCreateVoterSession,
   useCastVote,
 } from "hooks/useGroupPlans";
-import { useVoterSession } from "providers/VoterSessionProvider";
-import { colors } from "themes/tokens/colors";
-import { typography } from "themes/tokens/typography";
-import { spacing } from "themes/tokens/spacing";
+import { useVoterSession } from "@mobile/providers/VoterSessionProvider";
+import { colors } from "@shared/constants/tokens/colors";
+import { typography } from "@shared/constants/tokens/typography";
+import { spacing } from "@shared/constants/tokens/spacing";
 import { Layout } from "components/Layout/Layout";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");

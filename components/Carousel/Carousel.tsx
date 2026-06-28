@@ -2,10 +2,10 @@ import { FlatList, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Fragment } from "react/jsx-runtime";
 import { ReactNode, useRef } from "react";
 import Chevron from "assets/icons/chevron.svg";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "../Buttons";
-import { fontWeights } from "themes/tokens/typography";
+import { fontWeights } from "@shared/constants/tokens/typography";
 import { SectionHeader } from "components/Layout";
 interface CarouselProps {
   header: ReactNode;

@@ -3,8 +3,8 @@ import { Alert, Linking } from "react-native";
 import * as Location from "expo-location";
 import { useMutation, ApolloClient } from "@apollo/client";
 import type { NormalizedCacheObject } from "@apollo/client";
-import { GET_HOME, ENABLE_LOCATION, DISABLE_LOCATION } from "graphql/queries";
-import { UserType } from "graphql/generated/graphql";
+import { GET_HOME, ENABLE_LOCATION, DISABLE_LOCATION } from "@shared/graphql/queries";
+import { UserType } from "@shared/graphql/generated/graphql";
 
 // Module-level session guard for proactive permission prompt
 let hasPromptedThisSession = false;

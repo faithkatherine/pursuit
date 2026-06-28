@@ -20,19 +20,19 @@ import { TrendingCard } from "components/Cards/TrendingCard";
 import { RecommendationCard } from "components/Cards/RecommendationCard";
 import { HeroCard, type HeroCardData } from "components/Cards/HeroCard";
 import { Carousel } from "components/Carousel";
-import type { EventInfoFragment } from "graphql/generated/graphql";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
 
 import ScheduleIcon from "assets/icons/schedule_events.svg";
 
-import { colors } from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import { colors } from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 
-import { useHomeData } from "hooks/useHome";
+import { useHomeData } from "@shared/hooks/useHome";
 import { useLocationPermission } from "hooks/useLocation";
 import { CTACard } from "components/Cards/CTACard";
-import type { TimeFilter } from "types/time";
-import { TIME_FILTERS, FILTER_LABELS, getHoursUntil } from "utils/timeFilter";
+import type { TimeFilter } from "@shared/types/time";
+import { TIME_FILTERS, FILTER_LABELS, getHoursUntil } from "@shared/utils/timeFilter";
 
 // ---------------------------------------------------------------------------
 // Home screen

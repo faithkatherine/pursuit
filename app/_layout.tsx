@@ -1,11 +1,11 @@
 import { ApolloProvider } from "@apollo/client";
 import { useApolloClientDevTools } from "@dev-plugins/apollo-client";
-import { client } from "graphql/client";
+import { client } from "@mobile/apollo/mobileApolloClient";
 import { StatusBar } from "expo-status-bar";
 import { Slot, SplashScreen } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AuthProvider, useAuth } from "providers/AuthProvider";
-import { VoterSessionProvider } from "providers/VoterSessionProvider";
+import { AuthProvider, useAuth } from "@mobile/providers/AuthProvider";
+import { VoterSessionProvider } from "@mobile/providers/VoterSessionProvider";
 import { reconcileLocation, useLocationSync } from "hooks/useLocation";
 import { useEffect, useState, useCallback } from "react";
 import { Platform } from "react-native";

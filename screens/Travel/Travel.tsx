@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Layout } from "components/Layout";
-import { colors, theme } from "themes/tokens/colors";
-import { typography, fontWeights, fontSizes } from "themes/tokens/typography";
-import { radii } from "themes/tokens/spacing";
+import { colors, theme } from "@shared/constants/tokens/colors";
+import { typography, fontWeights, fontSizes } from "@shared/constants/tokens/typography";
+import { radii } from "@shared/constants/tokens/spacing";
 import BeginJourneyIcon from "assets/icons/begin_journey.svg";
 
 const Travel = () => {

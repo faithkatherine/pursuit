@@ -18,8 +18,8 @@ import { useRouter } from "expo-router";
 import { useQuery } from "@apollo/client";
 import MapView, { Marker } from "react-native-maps";
 
-import { GET_EVENT } from "graphql/queries";
-import { GetEventQuery, EventInfoFragment } from "graphql/generated/graphql";
+import { GET_EVENT } from "@shared/graphql/queries";
+import { GetEventQuery, EventInfoFragment } from "@shared/graphql/generated/graphql";
 import { useSaveToggle } from "hooks/useSaveToggle";
 import { useGoingToggle } from "hooks/useGoingToggle";
 
@@ -31,13 +31,13 @@ import { SavedIndicator } from "components/SavedIndicator";
 import { PriceDisplay } from "components/PriceDisplay";
 import { GoingBanner } from "components/GoingBanner";
 
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing, radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing, radii } from "@shared/constants/tokens/spacing";
 
-import { getVariant } from "utils/categoryVariants";
-import { formatEventDate, calculateEventDuration, isPastEvent } from "utils/date";
-import { getScarcityBadge, getTicketButtonText } from "utils/eventHelpers";
+import { getVariant } from "@shared/utils/categoryVariants";
+import { formatEventDate, calculateEventDuration, isPastEvent } from "@shared/utils/date";
+import { getScarcityBadge, getTicketButtonText } from "@shared/utils/eventHelpers";
 
 import DateIcon from "assets/icons/date.svg";
 import LocationIcon from "assets/icons/location.svg";

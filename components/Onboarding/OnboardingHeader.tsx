@@ -1,8 +1,8 @@
 import { StyleSheet, View } from "react-native";
 import { Button } from "components/Buttons";
 import BackIcon from "assets/icons/back.svg";
-import colors from "themes/tokens/colors";
-import { radii } from "themes/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
+import { radii } from "@shared/constants/tokens/spacing";
 
 interface OnboardingHeaderProps {
   showBackButton?: boolean;

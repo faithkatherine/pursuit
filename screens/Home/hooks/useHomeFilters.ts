@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import type { EventInfoFragment } from "graphql/generated/graphql";
-import type { TimeFilter } from "types/time";
-import { filterByCategory, filterByDate, filterByLocation } from "utils/eventFilters";
-import { TIME_FILTERS } from "utils/timeFilter";
+import type { EventInfoFragment } from "@shared/graphql/generated/graphql";
+import type { TimeFilter } from "@shared/types/time";
+import { filterByCategory, filterByDate, filterByLocation } from "@shared/utils/eventFilters";
+import { TIME_FILTERS } from "@shared/utils/timeFilter";
 
 export const HOME_CATEGORY_FILTERS = [
   "All",

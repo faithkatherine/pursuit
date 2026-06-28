@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { Alert } from "react-native";
-import { MARK_GOING, UNMARK_GOING, GET_UPCOMING_PLANS } from "graphql/queries";
+import { MARK_GOING, UNMARK_GOING, GET_UPCOMING_PLANS } from "@shared/graphql/queries";
 import {
   MarkGoingMutation,
   UnmarkGoingMutation,
-} from "graphql/generated/graphql";
+} from "@shared/graphql/generated/graphql";
 
 /**
  * Shared going/not-going toggle logic for event detail screen.

@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import OnboardingProvider from "providers/OnboardingProvider";
+import OnboardingProvider from "@mobile/providers/OnboardingProvider";
 
 const OnboardingLayout = () => {
   return (

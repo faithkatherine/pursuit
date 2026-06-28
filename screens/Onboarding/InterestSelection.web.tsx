@@ -2,11 +2,11 @@ import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Layout } from "components/Layout";
-import { useOnboarding } from "providers/OnboardingProvider";
-import { getGroupedInterests } from "utils/interests";
-import colors from "themes/tokens/colors";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { radii, spacing } from "themes/tokens/spacing";
+import { useOnboarding } from "@mobile/providers/OnboardingProvider";
+import { getGroupedInterests } from "@shared/utils/interests";
+import colors from "@shared/constants/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { radii, spacing } from "@shared/constants/tokens/spacing";
 
 export const InterestSelection = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);

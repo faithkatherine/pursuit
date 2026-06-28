@@ -13,10 +13,10 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useQuery } from "@apollo/client";
 import { Layout } from "components/Layout";
-import { AuthContext, type User } from "providers/AuthProvider";
-import { colors, theme } from "themes/tokens/colors";
-import { typography, fontWeights } from "themes/tokens/typography";
-import { GET_SAVED_EVENTS } from "../graphql/queries";
+import { AuthContext, type User } from "@mobile/providers/AuthProvider";
+import { colors, theme } from "@shared/constants/tokens/colors";
+import { typography, fontWeights } from "@shared/constants/tokens/typography";
+import { GET_SAVED_EVENTS } from "@shared/graphql/queries";
 
 const Profiles = () => {
   const context = useContext(AuthContext);

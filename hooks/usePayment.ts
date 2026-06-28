@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-import { getTokens, storeTokens } from "utils/secureStorage";
+import { getTokens, storeTokens } from "@mobile/utils/secureStorage";
 
 interface TierSelection {
   tier_id: number;

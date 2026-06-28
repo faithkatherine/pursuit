@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react-native";
 import { CTAButton } from "../CTAButton";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 describe("CTAButton", () => {
   const mockOnPress = jest.fn();

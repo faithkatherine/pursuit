@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
-import typography, { fontSizes, fontWeights } from "themes/tokens/typography";
-import { spacing, radii } from "themes/tokens/spacing";
-import colors from "themes/tokens/colors";
+import typography, { fontSizes, fontWeights } from "@shared/constants/tokens/typography";
+import { spacing, radii } from "@shared/constants/tokens/spacing";
+import colors from "@shared/constants/tokens/colors";
 import HeartIcon from "assets/icons/heart.svg";
 
 export interface SavedIndicatorProps {

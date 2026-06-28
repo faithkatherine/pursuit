@@ -4,7 +4,7 @@ import PlansIcon from "assets/icons/plans.svg";
 import ExploreIcon from "assets/icons/schedule_events.svg";
 import ProfileIcon from "assets/icons/processing_events.svg";
 import { StyleSheet, Platform } from "react-native";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TabLayout = () => {

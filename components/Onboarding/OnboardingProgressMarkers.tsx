@@ -1,5 +1,5 @@
 import { View, StyleSheet } from "react-native";
-import colors from "themes/tokens/colors";
+import colors from "@shared/constants/tokens/colors";
 
 interface OnboardingProgressMarkersProps {
   currentStep: number;

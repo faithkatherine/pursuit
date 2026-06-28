@@ -100,7 +100,7 @@ jest.mock('react-native', () => {
 });
 
 // Mock color and typography imports
-jest.mock('themes/tokens/colors', () => ({
+jest.mock('@shared/constants/tokens/colors', () => ({
   colors: {
     prim: "rgb(248, 243, 248)",
     thunder: "rgb(63, 50, 61)",
@@ -148,7 +148,7 @@ jest.mock('themes/tokens/colors', () => ({
   },
 }));
 
-jest.mock('themes/tokens/typography', () => ({
+jest.mock('@shared/constants/tokens/typography', () => ({
   typography: {
     h1: { fontFamily: 'Work Sans', fontWeight: 'bold' },
     h2: { fontFamily: 'Work Sans', fontWeight: 'bold' },
@@ -183,7 +183,7 @@ jest.mock('themes/tokens/typography', () => ({
   },
 }));
 
-jest.mock('themes/tokens/spacing', () => ({
+jest.mock('@shared/constants/tokens/spacing', () => ({
   spacing: {
     xs: 4,
     sm: 8,
