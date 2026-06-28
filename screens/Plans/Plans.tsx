@@ -16,7 +16,7 @@ import { spacing } from "themes/tokens/spacing";
 import {
   PlansToggle,
   PlansTabs,
-  UpcomingEventCard,
+  PlanCard,
   EmptyState,
   PaginationControls,
 } from "components/Plans";
@@ -36,6 +36,10 @@ import { formatEventDate } from "utils/date";
 import { Error, Layout, Loading } from "components/Layout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PlansRadialGradient } from "themes/gradients";
+import ScheduleEventsIcon from "assets/icons/schedule_events.svg";
+import ProcessingEventsIcon from "assets/icons/processing_events.svg";
+import PlansIcon from "assets/icons/plans.svg";
+import { GroupPlansContent } from "screens/Plans/GroupPlans";
 
 type TabType = "upcoming" | "past" | "saved";
 type SectionType = "my-plans" | "group-plans";
@@ -54,7 +58,9 @@ export default function PlansScreen() {
   const { width, height } = useWindowDimensions();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [navigationTabsHeight, setNavigationTabsHeight] = useState(200);
+  const [plansChromeHeight, setPlansChromeHeight] = useState(0);
   const gradientHeight = Math.max(height, navigationTabsHeight);
+  const contentMinHeight = Math.max(0, height - insets.top - plansChromeHeight);
 
   const fadeStart = navigationTabsHeight - insets.top;
   const statusBarOpacity = scrollY.interpolate({
@@ -194,13 +200,9 @@ export default function PlansScreen() {
     if (upcomingEvents.length === 0) {
       return (
         <EmptyState
-          icon="🗓️"
-          title="Nothing booked yet."
-          subtitle="Buy tickets or tap Going on events to see them here."
-          ctaLabel="Browse events →"
-          onCta={() => router.push("/(protected)/(tabs)/")}
-          nudgeLabel="plan with friends"
-          onNudge={() => setActiveSection("group-plans")}
+          illustration={<ScheduleEventsIcon width="100%" height="100%" />}
+          title="Nothing coming up"
+          subtitle="Events you're going to will appear here"
         />
       );
     }
@@ -250,7 +252,7 @@ export default function PlansScreen() {
                       : "";
 
                   return (
-                    <UpcomingEventCard
+                    <PlanCard
                       key={event.id}
                       dayNumber={index === 0 ? dayNumber : ""}
                       month={index === 0 ? month : ""}
@@ -297,11 +299,9 @@ export default function PlansScreen() {
     if (pastEvents.length === 0) {
       return (
         <EmptyState
-          icon="🕐"
-          title="Your past events will appear here."
-          subtitle="Events you attended show up after they've passed."
-          ctaLabel="Browse upcoming events →"
-          onCta={() => setActiveTab("upcoming")}
+          illustration={<ProcessingEventsIcon width="100%" height="100%" />}
+          title="No past events"
+          subtitle="Events you've attended will show up here"
         />
       );
     }
@@ -338,7 +338,7 @@ export default function PlansScreen() {
               : "WENT";
 
             return (
-              <UpcomingEventCard
+              <PlanCard
                 key={event.id}
                 dayNumber={dayNumber}
                 month={month}
@@ -377,11 +377,9 @@ export default function PlansScreen() {
     if (savedEvents.length === 0) {
       return (
         <EmptyState
-          icon="♡"
-          title="Save events for later."
-          subtitle="Tap ♡ on any event to save it here."
-          ctaLabel="Explore events →"
-          onCta={() => router.push("/(protected)/explore")}
+          illustration={<PlansIcon width="100%" height="100%" />}
+          title="Nothing saved yet"
+          subtitle="Save events you're interested in and they'll appear here"
         />
       );
     }
@@ -413,18 +411,7 @@ export default function PlansScreen() {
   };
 
   const renderGroupPlansContent = () => {
-    return (
-      <EmptyState
-        icon="👥"
-        title="No group plans yet"
-        subtitle="Create a shortlist of events, invite friends via WhatsApp, and vote on where to go."
-        ctaLabel="+ CREATE A GROUP PLAN"
-        onCta={() => {
-          // Stub for now
-          console.log("Create group plan");
-        }}
-      />
-    );
+    return <GroupPlansContent />;
   };
 
   return (
@@ -440,6 +427,7 @@ export default function PlansScreen() {
       />
       <Animated.ScrollView
         style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
         scrollEventThrottle={16}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -450,22 +438,27 @@ export default function PlansScreen() {
           onLayout={(e) => setNavigationTabsHeight(e.nativeEvent.layout.height)}
         >
           <View style={[styles.container, { paddingTop: insets.top }]}>
-            <View style={styles.toggleContainer}>
-              <PlansToggle
-                active={activeSection}
-                onSelect={setActiveSection}
-              />
+            <View
+              style={styles.plansChrome}
+              onLayout={(e) => setPlansChromeHeight(e.nativeEvent.layout.height)}
+            >
+              <View style={styles.toggleContainer}>
+                <PlansToggle
+                  active={activeSection}
+                  onSelect={setActiveSection}
+                />
+              </View>
+
+              {/* Tabs (only show for My Plans) */}
+              {activeSection === "my-plans" && (
+                <View style={styles.tabsContainer}>
+                  <PlansTabs active={activeTab} onSelect={setActiveTab} />
+                </View>
+              )}
             </View>
 
-            {/* Tabs (only show for My Plans) */}
-            {activeSection === "my-plans" && (
-              <View style={styles.tabsContainer}>
-                <PlansTabs active={activeTab} onSelect={setActiveTab} />
-              </View>
-            )}
-
             {/* Content */}
-            <View style={styles.content}>
+            <View style={[styles.content, { minHeight: contentMinHeight }]}>
               {activeSection === "my-plans" ? (
                 <>
                   {activeTab === "upcoming" && renderUpcomingContent()}
@@ -493,6 +486,9 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   statusBarFill: {
     position: "absolute",
     top: 0,
@@ -515,6 +511,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     letterSpacing: 0.8,
+  },
+  plansChrome: {
+    width: "100%",
   },
   toggleContainer: {
     paddingHorizontal: 20,

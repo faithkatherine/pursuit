@@ -2,12 +2,20 @@ import React from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import colors from "themes/tokens/colors";
 import { fontSizes, fontWeights } from "themes/tokens/typography";
+import { radii, spacing } from "themes/tokens/spacing";
 import type { EventInfoFragment } from "graphql/generated/graphql";
+import { Button } from "components/Buttons";
+
+interface EmptyStateAction {
+  label: string;
+  onPress: () => void;
+}
 
 interface EmptyStateProps {
-  icon: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
+  illustration?: React.ReactNode;
+  action?: EmptyStateAction;
   ctaLabel?: string;
   onCta?: () => void;
   nudgeLabel?: string;
@@ -17,9 +25,10 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon,
   title,
   subtitle,
+  illustration,
+  action,
   ctaLabel,
   onCta,
   nudgeLabel,
@@ -27,33 +36,29 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   suggestedEvents,
   renderSuggestedCard,
 }) => {
+  const resolvedAction =
+    action ?? (ctaLabel && onCta ? { label: ctaLabel, onPress: onCta } : null);
+
   return (
     <View style={styles.container}>
-      {/* Icon circle */}
-      <View style={styles.iconCircle}>
-        <Text style={styles.iconText}>{icon}</Text>
-      </View>
+      {illustration ? (
+        <View style={styles.illustrationFrame}>{illustration}</View>
+      ) : null}
 
-      {/* Title */}
       <Text style={styles.title}>{title}</Text>
 
-      {/* Subtitle */}
-      <Text style={styles.subtitle}>{subtitle}</Text>
+      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
 
-      {/* Primary CTA */}
-      {ctaLabel && onCta && (
-        <Pressable
-          onPress={onCta}
-          style={({ pressed }) => [
-            styles.ctaButton,
-            pressed && styles.ctaButtonPressed,
-          ]}
-        >
-          <Text style={styles.ctaButtonText}>{ctaLabel}</Text>
-        </Pressable>
+      {resolvedAction && (
+        <Button
+          text={resolvedAction.label}
+          onPress={resolvedAction.onPress}
+          variant="primary"
+          style={styles.ctaButton}
+          textStyle={styles.ctaButtonText}
+        />
       )}
 
-      {/* Nudge link */}
       {nudgeLabel && onNudge && (
         <Pressable
           onPress={onNudge}
@@ -90,50 +95,40 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 64,
+    gap: spacing.base,
+    paddingHorizontal: spacing["2xl"],
+    paddingVertical: spacing["5xl"],
   },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.surfaceContainerLow,
+  illustrationFrame: {
+    width: 220,
+    aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
-  },
-  iconText: {
-    fontSize: 32,
-    lineHeight: 37,
-    color: colors.aluminium,
   },
   title: {
     fontSize: fontSizes.xl,
     fontWeight: fontWeights.semibold,
     lineHeight: 26,
-    color: colors.thunder,
+    color: colors.white,
     textAlign: "center",
-    marginTop: 16,
   },
   subtitle: {
     fontSize: fontSizes.base,
     fontWeight: fontWeights.regular,
     lineHeight: 24,
-    color: colors.aluminium,
+    color: colors.white65,
     textAlign: "center",
-    marginTop: 8,
-    maxWidth: 280,
+    maxWidth: 260,
   },
   ctaButton: {
-    marginTop: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 999,
+    width: "100%",
+    maxWidth: 320,
+    borderRadius: radii.full,
     backgroundColor: colors.primaryFixed,
-  },
-  ctaButtonPressed: {
-    opacity: 0.7,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   ctaButtonText: {
     fontSize: fontSizes.base,
@@ -142,8 +137,7 @@ const styles = StyleSheet.create({
     color: colors.deluge,
   },
   nudgeButton: {
-    marginTop: 12,
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   nudgeButtonPressed: {
     opacity: 0.7,
@@ -157,18 +151,18 @@ const styles = StyleSheet.create({
   },
   suggestedSection: {
     width: "100%",
-    marginTop: 32,
+    marginTop: spacing.base,
   },
   suggestedTitle: {
     fontSize: fontSizes.lg,
     fontWeight: fontWeights.semibold,
     lineHeight: 23,
-    color: colors.thunder,
-    marginBottom: 16,
+    color: colors.white,
+    marginBottom: spacing.base,
   },
   suggestedScroll: {
-    gap: 16,
-    paddingRight: 16,
+    gap: spacing.base,
+    paddingRight: spacing.base,
   },
   suggestedCardWrapper: {
     width: 280,

@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { Slot, SplashScreen } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "providers/AuthProvider";
+import { VoterSessionProvider } from "providers/VoterSessionProvider";
 import { reconcileLocation, useLocationSync } from "hooks/useLocation";
 import { useEffect, useState, useCallback } from "react";
 import { Platform } from "react-native";
@@ -100,7 +101,9 @@ export default function RootLayout() {
       <StatusBar style="light" translucent />
       <ApolloProvider client={client}>
         <AuthProvider>
-          <RootLayoutContent />
+          <VoterSessionProvider>
+            <RootLayoutContent />
+          </VoterSessionProvider>
         </AuthProvider>
       </ApolloProvider>
     </SafeAreaProvider>

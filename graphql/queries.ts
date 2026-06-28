@@ -5,6 +5,10 @@ import {
   WEATHER_FRAGMENT,
   AUTH_USER_FRAGMENT,
   EVENT_FRAGMENT,
+  USER_BASIC_FRAGMENT,
+  GROUP_PLAN_FRAGMENT,
+  GROUP_PLAN_EVENT_FRAGMENT,
+  VOTER_SESSION_FRAGMENT,
 } from "./fragments";
 
 export const COMPLETE_ONBOARDING = gql`
@@ -430,4 +434,171 @@ export const UNMARK_GOING = gql`
     }
   }
   ${EVENT_FRAGMENT}
+`;
+
+// Group Plans queries
+export const GET_MY_GROUP_PLANS = gql`
+  query GetMyGroupPlans {
+    myGroupPlans {
+      id
+      creator {
+        ...UserBasic
+      }
+      name
+      displayName
+      status
+      bucketEvents {
+        id
+        event {
+          id
+          name
+          image
+          date
+        }
+        interestedCount
+      }
+      invitations {
+        id
+        shareToken
+        isActive
+      }
+      createdAt
+      updatedAt
+    }
+  }
+  ${USER_BASIC_FRAGMENT}
+`;
+
+export const GET_GROUP_PLAN = gql`
+  query GetGroupPlan($id: ID!) {
+    groupPlan(id: $id) {
+      ...GroupPlanInfo
+    }
+  }
+  ${GROUP_PLAN_FRAGMENT}
+`;
+
+export const GET_GROUP_PLAN_BY_SHARE_TOKEN = gql`
+  query GetGroupPlanByShareToken($shareToken: String!) {
+    groupPlanByShareToken(shareToken: $shareToken) {
+      ...GroupPlanInfo
+    }
+  }
+  ${GROUP_PLAN_FRAGMENT}
+`;
+
+export const GET_EVENT_SUGGESTIONS_FOR_GROUP_PLAN = gql`
+  query GetEventSuggestionsForGroupPlan($groupPlanId: ID!, $date: Date) {
+    eventSuggestionsForGroupPlan(groupPlanId: $groupPlanId, date: $date) {
+      ...EventInfo
+    }
+  }
+  ${EVENT_FRAGMENT}
+`;
+
+// Group Plans mutations
+export const CREATE_GROUP_PLAN = gql`
+  mutation CreateGroupPlan($name: String) {
+    createGroupPlan(name: $name) {
+      groupPlan {
+        ...GroupPlanInfo
+      }
+    }
+  }
+  ${GROUP_PLAN_FRAGMENT}
+`;
+
+export const ADD_EVENT_TO_BUCKET = gql`
+  mutation AddEventToBucket($groupPlanId: ID!, $eventId: ID!) {
+    addEventToBucket(groupPlanId: $groupPlanId, eventId: $eventId) {
+      groupPlanEvent {
+        ...GroupPlanEventInfo
+      }
+    }
+  }
+  ${GROUP_PLAN_EVENT_FRAGMENT}
+`;
+
+export const REMOVE_EVENT_FROM_BUCKET = gql`
+  mutation RemoveEventFromBucket($groupPlanEventId: ID!) {
+    removeEventFromBucket(groupPlanEventId: $groupPlanEventId) {
+      success
+    }
+  }
+`;
+
+export const REORDER_BUCKET_EVENTS = gql`
+  mutation ReorderBucketEvents($groupPlanId: ID!, $orderedIds: [ID!]!) {
+    reorderBucketEvents(groupPlanId: $groupPlanId, orderedIds: $orderedIds) {
+      bucketEvents {
+        ...GroupPlanEventInfo
+      }
+    }
+  }
+  ${GROUP_PLAN_EVENT_FRAGMENT}
+`;
+
+export const UPDATE_GROUP_PLAN_NAME = gql`
+  mutation UpdateGroupPlanName($groupPlanId: ID!, $name: String!) {
+    updateGroupPlanName(groupPlanId: $groupPlanId, name: $name) {
+      groupPlan {
+        id
+        name
+        displayName
+      }
+    }
+  }
+`;
+
+export const OPEN_GROUP_PLAN_FOR_VOTING = gql`
+  mutation OpenGroupPlanForVoting($groupPlanId: ID!) {
+    openGroupPlanForVoting(groupPlanId: $groupPlanId) {
+      groupPlan {
+        id
+        status
+      }
+    }
+  }
+`;
+
+export const CLOSE_GROUP_PLAN = gql`
+  mutation CloseGroupPlan($groupPlanId: ID!) {
+    closeGroupPlan(groupPlanId: $groupPlanId) {
+      groupPlan {
+        id
+        status
+      }
+    }
+  }
+`;
+
+export const CREATE_VOTER_SESSION = gql`
+  mutation CreateVoterSession($shareToken: String!, $voterName: String) {
+    createVoterSession(shareToken: $shareToken, voterName: $voterName) {
+      voterSession {
+        ...VoterSessionInfo
+      }
+    }
+  }
+  ${VOTER_SESSION_FRAGMENT}
+`;
+
+export const CAST_VOTE = gql`
+  mutation CastVote(
+    $groupPlanEventId: ID!
+    $sessionToken: String!
+    $direction: VoteDirectionEnum!
+  ) {
+    castVote(
+      groupPlanEventId: $groupPlanEventId
+      sessionToken: $sessionToken
+      direction: $direction
+    ) {
+      vote {
+        id
+        direction
+        castAt
+      }
+    }
+  }
 `;

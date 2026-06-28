@@ -4,8 +4,10 @@ import { BlurView } from "expo-blur";
 import colors from "themes/tokens/colors";
 import { fontSizes, fontWeights } from "themes/tokens/typography";
 import { radii, spacing } from "themes/tokens/spacing";
+import type { VoterInfoType } from "graphql/generated/graphql";
+import { VoterAvatarRow } from "components/VoterAvatarRow";
 
-interface UpcomingEventCardProps {
+interface PlanCardProps {
   // Date column
   dayNumber: string;
   month: string;
@@ -24,11 +26,15 @@ interface UpcomingEventCardProps {
   ticketCount?: number;
   tierNames?: string[];
   statusLabel?: string;
+  variant?: "default" | "frosted" | "voting";
+  voters?: VoterInfoType[];
+  interestedCount?: number;
+  isWinner?: boolean;
 
   onPress: () => void;
 }
 
-export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
+export const PlanCard: React.FC<PlanCardProps> = ({
   dayNumber,
   month,
   dayName,
@@ -40,24 +46,32 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
   categoryColor,
   isTicketed,
   statusLabel,
+  variant = "default",
+  voters = [],
+  interestedCount = 0,
+  isWinner = false,
   onPress,
 }) => {
+  const isVoting = variant === "voting";
+
   return (
     <View style={styles.row}>
-      {/* Date column */}
-      <View style={styles.dateColumn}>
-        <Text style={styles.dayNumber}>{dayNumber}</Text>
-        <Text style={styles.month}>{month}</Text>
-        <Text style={styles.dayName}>{dayName}</Text>
-        {daysFromNow && <Text style={styles.daysFromNow}>{daysFromNow}</Text>}
-      </View>
+      {!isVoting && (
+        <View style={styles.dateColumn}>
+          <Text style={styles.dayNumber}>{dayNumber}</Text>
+          <Text style={styles.month}>{month}</Text>
+          <Text style={styles.dayName}>{dayName}</Text>
+          {daysFromNow && <Text style={styles.daysFromNow}>{daysFromNow}</Text>}
+        </View>
+      )}
 
-      {/* Card */}
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
           styles.card,
+          isVoting && styles.votingCard,
           { borderLeftColor: categoryColor },
+          isWinner && styles.winnerCard,
           pressed && styles.cardPressed,
         ]}
       >
@@ -78,7 +92,14 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
             {time} · {venue}
           </Text>
 
-          {statusLabel && (
+          {isVoting && (
+            <VoterAvatarRow
+              voters={voters}
+              interestedCount={interestedCount}
+            />
+          )}
+
+          {!isVoting && statusLabel && (
             <View style={styles.statusRow}>
               <View
                 style={[
@@ -107,10 +128,11 @@ export const UpcomingEventCard: React.FC<UpcomingEventCardProps> = ({
           )}
         </View>
 
-        {/* Open button */}
-        <Pressable style={styles.openButton} onPress={onPress}>
-          <Text style={styles.openButtonText}>Open</Text>
-        </Pressable>
+        {!isVoting && (
+          <Pressable style={styles.openButton} onPress={onPress}>
+            <Text style={styles.openButtonText}>Open</Text>
+          </Pressable>
+        )}
       </Pressable>
     </View>
   );
@@ -172,6 +194,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
+  },
+  votingCard: {
+    borderLeftWidth: 0,
+  },
+  winnerCard: {
+    borderLeftWidth: 3,
+    borderLeftColor: colors.deluge,
   },
   cardPressed: {
     opacity: 0.7,

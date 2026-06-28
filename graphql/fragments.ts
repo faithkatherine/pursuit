@@ -132,3 +132,81 @@ export const FULL_PROFILE_FRAGMENT = gql`
     loginCount
   }
 `;
+
+export const VOTER_INFO_FRAGMENT = gql`
+  fragment VoterInfo on VoterInfoType {
+    displayInitial
+    displayColor
+    voterName
+    profilePicture
+  }
+`;
+
+export const GROUP_PLAN_EVENT_FRAGMENT = gql`
+  fragment GroupPlanEventInfo on GroupPlanEventType {
+    id
+    event {
+      ...EventInfo
+    }
+    addedBy {
+      ...UserBasic
+    }
+    ordering
+    interestedCount
+    voters {
+      ...VoterInfo
+    }
+    addedAt
+  }
+  ${EVENT_FRAGMENT}
+  ${USER_BASIC_FRAGMENT}
+  ${VOTER_INFO_FRAGMENT}
+`;
+
+export const VOTE_INVITATION_FRAGMENT = gql`
+  fragment VoteInvitationInfo on VoteInvitationType {
+    id
+    shareToken
+    isActive
+    createdAt
+  }
+`;
+
+export const VOTER_SESSION_FRAGMENT = gql`
+  fragment VoterSessionInfo on IndividualVoterSessionType {
+    id
+    sessionToken
+    displayInitial
+    displayColor
+    voterName
+    hasCompletedStack
+    myVotes
+  }
+`;
+
+export const GROUP_PLAN_FRAGMENT = gql`
+  fragment GroupPlanInfo on GroupPlanType {
+    id
+    creator {
+      ...UserBasic
+    }
+    name
+    displayName
+    status
+    bucketEvents {
+      ...GroupPlanEventInfo
+    }
+    invitations {
+      ...VoteInvitationInfo
+    }
+    myVoterSession {
+      ...VoterSessionInfo
+    }
+    createdAt
+    updatedAt
+  }
+  ${USER_BASIC_FRAGMENT}
+  ${GROUP_PLAN_EVENT_FRAGMENT}
+  ${VOTE_INVITATION_FRAGMENT}
+  ${VOTER_SESSION_FRAGMENT}
+`;
